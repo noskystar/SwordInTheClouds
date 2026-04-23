@@ -35,6 +35,21 @@ Thumbs.db
 # Testing
 coverage/
 
+# Unit/E2E test sources (keep repo clean if tests aren't meant to ship)
+tests/
+__tests__/
+**/*.test.*
+**/*.spec.*
+
+# QA / local debug scripts (ad-hoc, not product code)
+qa-*.mjs
+test-*.mjs
+
+# QA artifacts (screenshots, reports, recordings)
+.gstack/
+playwright-report/
+test-results/
+
 # Vite cache
 .vite/
 

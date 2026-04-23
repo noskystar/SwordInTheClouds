@@ -59,15 +59,18 @@ export class OverworldScene extends Scene {
   update(): void {
     if (this.dialoguePanel?.isVisible()) {
       this.dialoguePanel.handleInput();
+      this.eKeyWasDown = this.eKey.isDown;
       return;
     }
     if (this.isDialogueOpen) {
       this.checkDialogueClose();
+      this.eKeyWasDown = this.eKey.isDown;
       return;
     }
     this.checkTeleportZones();
     this.checkNPCProximity();
     this.checkInteractions();
+    this.eKeyWasDown = this.eKey.isDown;
   }
 
   private generateTextures(): void {
@@ -292,8 +295,14 @@ export class OverworldScene extends Scene {
     }
   }
 
+  private eKeyWasDown = false;
+
   private checkInteractions(): void {
-    if (!Phaser.Input.Keyboard.JustDown(this.eKey)) return;
+    const eKeyIsDown = this.eKey.isDown;
+    const justPressed = eKeyIsDown && !this.eKeyWasDown;
+    this.eKeyWasDown = eKeyIsDown;
+
+    if (!justPressed) return;
 
     for (const npc of this.npcs) {
       const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
@@ -305,7 +314,11 @@ export class OverworldScene extends Scene {
   }
 
   private checkDialogueClose(): void {
-    if (Phaser.Input.Keyboard.JustDown(this.eKey)) {
+    const eKeyIsDown = this.eKey.isDown;
+    const justPressed = eKeyIsDown && !this.eKeyWasDown;
+    this.eKeyWasDown = eKeyIsDown;
+
+    if (justPressed) {
       this.closeDialogue();
     }
   }

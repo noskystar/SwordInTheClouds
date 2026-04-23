@@ -21,6 +21,12 @@ export class DialoguePanel {
   private options: DialogueOption[] = [];
   private selectedIndex = 0;
 
+  // Manual key state tracking (Playwright-compatible)
+  private eKeyWasDown = false;
+  private spaceWasDown = false;
+  private upWasDown = false;
+  private downWasDown = false;
+
   private onSelect?: SelectCallback;
   private onClose?: CloseCallback;
 
@@ -81,38 +87,38 @@ export class DialoguePanel {
   }
 
   private createElements(): void {
-    const halfW = this.scene.cameras.main.width / 2;
-    const halfH = this.scene.cameras.main.height / 2;
+    const width = this.scene.cameras.main.width;
+    const height = this.scene.cameras.main.height;
 
     this.container = this.scene.add.container(0, 0);
     this.container.setName('dialogue-panel');
 
     // Background
-    const panelW = 312;
+    const panelW = width - 8;
     const panelH = 76;
-    const panelX = 0;
-    const panelY = halfH - panelH / 2;
-    this.bg = this.scene.add.rectangle(panelX, panelY, panelW, panelH, 0x1a1a2e, 0.95);
+    const panelX = 4;
+    const panelY = height - panelH - 4;
+    this.bg = this.scene.add.rectangle(panelX + panelW / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
     this.bg.setStrokeStyle(1, 0x4a4a6a);
 
     // Speaker name
-    this.nameText = this.scene.add.text(-halfW + 6, panelY - panelH / 2 + 2, '', {
+    this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', {
       fontSize: '6px',
       color: '#ffff00',
       fontFamily: 'monospace',
     });
 
     // Body text
-    this.bodyText = this.scene.add.text(-halfW + 6, panelY - panelH / 2 + 12, '', {
+    this.bodyText = this.scene.add.text(panelX + 4, panelY + 14, '', {
       fontSize: '6px',
       color: '#eeeeee',
       fontFamily: 'monospace',
-      wordWrap: { width: panelW - 12 },
+      wordWrap: { width: panelW - 8 },
       lineSpacing: 2,
     });
 
     // Continue hint
-    this.continueHint = this.scene.add.text(halfW - 6, panelY + panelH / 2 - 2, '▶ E/空格继续', {
+    this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 4, '▶ E/空格继续', {
       fontSize: '5px',
       color: '#888888',
       fontFamily: 'monospace',
@@ -135,8 +141,23 @@ export class DialoguePanel {
   handleInput(): void {
     if (!this.container.visible) return;
 
+    const eKeyIsDown = this.eKey.isDown;
+    const spaceIsDown = this.confirmKey.isDown;
+    const upIsDown = this.upKey.isDown;
+    const downIsDown = this.downKey.isDown;
+
+    const eJustPressed = eKeyIsDown && !this.eKeyWasDown;
+    const spaceJustPressed = spaceIsDown && !this.spaceWasDown;
+    const upJustPressed = upIsDown && !this.upWasDown;
+    const downJustPressed = downIsDown && !this.downWasDown;
+
+    this.eKeyWasDown = eKeyIsDown;
+    this.spaceWasDown = spaceIsDown;
+    this.upWasDown = upIsDown;
+    this.downWasDown = downIsDown;
+
     // Skip typing or confirm
-    if (Phaser.Input.Keyboard.JustDown(this.eKey) || Phaser.Input.Keyboard.JustDown(this.confirmKey)) {
+    if (eJustPressed || spaceJustPressed) {
       if (this.isTyping) {
         this.skipTyping();
       } else if (this.options.length > 0) {
@@ -148,11 +169,11 @@ export class DialoguePanel {
     }
 
     if (!this.isTyping && this.options.length > 0) {
-      if (Phaser.Input.Keyboard.JustDown(this.upKey)) {
+      if (upJustPressed) {
         this.selectedIndex = (this.selectedIndex - 1 + this.options.length) % this.options.length;
         this.updateOptionHighlight();
       }
-      if (Phaser.Input.Keyboard.JustDown(this.downKey)) {
+      if (downJustPressed) {
         this.selectedIndex = (this.selectedIndex + 1) % this.options.length;
         this.updateOptionHighlight();
       }
@@ -187,14 +208,16 @@ export class DialoguePanel {
   }
 
   private showOptions(): void {
-    const halfW = this.scene.cameras.main.width / 2;
-    const panelY = this.scene.cameras.main.height / 2 - 76 / 2;
-    const startY = panelY - 76 / 2 + 36;
+    const height = this.scene.cameras.main.height;
+    const panelH = 76;
+    const panelX = 4;
+    const panelY = height - panelH - 4;
+    const startY = panelY + 36;
 
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
 
-      const cursorX = -halfW + 6;
+      const cursorX = panelX + 6;
       const textX = cursorX + 8;
       const y = startY + i * 10;
 
@@ -229,8 +252,10 @@ export class DialoguePanel {
 
   private updateOptionHighlight(): void {
     if (this.cursor) {
-      const panelY = this.scene.cameras.main.height / 2 - 76 / 2;
-      const startY = panelY - 76 / 2 + 36;
+      const height = this.scene.cameras.main.height;
+      const panelH = 76;
+      const panelY = height - panelH - 4;
+      const startY = panelY + 36;
       this.cursor.setY(startY + this.selectedIndex * 10);
     }
     for (let i = 0; i < this.optionTexts.length; i++) {
