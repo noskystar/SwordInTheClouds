@@ -1,3 +1,4 @@
+import { EventEmitter } from '../utils/event-emitter';
 import type {
   DialogueData,
   DialogueNode,
@@ -23,6 +24,7 @@ interface GameContext {
 }
 
 export class DialogueSystem {
+  private eventEmitter = new EventEmitter();
   private dialogueData!: DialogueData;
   private state!: DialogueState;
   private context: GameContext;
@@ -41,6 +43,18 @@ export class DialogueSystem {
       inventory: {},
       ...context,
     };
+  }
+
+  on(event: string, callback: (data: unknown) => void): void {
+    this.eventEmitter.on(event, callback);
+  }
+
+  off(event: string, callback: (data: unknown) => void): void {
+    this.eventEmitter.off(event, callback);
+  }
+
+  private emit(event: string, data?: unknown): void {
+    this.eventEmitter.emit(event, data);
   }
 
   loadDialogue(data: DialogueData): void {
@@ -197,9 +211,20 @@ export class DialogueSystem {
       }
 
       case 'start_battle':
+        this.emit('start_battle', { enemyGroupId: effect.enemyGroupId });
+        break;
       case 'start_quest':
+        this.emit('start_quest', { questId: effect.questId });
+        break;
       case 'advance_quest':
+        this.emit('advance_quest', { questId: effect.questId, stage: effect.stage });
+        break;
+      case 'complete_quest':
+        this.emit('complete_quest', { questId: effect.questId });
+        break;
       case 'teleport':
+        this.emit('teleport', { scene: effect.scene, x: effect.x, y: effect.y });
+        break;
       case 'unlock_skill':
       case 'play_sound':
       case 'show_animation':

@@ -37,6 +37,7 @@ export type DialogueEffect =
   | { type: 'start_battle'; enemyGroupId: string }
   | { type: 'start_quest'; questId: string }
   | { type: 'advance_quest'; questId: string; stage: string }
+  | { type: 'complete_quest'; questId: string }
   | { type: 'teleport'; scene: string; x: number; y: number }
   | { type: 'unlock_skill'; skillId: string }
   | { type: 'play_sound'; soundId: string }
