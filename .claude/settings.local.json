@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(pkill -f \"vite\")"
+    ]
+  }
+}
