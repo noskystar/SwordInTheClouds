@@ -27,11 +27,13 @@ export interface InventorySaveData {
 }
 
 export interface QuestSaveData {
-  activeQuests: Record<string, {
-    stage: string;
-    objectives: Record<string, number>;
-  }>;
-  completedQuests: string[];
+  active: {
+    questId: string;
+    currentStageIndex: number;
+    objectiveProgress: Record<string, number>;
+    acceptedAt: number;
+  }[];
+  completed: string[];
 }
 
 export interface WorldSaveData {
