@@ -1,0 +1,89 @@
+[
+  {
+    "id": "main_chapter1",
+    "name": "初入天剑宗",
+    "description": "你刚刚拜入天剑宗，需要完成入门试炼，证明自己的资质。",
+    "type": "main",
+    "stages": [
+      {
+        "id": "meet_elder",
+        "description": "前往山门拜见长老",
+        "objectives": [
+          { "id": "talk_to_elder", "type": "talk", "description": "与长老对话", "targetId": "elder", "requiredCount": 1 }
+        ]
+      },
+      {
+        "id": "clear_woods",
+        "description": "清除后山骚扰灵兽",
+        "objectives": [
+          { "id": "kill_wood_spirits", "type": "kill", "description": "击败木灵妖", "targetId": "wood_spirit", "requiredCount": 3 }
+        ]
+      },
+      {
+        "id": "reach_meditation",
+        "description": "前往修炼静室领取心法",
+        "objectives": [
+          { "id": "enter_meditation", "type": "reach", "description": "到达修炼静室", "targetId": "meditation_room", "requiredCount": 1 }
+        ]
+      },
+      {
+        "id": "collect_herbs",
+        "description": "为丹堂采集草药",
+        "objectives": [
+          { "id": "gather_herbs", "type": "collect", "description": "采集灵草", "targetId": "spirit_herb", "requiredCount": 5 }
+        ]
+      }
+    ],
+    "rewards": {
+      "exp": 200,
+      "items": [{ "itemId": "basic_manual", "quantity": 1 }],
+      "flags": { "chapter1_complete": true }
+    }
+  },
+  {
+    "id": "side_brother_secret",
+    "name": "大师兄的秘密",
+    "description": "大师兄最近行为古怪，去后山看看他在做什么。",
+    "type": "side",
+    "stages": [
+      {
+        "id": "investigate",
+        "description": "在后山找到大师兄",
+        "objectives": [
+          { "id": "find_brother", "type": "reach", "description": "在后山找到大师兄", "targetId": "back_mountain_brother", "requiredCount": 1 }
+        ]
+      },
+      {
+        "id": "defeat_ambush",
+        "description": "击败埋伏的魔道探子",
+        "objectives": [
+          { "id": "kill_spies", "type": "kill", "description": "击败魔道探子", "targetId": "dark_spy", "requiredCount": 2 }
+        ]
+      }
+    ],
+    "rewards": {
+      "exp": 150,
+      "items": [{ "itemId": "brother_token", "quantity": 1 }],
+      "flags": { "knows_brother_secret": true }
+    }
+  },
+  {
+    "id": "side_missing_cat",
+    "name": "寻找灵猫",
+    "description": "弟子居所的小师妹丢了她的灵猫，去帮忙找找。",
+    "type": "side",
+    "stages": [
+      {
+        "id": "find_cat",
+        "description": "在大殿附近找到灵猫",
+        "objectives": [
+          { "id": "locate_cat", "type": "reach", "description": "找到灵猫", "targetId": "main_hall_cat", "requiredCount": 1 }
+        ]
+      }
+    ],
+    "rewards": {
+      "exp": 80,
+      "items": [{ "itemId": "cat_hair", "quantity": 1 }]
+    }
+  }
+]
