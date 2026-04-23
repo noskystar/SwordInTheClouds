@@ -42,20 +42,14 @@ export class TitleScene extends Scene {
       repeat: -1,
     });
 
-    this.input.keyboard?.once('keydown', () => {
+    const startGame = () => {
       this.cameras.main.fadeOut(300, 0, 0, 0);
       this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-        // Will transition to OverworldScene when implemented
-        // this.scene.start('OverworldScene');
+        this.scene.start('OverworldScene');
       });
-    });
+    };
 
-    this.input.once('pointerdown', () => {
-      this.cameras.main.fadeOut(300, 0, 0, 0);
-      this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-        // Will transition to OverworldScene when implemented
-        // this.scene.start('OverworldScene');
-      });
-    });
+    this.input.keyboard?.once('keydown', startGame);
+    this.input.once('pointerdown', startGame);
   }
 }

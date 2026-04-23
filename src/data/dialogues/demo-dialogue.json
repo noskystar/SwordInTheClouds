@@ -1,0 +1,218 @@
+{
+  "id": "demo-elder",
+  "title": "长老对话",
+  "startNodeId": "greeting",
+  "nodes": {
+    "greeting": {
+      "id": "greeting",
+      "speaker": "长老",
+      "text": "欢迎来到天剑宗，小师妹。今日入宗，可还习惯？",
+      "options": [
+        {
+          "id": "polite",
+          "text": "多谢长老关心，一切安好。",
+          "effects": [
+            { "type": "change_affinity", "npcId": "elder", "delta": 5 }
+          ],
+          "nextNodeId": "intro"
+        },
+        {
+          "id": "curious",
+          "text": "宗门很好，但我有些事想请教……",
+          "effects": [],
+          "nextNodeId": "ask_question"
+        },
+        {
+          "id": "suspicious",
+          "text": "习惯？丹堂那边传来的味道可不像是正经丹药。",
+          "effects": [
+            { "type": "change_affinity", "npcId": "elder", "delta": -10 },
+            { "type": "set_flag", "flag": "knows_about_dan_tang", "value": true }
+          ],
+          "nextNodeId": "confront"
+        }
+      ]
+    },
+    "intro": {
+      "id": "intro",
+      "speaker": "长老",
+      "text": "嗯，乖孩子。既然入了天剑宗，就要守宗门规矩。师父虽严厉，但待弟子向来不薄。",
+      "options": [
+        {
+          "id": "ask_rules",
+          "text": "请问宗门有什么特别的规矩吗？",
+          "effects": [],
+          "nextNodeId": "rules"
+        },
+        {
+          "id": "leave",
+          "text": "弟子明白了，先行告退。",
+          "effects": []
+        }
+      ]
+    },
+    "ask_question": {
+      "id": "ask_question",
+      "speaker": "长老",
+      "text": "哦？你想问什么？",
+      "options": [
+        {
+          "id": "ask_master",
+          "text": "师父他……到底是怎样的人？",
+          "effects": [],
+          "nextNodeId": "about_master"
+        },
+        {
+          "id": "ask_brother",
+          "text": "大师兄最近好像总是一个人修炼？",
+          "effects": [],
+          "nextNodeId": "about_brother"
+        }
+      ]
+    },
+    "confront": {
+      "id": "confront",
+      "speaker": "长老",
+      "text": "……你在说什么胡话！丹堂之事岂是你一个新入门的弟子能妄议的？",
+      "emotion": "angry",
+      "options": [
+        {
+          "id": "apologize",
+          "text": "弟子失言，请长老恕罪。",
+          "effects": [
+            { "type": "change_affinity", "npcId": "elder", "delta": 3 }
+          ],
+          "nextNodeId": "forgiven"
+        },
+        {
+          "id": "persist",
+          "text": "不，我确实闻到了。那不是普通的丹药味。",
+          "effects": [
+            { "type": "change_affinity", "npcId": "elder", "delta": -15 }
+          ],
+          "nextNodeId": "threatened"
+        }
+      ]
+    },
+    "rules": {
+      "id": "rules",
+      "speaker": "长老",
+      "text": "规矩不多。子时后不得出居所，禁地不可擅入，同门之间不可私斗。违者……后果自负。",
+      "options": [
+        {
+          "id": "understood",
+          "text": "弟子谨记。",
+          "effects": [
+            { "type": "set_flag", "flag": "knows_rules", "value": true }
+          ]
+        }
+      ]
+    },
+    "about_master": {
+      "id": "about_master",
+      "speaker": "长老",
+      "text": "师父他啊……千年前就已经是修仙界赫赫有名的人物了。至于他的过去，知道太多对你没好处。",
+      "options": [
+        {
+          "id": "intrigued",
+          "text": "千年前？师父已经活了那么久吗？",
+          "effects": [],
+          "nextNodeId": "master_age"
+        },
+        {
+          "id": "drop_it",
+          "text": "弟子明白了，不再多问。",
+          "effects": []
+        }
+      ]
+    },
+    "about_brother": {
+      "id": "about_brother",
+      "speaker": "长老",
+      "text": "萧寒那孩子……唉。他自有他的苦衷。你最好不要过多打探他的事。",
+      "options": [
+        {
+          "id": "concerned",
+          "text": "苦衷？大师兄他怎么了？",
+          "effects": [],
+          "nextNodeId": "brother_secret"
+        },
+        {
+          "id": "respectful",
+          "text": "弟子明白了。",
+          "effects": [
+            { "type": "change_affinity", "npcId": "elder", "delta": 3 }
+          ]
+        }
+      ]
+    },
+    "forgiven": {
+      "id": "forgiven",
+      "speaker": "长老",
+      "text": "罢了，你刚入门，不懂规矩也是常事。以后说话注意分寸。",
+      "options": [
+        {
+          "id": "thanks",
+          "text": "多谢长老教诲。",
+          "effects": []
+        }
+      ]
+    },
+    "threatened": {
+      "id": "threatened",
+      "speaker": "长老",
+      "text": "……小师妹，有些话，说出去会要人命的。你好自为之。",
+      "emotion": "angry",
+      "options": [
+        {
+          "id": "scared",
+          "text": "……",
+          "effects": [
+            { "type": "set_flag", "flag": "elder_threatened", "value": true }
+          ]
+        }
+      ]
+    },
+    "master_age": {
+      "id": "master_age",
+      "speaker": "长老",
+      "text": "哼，你以为元婴期修士的寿命有多长？师父……远不止元婴。",
+      "options": [
+        {
+          "id": "shocked",
+          "text": "远不止元婴？！",
+          "effects": [
+            { "type": "set_flag", "flag": "suspects_master_power", "value": true }
+          ],
+          "nextNodeId": "warning"
+        }
+      ]
+    },
+    "brother_secret": {
+      "id": "brother_secret",
+      "speaker": "长老",
+      "text": "他全家被魔道所灭，这是宗门里人人都知道的事。但很少有人知道，他发誓要修炼到能亲手报仇的那一天……无论用什么手段。",
+      "options": [
+        {
+          "id": "sympathy",
+          "text": "原来大师兄有这样的过去……",
+          "effects": [
+            { "type": "set_flag", "flag": "knows_brother_past", "value": true }
+          ]
+        }
+      ]
+    },
+    "warning": {
+      "id": "warning",
+      "speaker": "长老",
+      "text": "好了，我说得太多了。记住，在宗门里，好奇是会害死猫的。",
+      "options": [
+        {
+          "id": "nod",
+          "text": "……弟子记下了。",
+          "effects": []
+        }
+      ]
+    }
+  }
+}
