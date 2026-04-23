@@ -16,7 +16,8 @@
       "mcp__plugin_superpowers-chrome_chrome__use_browser",
       "Bash(node *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit *)"
     ]
   }
 }
