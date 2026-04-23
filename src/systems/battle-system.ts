@@ -157,6 +157,9 @@ export class BattleSystem {
       entity.atbGauge = 0;
 
       this.tickBuffsAtTurnStart(entity);
+      if (!entity.isAlive) {
+        return readyEntityId;
+      }
       this.applyDefendBonus(entity);
 
       this.emit('turn_ready', { entityId: readyEntityId } as BattleEvent);
@@ -403,8 +406,9 @@ export class BattleSystem {
     let totalExp = 0;
     const drops: { itemId: string; quantity: number }[] = [];
 
-    for (let i = 0; i < enemies.length; i++) {
-      const enemyData = this.enemyDataList[i];
+    const enemyDataMap = new Map(this.enemyDataList.map((e) => [e.id, e]));
+    for (const enemy of enemies) {
+      const enemyData = enemyDataMap.get(enemy.id);
       if (enemyData) {
         totalExp += enemyData.expReward;
         for (const drop of enemyData.dropItems) {

@@ -512,7 +512,11 @@ export class BattleScene extends Scene {
   }
 
   private selectSkill(skill: SkillData): void {
-    this.pendingAction = { type: 'skill', skillId: skill.id };
+    if (skill.isUltimate) {
+      this.pendingAction = { type: 'ultimate' };
+    } else {
+      this.pendingAction = { type: 'skill', skillId: skill.id };
+    }
 
     if (skill.targetType === 'self') {
       this.executePlayerAction(this.battleSystem.getPlayer().id);
