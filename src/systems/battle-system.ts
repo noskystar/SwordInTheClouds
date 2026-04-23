@@ -143,9 +143,16 @@ export class BattleSystem {
 
     for (const entity of this.entities.values()) {
       if (!entity.isAlive) continue;
-      if (entity.buffs.some((b) => b.type === 'stun')) continue;
 
       entity.atbGauge += entity.speed * delta * ATB_FACTOR;
+
+      if (entity.buffs.some((b) => b.type === 'stun')) {
+        if (entity.atbGauge >= ATB_GAUGE_MAX) {
+          entity.atbGauge = 0;
+          this.tickBuffsAtTurnStart(entity);
+        }
+        continue;
+      }
 
       if (entity.atbGauge >= ATB_GAUGE_MAX && entity.atbGauge > highestGauge) {
         highestGauge = entity.atbGauge;
@@ -256,6 +263,7 @@ export class BattleSystem {
       for (const target of this.entities.values()) {
         if (target.id === source.id) continue;
         if (!target.isAlive) continue;
+        if (target.isPlayer === source.isPlayer) continue;
         const damage = this.calculateDamage(source, target, skill.power, skill.element);
         this.applyDamage(source.id, target, damage);
       }

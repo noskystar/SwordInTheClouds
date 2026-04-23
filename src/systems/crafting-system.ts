@@ -110,14 +110,32 @@ export class CraftingSystem {
     const addResult = inventory.addItem(recipe.outputItemId, recipe.outputQuantity);
 
     const outputItem = this.itemData.get(recipe.outputItemId);
+    if (!addResult.success) {
+      // Remove any partially added output to free space for refunds
+      if (addResult.added > 0) {
+        inventory.removeItem(recipe.outputItemId, addResult.added);
+      }
+      // Refund ingredients since output couldn't be fully added
+      for (const ingredient of recipe.ingredients) {
+        inventory.addItem(ingredient.itemId, ingredient.quantity);
+      }
+      const result: CraftingResult = {
+        success: false,
+        recipeId,
+        outputItemId: recipe.outputItemId,
+        outputQuantity: 0,
+        message: `背包已满，无法放入 ${outputItem?.name ?? recipe.outputItemId}`,
+      };
+      this.emit('item_crafted', result);
+      return result;
+    }
+
     const result: CraftingResult = {
-      success: addResult.success,
+      success: true,
       recipeId,
       outputItemId: recipe.outputItemId,
       outputQuantity: recipe.outputQuantity,
-      message: addResult.success
-        ? `成功制作 ${outputItem?.name ?? recipe.outputItemId} x${recipe.outputQuantity}`
-        : `制作成功但背包已满，${outputItem?.name ?? recipe.outputItemId} x${addResult.remaining} 无法放入`,
+      message: `成功制作 ${outputItem?.name ?? recipe.outputItemId} x${recipe.outputQuantity}`,
     };
 
     this.emit('item_crafted', result);

@@ -115,7 +115,7 @@ export class SwordHeartSystem {
     this.exp += amount;
     this.emit('sword_heart_exp_gained', { amount, currentExp: this.exp, level: this.level });
 
-    while (this.level < SWORD_HEART_MAX_LEVEL && this.exp >= this.getExpToNextLevel() + this.calculateExpForLevel(this.level)) {
+    while (this.level < SWORD_HEART_MAX_LEVEL && this.exp >= this.calculateExpForLevel(this.level + 1)) {
       this.levelUp();
     }
   }

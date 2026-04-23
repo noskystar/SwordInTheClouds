@@ -194,6 +194,9 @@ export class InventorySystem {
   }
 
   useItem(slotIndex: number): InventoryUseResult {
+    if (slotIndex < 0 || slotIndex >= INVENTORY_SIZE) {
+      return { success: false, consumed: false, message: '无效槽位' };
+    }
     const slot = this.slots[slotIndex];
     if (!slot.itemId || slot.quantity <= 0) {
       return { success: false, consumed: false, message: '空槽位' };

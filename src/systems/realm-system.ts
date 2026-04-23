@@ -101,7 +101,7 @@ export class RealmSystem {
   }
 
   canBreakthrough(): boolean {
-    return this.cultivationExp >= this.getExpRequired();
+    return !this.isMaxRealm() && this.cultivationExp >= this.getExpRequired();
   }
 
   attemptBreakthrough(): RealmBreakthroughResult {
