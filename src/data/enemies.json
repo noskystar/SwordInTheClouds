@@ -83,5 +83,56 @@
     ],
     "skills": ["slash_metal"],
     "color": 13421772
+  },
+  {
+    "id": "dark_spy",
+    "name": "魔道探子",
+    "level": 4,
+    "maxHp": 75,
+    "maxMp": 30,
+    "attack": 16,
+    "defense": 7,
+    "speed": 105,
+    "element": "water",
+    "expReward": 35,
+    "dropItems": [
+      { "itemId": "dark_cloth", "chance": 0.3, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["shadow_strike"],
+    "color": 4473924
+  },
+  {
+    "id": "spirit_wolf",
+    "name": "灵狼",
+    "level": 3,
+    "maxHp": 65,
+    "maxMp": 20,
+    "attack": 14,
+    "defense": 6,
+    "speed": 115,
+    "element": "wood",
+    "expReward": 28,
+    "dropItems": [
+      { "itemId": "wolf_fang", "chance": 0.4, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["bite"],
+    "color": 10066329
+  },
+  {
+    "id": "corrupted_spirit",
+    "name": "腐化灵体",
+    "level": 5,
+    "maxHp": 95,
+    "maxMp": 45,
+    "attack": 19,
+    "defense": 9,
+    "speed": 85,
+    "element": "earth",
+    "expReward": 45,
+    "dropItems": [
+      { "itemId": "corrupted_essence", "chance": 0.25, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["corruption"],
+    "color": 52224
   }
 ]

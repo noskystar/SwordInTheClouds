@@ -28,5 +28,23 @@
     "name": "五行混战",
     "enemies": ["wood_spirit", "stone_golem", "flame_fox"],
     "backgroundColor": 1973790
+  },
+  {
+    "id": "ch1_woods",
+    "name": "后山灵兽",
+    "enemies": ["wood_spirit", "wood_spirit"],
+    "backgroundColor": 2565927
+  },
+  {
+    "id": "ch1_deep_woods",
+    "name": "深林遇袭",
+    "enemies": ["spirit_wolf", "wood_spirit", "dark_spy"],
+    "backgroundColor": 1973790
+  },
+  {
+    "id": "ch1_corruption",
+    "name": "腐化之源",
+    "enemies": ["corrupted_spirit", "dark_spy"],
+    "backgroundColor": 1315860
   }
 ]
