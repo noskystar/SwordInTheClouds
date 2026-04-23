@@ -1,0 +1,297 @@
+{
+  "id": "chapter1",
+  "title": "第一章：初入宗门",
+  "startNodeId": "arrival",
+  "nodes": {
+    "arrival": {
+      "id": "arrival",
+      "speaker": "旁白",
+      "text": "天剑宗，修仙界赫赫有名的名门正派。今日，你踏入了宗门山门。",
+      "options": [
+        { "id": "continue", "text": "继续", "effects": [], "nextNodeId": "gate_guard" }
+      ]
+    },
+    "gate_guard": {
+      "id": "gate_guard",
+      "speaker": "守门弟子",
+      "text": "站住！报上名来，可是今日新收的弟子？",
+      "options": [
+        { "id": "yes", "text": "正是，弟子前来报到。", "effects": [{ "type": "set_flag", "flag": "reported_to_guard", "value": true }], "nextNodeId": "guard_direct" },
+        { "id": "hesitate", "text": "……是。", "effects": [], "nextNodeId": "guard_suspicious" }
+      ]
+    },
+    "guard_direct": {
+      "id": "guard_direct",
+      "speaker": "守门弟子",
+      "text": "嗯，长老在大殿等候。沿着这条路直走便是。",
+      "options": [
+        { "id": "thanks", "text": "多谢师兄。", "effects": [{ "type": "change_affinity", "npcId": "gate_guard", "delta": 3 }], "nextNodeId": "enter_gate" }
+      ]
+    },
+    "guard_suspicious": {
+      "id": "guard_suspicious",
+      "speaker": "守门弟子",
+      "text": "哼，新弟子都这么没精神吗？快去大殿，别让长老等。",
+      "options": [
+        { "id": "nod", "text": "……是。", "effects": [], "nextNodeId": "enter_gate" }
+      ]
+    },
+    "enter_gate": {
+      "id": "enter_gate",
+      "speaker": "旁白",
+      "text": "你穿过山门，进入了天剑宗的外门区域。前方大殿气势恢宏，两侧弟子居所整齐排列。",
+      "options": [
+        { "id": "to_hall", "text": "前往大殿", "effects": [], "nextNodeId": "hall_entrance" },
+        { "id": "explore", "text": "四处看看", "effects": [], "nextNodeId": "courtyard" }
+      ]
+    },
+    "courtyard": {
+      "id": "courtyard",
+      "speaker": "旁白",
+      "text": "庭院中弟子们正在晨练，剑气纵横。一位少女正在独自练剑。",
+      "options": [
+        { "id": "watch", "text": "在一旁观看", "effects": [], "nextNodeId": "meet_lingyao" },
+        { "id": "leave", "text": "不去打扰", "effects": [], "nextNodeId": "hall_entrance" }
+      ]
+    },
+    "meet_lingyao": {
+      "id": "meet_lingyao",
+      "speaker": "凌瑶",
+      "text": "咦？新面孔。你是今天入门的弟子吧？",
+      "options": [
+        { "id": "introduce", "text": "是的，师姐好。", "effects": [{ "type": "change_affinity", "npcId": "lingyao", "delta": 5 }], "nextNodeId": "lingyao_talk" },
+        { "id": "ask_name", "text": "师姐怎么知道？", "effects": [], "nextNodeId": "lingyao_talk" }
+      ]
+    },
+    "lingyao_talk": {
+      "id": "lingyao_talk",
+      "speaker": "凌瑶",
+      "text": "我叫凌瑶，比你早入门两年。有什么问题可以来弟子居所找我。",
+      "options": [
+        { "id": "thanks", "text": "多谢师姐。", "effects": [{ "type": "set_flag", "flag": "met_lingyao", "value": true }], "nextNodeId": "hall_entrance" }
+      ]
+    },
+    "hall_entrance": {
+      "id": "hall_entrance",
+      "speaker": "旁白",
+      "text": "大殿门前，一位白发老者正负手而立。",
+      "options": [
+        { "id": "approach", "text": "上前拜见", "effects": [], "nextNodeId": "meet_elder" }
+      ]
+    },
+    "meet_elder": {
+      "id": "meet_elder",
+      "speaker": "长老",
+      "text": "嗯，资质尚可。既然入了天剑宗，就要守规矩。",
+      "options": [
+        { "id": "polite", "text": "弟子谨记。", "effects": [{ "type": "change_affinity", "npcId": "elder", "delta": 5 }], "nextNodeId": "elder_rules" },
+        { "id": "curious", "text": "请问长老，宗门有什么需要注意的吗？", "effects": [], "nextNodeId": "elder_rules" }
+      ]
+    },
+    "elder_rules": {
+      "id": "elder_rules",
+      "speaker": "长老",
+      "text": "子时后不得出居所，禁地不可擅入，同门之间不可私斗。",
+      "options": [
+        { "id": "accept", "text": "弟子明白。", "effects": [{ "type": "set_flag", "flag": "knows_rules", "value": true }], "nextNodeId": "elder_quest" },
+        { "id": "ask_forbidden", "text": "禁地是何处？", "effects": [], "nextNodeId": "elder_forbidden" }
+      ]
+    },
+    "elder_forbidden": {
+      "id": "elder_forbidden",
+      "speaker": "长老",
+      "text": "后山深处，封印着上古妖魔。没有掌门手令，任何人不得进入。",
+      "options": [
+        { "id": "noted", "text": "弟子记下了。", "effects": [{ "type": "set_flag", "flag": "knows_forbidden_zone", "value": true }], "nextNodeId": "elder_quest" }
+      ]
+    },
+    "elder_quest": {
+      "id": "elder_quest",
+      "speaker": "长老",
+      "text": "后山最近有灵兽骚扰，你去处理一下，也算入门试炼。",
+      "options": [
+        { "id": "accept_quest", "text": "弟子遵命。", "effects": [{ "type": "start_quest", "questId": "main_chapter1" }], "nextNodeId": "elder_advice" },
+        { "id": "hesitate_quest", "text": "弟子初入宗门，恐怕……", "effects": [], "nextNodeId": "elder_encourage" }
+      ]
+    },
+    "elder_encourage": {
+      "id": "elder_encourage",
+      "speaker": "长老",
+      "text": "无妨，只是几只木灵妖罢了。去吧，这是每个弟子都要经历的。",
+      "options": [
+        { "id": "accept2", "text": "……弟子明白了。", "effects": [{ "type": "start_quest", "questId": "main_chapter1" }], "nextNodeId": "elder_advice" }
+      ]
+    },
+    "elder_advice": {
+      "id": "elder_advice",
+      "speaker": "长老",
+      "text": "对了，大师兄萧寒最近在后山修炼，你可以向他请教。",
+      "options": [
+        { "id": "ask_brother", "text": "大师兄是个怎样的人？", "effects": [], "nextNodeId": "about_brother" },
+        { "id": "leave_hall", "text": "弟子告退。", "effects": [{ "type": "set_flag", "flag": "met_elder", "value": true }], "nextNodeId": "hall_exit" }
+      ]
+    },
+    "about_brother": {
+      "id": "about_brother",
+      "speaker": "长老",
+      "text": "萧寒那孩子……天赋极高，但性子冷淡。他自有他的苦衷。",
+      "options": [
+        { "id": "sympathy", "text": "大师兄他……", "effects": [], "nextNodeId": "brother_hint" },
+        { "id": "leave2", "text": "弟子告退。", "effects": [{ "type": "set_flag", "flag": "met_elder", "value": true }], "nextNodeId": "hall_exit" }
+      ]
+    },
+    "brother_hint": {
+      "id": "brother_hint",
+      "speaker": "长老",
+      "text": "好了，不要多打听。去修炼吧。",
+      "options": [
+        { "id": "leave3", "text": "是。", "effects": [{ "type": "set_flag", "flag": "met_elder", "value": true }, { "type": "set_flag", "flag": "curious_about_brother", "value": true }], "nextNodeId": "hall_exit" }
+      ]
+    },
+    "hall_exit": {
+      "id": "hall_exit",
+      "speaker": "旁白",
+      "text": "你离开大殿，接下来该去哪里？",
+      "options": [
+        { "id": "to_housing", "text": "去弟子居所看看", "effects": [], "nextNodeId": "housing_area" },
+        { "id": "to_back_mountain", "text": "前往后山", "effects": [], "nextNodeId": "back_mountain_entrance" }
+      ]
+    },
+    "housing_area": {
+      "id": "housing_area",
+      "speaker": "旁白",
+      "text": "弟子居所中，几位新弟子正在闲聊。一位少女焦急地四处张望。",
+      "options": [
+        { "id": "ask_trouble", "text": "请问有什么麻烦吗？", "effects": [], "nextNodeId": "meet_xiaomei" },
+        { "id": "ignore", "text": "不去打扰", "effects": [], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "meet_xiaomei": {
+      "id": "meet_xiaomei",
+      "speaker": "小师妹",
+      "text": "我的灵猫不见了！它平时不会乱跑的……",
+      "options": [
+        { "id": "help", "text": "我帮你找找。", "effects": [{ "type": "change_affinity", "npcId": "xiaomei", "delta": 10 }, { "type": "start_quest", "questId": "side_missing_cat" }], "nextNodeId": "xiaomei_grateful" },
+        { "id": "sorry", "text": "抱歉，我还有事。", "effects": [{ "type": "change_affinity", "npcId": "xiaomei", "delta": -5 }], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "xiaomei_grateful": {
+      "id": "xiaomei_grateful",
+      "speaker": "小师妹",
+      "text": "真的吗？太谢谢了！它可能跑去大殿那边了……",
+      "options": [
+        { "id": "go_find", "text": "我这就去找。", "effects": [{ "type": "set_flag", "flag": "helped_xiaomei", "value": true }], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "housing_rest": {
+      "id": "housing_rest",
+      "speaker": "旁白",
+      "text": "你休整了一番，感觉精神了许多。",
+      "options": [
+        { "id": "to_mountain", "text": "前往后山", "effects": [], "nextNodeId": "back_mountain_entrance" },
+        { "id": "to_meditation", "text": "去修炼静室", "effects": [], "nextNodeId": "meditation_first" }
+      ]
+    },
+    "meditation_first": {
+      "id": "meditation_first",
+      "speaker": "旁白",
+      "text": "修炼静室空无一人，只有蒲团和一本落灰的心法。",
+      "options": [
+        { "id": "read", "text": "翻阅心法", "effects": [{ "type": "set_flag", "flag": "read_basic_manual", "value": true }], "nextNodeId": "manual_text" },
+        { "id": "leave_room", "text": "离开", "effects": [], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "manual_text": {
+      "id": "manual_text",
+      "speaker": "旁白",
+      "text": "「剑心通明，万法归一。修剑先修心，心正则剑正。」",
+      "options": [
+        { "id": "meditate", "text": "坐下冥想", "effects": [{ "type": "change_sword_heart", "delta": 5 }], "nextNodeId": "meditation_benefit" },
+        { "id": "close_book", "text": "合上书本", "effects": [], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "meditation_benefit": {
+      "id": "meditation_benefit",
+      "speaker": "旁白",
+      "text": "你感觉体内的灵力更加凝实了。",
+      "options": [
+        { "id": "done", "text": "继续", "effects": [], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "back_mountain_entrance": {
+      "id": "back_mountain_entrance",
+      "speaker": "旁白",
+      "text": "后山林木幽深，偶尔传来灵兽的低吼。",
+      "options": [
+        { "id": "proceed", "text": "深入", "effects": [], "nextNodeId": "woods_combat" },
+        { "id": "retreat", "text": "先回去准备", "effects": [], "nextNodeId": "housing_rest" }
+      ]
+    },
+    "woods_combat": {
+      "id": "woods_combat",
+      "speaker": "旁白",
+      "text": "几只木灵妖从树丛中窜出！",
+      "options": [
+        { "id": "fight", "text": "迎战", "effects": [{ "type": "start_battle", "enemyGroupId": "ch1_woods" }], "nextNodeId": "post_combat1" }
+      ]
+    },
+    "post_combat1": {
+      "id": "post_combat1",
+      "speaker": "旁白",
+      "text": "木灵妖四散逃窜。你继续深入后山。",
+      "options": [
+        { "id": "continue", "text": "继续深入", "effects": [], "nextNodeId": "meet_brother" }
+      ]
+    },
+    "meet_brother": {
+      "id": "meet_brother",
+      "speaker": "萧寒",
+      "text": "……新来的？这里不是你该来的地方。",
+      "options": [
+        { "id": "elder_sent", "text": "长老让我来清除灵兽。", "effects": [], "nextNodeId": "brother_cold" },
+        { "id": "curious_b", "text": "大师兄为何独自在此？", "effects": [], "nextNodeId": "brother_cold" }
+      ]
+    },
+    "brother_cold": {
+      "id": "brother_cold",
+      "speaker": "萧寒",
+      "text": "回去吧。后山深处有危险，以你现在的修为应付不了。",
+      "options": [
+        { "id": "persist", "text": "我不怕。", "effects": [{ "type": "change_affinity", "npcId": "brother", "delta": 3 }], "nextNodeId": "brother_warn" },
+        { "id": "obey", "text": "……弟子明白了。", "effects": [{ "type": "change_affinity", "npcId": "brother", "delta": 1 }], "nextNodeId": "bm_exit" }
+      ]
+    },
+    "brother_warn": {
+      "id": "brother_warn",
+      "speaker": "萧寒",
+      "text": "哼，不知天高地厚。罢了，若遇到危险，捏碎这个。",
+      "options": [
+        { "id": "receive", "text": "接过传音符", "effects": [{ "type": "add_item", "itemId": "escape_talisman", "quantity": 1 }, { "type": "set_flag", "flag": "met_brother", "value": true }], "nextNodeId": "bm_exit" }
+      ]
+    },
+    "bm_exit": {
+      "id": "bm_exit",
+      "speaker": "旁白",
+      "text": "你离开了后山。天色渐暗，该回去了。",
+      "options": [
+        { "id": "return", "text": "返回弟子居所", "effects": [], "nextNodeId": "day_end" }
+      ]
+    },
+    "day_end": {
+      "id": "day_end",
+      "speaker": "旁白",
+      "text": "第一天的修炼结束了。你躺在榻上，回想起今天发生的一切……",
+      "options": [
+        { "id": "sleep", "text": "入睡", "effects": [{ "type": "set_flag", "flag": "chapter1_day1_complete", "value": true }], "nextNodeId": "chapter1_end" }
+      ]
+    },
+    "chapter1_end": {
+      "id": "chapter1_end",
+      "speaker": "旁白",
+      "text": "第一章：初入宗门 — 完。更多的秘密，等待着你去揭开。",
+      "options": [
+        { "id": "continue", "text": "继续", "effects": [{ "type": "set_flag", "flag": "chapter1_complete", "value": true }], "nextNodeId": "" }
+      ]
+    }
+  }
+}
