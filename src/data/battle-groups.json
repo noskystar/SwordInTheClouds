@@ -1,0 +1,32 @@
+[
+  {
+    "id": "demo_forest",
+    "name": "林间试炼",
+    "enemies": ["wood_spirit"],
+    "backgroundColor": 2565927
+  },
+  {
+    "id": "demo_cave",
+    "name": "岩洞遭遇",
+    "enemies": ["stone_golem", "wood_spirit"],
+    "backgroundColor": 3354153
+  },
+  {
+    "id": "demo_volcano",
+    "name": "火山边缘",
+    "enemies": ["flame_fox", "flame_fox"],
+    "backgroundColor": 5905178
+  },
+  {
+    "id": "demo_river",
+    "name": "河畔之战",
+    "enemies": ["water_serpent"],
+    "backgroundColor": 2302755
+  },
+  {
+    "id": "demo_mixed",
+    "name": "五行混战",
+    "enemies": ["wood_spirit", "stone_golem", "flame_fox"],
+    "backgroundColor": 1973790
+  }
+]

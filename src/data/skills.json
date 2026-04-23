@@ -1,0 +1,72 @@
+[
+  {
+    "id": "slash_metal",
+    "name": "金锋斩",
+    "description": "以金之锋锐斩击敌人",
+    "mpCost": 8,
+    "power": 25,
+    "targetType": "single",
+    "element": "metal",
+    "isUltimate": false
+  },
+  {
+    "id": "vine_bind",
+    "name": "藤蔓缚",
+    "description": "以木之生机缠绕敌人",
+    "mpCost": 12,
+    "power": 20,
+    "targetType": "single",
+    "element": "wood",
+    "isUltimate": false
+  },
+  {
+    "id": "stone_slam",
+    "name": "岩崩击",
+    "description": "以土之厚重砸向敌人",
+    "mpCost": 10,
+    "power": 30,
+    "targetType": "single",
+    "element": "earth",
+    "isUltimate": false
+  },
+  {
+    "id": "tidal_wave",
+    "name": "水涛涌",
+    "description": "以水之势冲击全体",
+    "mpCost": 18,
+    "power": 18,
+    "targetType": "all",
+    "element": "water",
+    "isUltimate": false
+  },
+  {
+    "id": "flame_burst",
+    "name": "烈焰爆",
+    "description": "以火之暴烈焚烧敌人",
+    "mpCost": 15,
+    "power": 35,
+    "targetType": "single",
+    "element": "fire",
+    "isUltimate": false
+  },
+  {
+    "id": "heal_spring",
+    "name": "甘露回春",
+    "description": "以水之灵力恢复生命",
+    "mpCost": 14,
+    "power": 40,
+    "targetType": "self",
+    "element": "water",
+    "isUltimate": false
+  },
+  {
+    "id": "life_sword",
+    "name": "本命剑招·破空",
+    "description": "凝聚剑意，发出毁天灭地的一击",
+    "mpCost": 0,
+    "power": 80,
+    "targetType": "single",
+    "element": "metal",
+    "isUltimate": true
+  }
+]

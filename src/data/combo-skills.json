@@ -1,0 +1,36 @@
+[
+  {
+    "id": "metal_wood_combo",
+    "name": "金木交辉",
+    "description": "金锋斩后接藤蔓缚，形成金木相生之势",
+    "power": 50,
+    "element": "metal",
+    "condition": {
+      "requiredElements": ["metal", "wood"],
+      "minSwordIntent": 30
+    }
+  },
+  {
+    "id": "fire_water_combo",
+    "name": "水火相济",
+    "description": "水火交融产生蒸汽爆发",
+    "power": 55,
+    "element": "water",
+    "condition": {
+      "requiredElements": ["fire", "water"],
+      "minSwordIntent": 40
+    }
+  },
+  {
+    "id": "earth_metal_combo",
+    "name": "土生金锐",
+    "description": "以土为基，金锋更锐",
+    "power": 45,
+    "element": "earth",
+    "condition": {
+      "requiredElements": ["earth", "metal"],
+      "requiredBuffs": ["def_up"],
+      "minSwordIntent": 20
+    }
+  }
+]

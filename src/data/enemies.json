@@ -1,0 +1,87 @@
+[
+  {
+    "id": "wood_spirit",
+    "name": "木灵妖",
+    "level": 2,
+    "maxHp": 60,
+    "maxMp": 20,
+    "attack": 12,
+    "defense": 6,
+    "speed": 80,
+    "element": "wood",
+    "expReward": 15,
+    "dropItems": [
+      { "itemId": "herb", "chance": 0.5, "minQuantity": 1, "maxQuantity": 2 }
+    ],
+    "skills": ["vine_bind"],
+    "color": 3381555
+  },
+  {
+    "id": "stone_golem",
+    "name": "岩傀儡",
+    "level": 3,
+    "maxHp": 100,
+    "maxMp": 15,
+    "attack": 15,
+    "defense": 12,
+    "speed": 40,
+    "element": "earth",
+    "expReward": 25,
+    "dropItems": [
+      { "itemId": "stone_shard", "chance": 0.4, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["stone_slam"],
+    "color": 9605778
+  },
+  {
+    "id": "flame_fox",
+    "name": "火狐",
+    "level": 4,
+    "maxHp": 70,
+    "maxMp": 35,
+    "attack": 18,
+    "defense": 5,
+    "speed": 110,
+    "element": "fire",
+    "expReward": 30,
+    "dropItems": [
+      { "itemId": "fire_crystal", "chance": 0.3, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["flame_burst"],
+    "color": 16082491
+  },
+  {
+    "id": "water_serpent",
+    "name": "水蛇",
+    "level": 5,
+    "maxHp": 85,
+    "maxMp": 40,
+    "attack": 16,
+    "defense": 8,
+    "speed": 95,
+    "element": "water",
+    "expReward": 35,
+    "dropItems": [
+      { "itemId": "water_pearl", "chance": 0.25, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["tidal_wave"],
+    "color": 3553599
+  },
+  {
+    "id": "metal_blade",
+    "name": "金刃怪",
+    "level": 6,
+    "maxHp": 90,
+    "maxMp": 30,
+    "attack": 22,
+    "defense": 10,
+    "speed": 100,
+    "element": "metal",
+    "expReward": 40,
+    "dropItems": [
+      { "itemId": "metal_scrap", "chance": 0.35, "minQuantity": 1, "maxQuantity": 2 }
+    ],
+    "skills": ["slash_metal"],
+    "color": 13421772
+  }
+]

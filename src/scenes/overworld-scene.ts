@@ -5,6 +5,7 @@ import { DialogueSystem } from '../systems/dialogue-system';
 import { DialoguePanel } from '../ui/dialogue-panel';
 import demoDialogueData from '../data/dialogues/demo-dialogue.json';
 import type { DialogueData } from '../types/dialogue';
+import type { PlayerBattleStats } from '../systems/battle-system';
 
 interface SceneTransitionData {
   playerX?: number;
@@ -29,6 +30,7 @@ export class OverworldScene extends Scene {
   private worldWidth = 640;
   private worldHeight = 360;
   private eKey!: Phaser.Input.Keyboard.Key;
+  private bKey!: Phaser.Input.Keyboard.Key;
   private isDialogueOpen = false;
   private dialogueSystem?: DialogueSystem;
   private dialoguePanel?: DialoguePanel;
@@ -54,6 +56,7 @@ export class OverworldScene extends Scene {
     this.setupHUD();
 
     this.eKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+    this.bKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B);
   }
 
   update(): void {
@@ -70,6 +73,7 @@ export class OverworldScene extends Scene {
     this.checkTeleportZones();
     this.checkNPCProximity();
     this.checkInteractions();
+    this.checkBattleTrigger();
     this.eKeyWasDown = this.eKey.isDown;
   }
 
@@ -253,7 +257,7 @@ export class OverworldScene extends Scene {
   private setupHUD(): void {
     const halfW = this.cameras.main.width / 2;
     const halfH = this.cameras.main.height / 2;
-    const hintText = this.add.text(4 - halfW, 4 - halfH, 'WASD/方向键移动  E 交互', {
+    const hintText = this.add.text(4 - halfW, 4 - halfH, 'WASD/方向键移动  E 交互  B 战斗', {
       fontSize: '6px',
       color: '#ffffff',
       fontFamily: 'monospace',
@@ -369,6 +373,43 @@ export class OverworldScene extends Scene {
     this.dialogueSystem = undefined;
     this.isDialogueOpen = false;
     this.physics.resume();
+  }
+
+  private bKeyWasDown = false;
+
+  private checkBattleTrigger(): void {
+    const bKeyIsDown = this.bKey.isDown;
+    const justPressed = bKeyIsDown && !this.bKeyWasDown;
+    this.bKeyWasDown = bKeyIsDown;
+
+    if (justPressed) {
+      this.startDemoBattle();
+    }
+  }
+
+  private startDemoBattle(): void {
+    const playerStats: PlayerBattleStats = {
+      id: 'player',
+      name: '主角',
+      level: 5,
+      maxHp: 100,
+      maxMp: 50,
+      attack: 20,
+      defense: 10,
+      speed: 100,
+      element: 'metal',
+      skills: ['slash_metal', 'heal_spring', 'flame_burst'],
+      color: 0x4a90d9,
+    };
+
+    this.cameras.main.fadeOut(300, 0, 0, 0);
+    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
+      this.scene.start('BattleScene', {
+        battleGroupId: 'demo_mixed',
+        playerStats,
+        returnScene: 'OverworldScene',
+      });
+    });
   }
 
   private showDialogue(speaker: string, text: string): void {
