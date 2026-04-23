@@ -3,6 +3,7 @@ import { TitleScene } from './scenes/title-scene';
 import { OverworldScene } from './scenes/overworld-scene';
 import { BattleScene } from './scenes/battle-scene';
 import { GameOverScene } from './scenes/gameover-scene';
+import { EndingScene } from './scenes/ending-scene';
 
 export const GAME_WIDTH = 320;
 export const GAME_HEIGHT = 180;
@@ -29,5 +30,5 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, TitleScene, OverworldScene, BattleScene, GameOverScene],
+  scene: [BootScene, TitleScene, OverworldScene, BattleScene, GameOverScene, EndingScene],
 };
