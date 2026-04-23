@@ -1,6 +1,5 @@
 import { EventEmitter } from '../utils/event-emitter';
 import type { CharacterStats, StatGrowth, LevelUpResult, StatModifier } from '../types/character-stats';
-import type { FiveElement } from '../types/battle';
 import type { PlayerBattleStats } from '../systems/battle-system';
 
 export const BASE_EXP = 50;
@@ -19,7 +18,6 @@ export class Character {
   constructor(
     id: string,
     name: string,
-    _element: FiveElement,
     color: number,
     baseStats: Omit<CharacterStats, 'level' | 'exp' | 'expToNextLevel'>,
     growth: StatGrowth,

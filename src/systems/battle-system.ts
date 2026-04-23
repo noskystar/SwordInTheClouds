@@ -109,6 +109,7 @@ export class BattleSystem {
         skills: [...enemy.skills],
         color: enemy.color,
         swordIntent: 0,
+        originalEnemyId: enemy.id,
       };
       this.entities.set(enemyEntity.id, enemyEntity);
     }
@@ -450,7 +451,7 @@ export class BattleSystem {
 
     const enemyDataMap = new Map(this.enemyDataList.map((e) => [e.id, e]));
     for (const enemy of enemies) {
-      const enemyData = enemyDataMap.get(enemy.id);
+      const enemyData = enemyDataMap.get(enemy.originalEnemyId ?? enemy.id);
       if (enemyData) {
         totalExp += enemyData.expReward;
         for (const drop of enemyData.dropItems) {

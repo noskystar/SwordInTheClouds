@@ -105,6 +105,16 @@ export class RealmSystem {
   }
 
   attemptBreakthrough(): RealmBreakthroughResult {
+    if (this.isMaxRealm()) {
+      return {
+        success: false,
+        reason: 'max_realm',
+        previousRealm: this.currentRealm,
+        previousStage: this.currentRealm.stage,
+        expRequired: 0,
+      };
+    }
+
     const oldRealm = { ...this.currentRealm };
     const data = REALM_DATA[this.currentRealm.realm];
 
@@ -137,7 +147,7 @@ export class RealmSystem {
   }
 
   getStatBonuses(): { maxHp: number; maxMp: number; attack: number; defense: number; speed: number } {
-    let totalBonuses = { maxHp: 0, maxMp: 0, attack: 0, defense: 0, speed: 0 };
+    const totalBonuses = { maxHp: 0, maxMp: 0, attack: 0, defense: 0, speed: 0 };
 
     for (const realmName of REALM_ORDER) {
       const data = REALM_DATA[realmName];

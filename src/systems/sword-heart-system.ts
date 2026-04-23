@@ -99,9 +99,9 @@ export class SwordHeartSystem {
 
   getProgress(): number {
     if (this.level >= SWORD_HEART_MAX_LEVEL) return 1;
-    const currentLevelExp = this.calculateExpForLevel(this.level);
-    const nextLevelExp = this.calculateExpForLevel(this.level + 1);
-    return (this.exp - currentLevelExp) / (nextLevelExp - currentLevelExp);
+    const expForCurrentLevel = this.calculateExpForLevel(this.level);
+    const expForNextLevel = this.calculateExpForLevel(this.level + 1);
+    return (this.exp - expForCurrentLevel) / (expForNextLevel - expForCurrentLevel);
   }
 
   gainExp(amount: number, sourceAlignment?: 'righteous' | 'neutral' | 'demonic'): void {

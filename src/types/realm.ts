@@ -24,7 +24,11 @@ export interface RealmData {
 
 export interface RealmBreakthroughResult {
   success: boolean;
-  oldRealm: RealmStage;
-  newRealm: RealmStage;
-  statBonuses: RealmData['statBonus'];
+  oldRealm?: RealmStage;
+  newRealm?: RealmStage;
+  statBonuses?: RealmData['statBonus'];
+  reason?: string;
+  previousRealm?: RealmStage;
+  previousStage?: number;
+  expRequired?: number;
 }

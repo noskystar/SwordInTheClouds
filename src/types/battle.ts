@@ -85,6 +85,7 @@ export interface BattleEntity {
   skills: string[];
   color: number;
   swordIntent: number;
+  originalEnemyId?: string;
 }
 
 export type BattleAction =

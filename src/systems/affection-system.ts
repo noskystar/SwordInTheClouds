@@ -73,15 +73,17 @@ export class AffectionSystem {
     const state = this.states.get(characterId);
     if (!state) return undefined;
 
+    const oldValue = state.value;
     const oldLevel = state.level;
     state.value = Math.max(MIN_AFFECTION, Math.min(MAX_AFFECTION, state.value + delta));
     state.level = this.calculateLevel(state.value);
+    const actualDelta = state.value - oldValue;
 
     this.emit('affection_changed', {
       characterId,
-      oldValue: state.value - delta,
+      oldValue,
       newValue: state.value,
-      delta,
+      delta: actualDelta,
     });
 
     if (state.level !== oldLevel) {
