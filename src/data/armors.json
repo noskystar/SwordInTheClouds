@@ -1,0 +1,42 @@
+[
+  {
+    "id": "cloth_robe",
+    "name": "布衣",
+    "description": "普通的粗布衣裳，毫无防护力",
+    "category": "equipment",
+    "equipmentType": "armor",
+    "iconColor": 11184810,
+    "maxStack": 1,
+    "stats": { "defense": 2, "maxHp": 10 }
+  },
+  {
+    "id": "leather_armor",
+    "name": "皮甲",
+    "description": "妖兽皮制作的轻甲，兼顾灵活与防护",
+    "category": "equipment",
+    "equipmentType": "armor",
+    "iconColor": 10840107,
+    "maxStack": 1,
+    "stats": { "defense": 8, "maxHp": 25 }
+  },
+  {
+    "id": "spirit_robe",
+    "name": "法袍",
+    "description": "以灵丝织成的法袍，可抵御灵力攻击",
+    "category": "equipment",
+    "equipmentType": "armor",
+    "iconColor": 3553599,
+    "maxStack": 1,
+    "stats": { "defense": 15, "maxHp": 40, "maxMp": 20 }
+  },
+  {
+    "id": "dragon_scale_armor",
+    "name": "龙鳞甲",
+    "description": "以龙鳞锻造的宝甲，刀枪不入",
+    "category": "equipment",
+    "equipmentType": "armor",
+    "iconColor": 16776960,
+    "maxStack": 1,
+    "stats": { "defense": 30, "maxHp": 80, "speed": -5 }
+  }
+]

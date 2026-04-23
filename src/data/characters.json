@@ -1,0 +1,50 @@
+[
+  {
+    "id": "ling_yue",
+    "name": "凌月",
+    "title": "天剑宗大师姐",
+    "description": "天剑宗这一代最杰出的弟子，性格清冷但内心温柔",
+    "iconColor": 16777215,
+    "defaultAffection": 10
+  },
+  {
+    "id": "xiao_feng",
+    "name": "萧风",
+    "title": "天剑宗剑痴",
+    "description": "痴迷剑道的少年，整日钻研剑诀，不善言辞",
+    "iconColor": 13421772,
+    "defaultAffection": 5
+  },
+  {
+    "id": "su_wan",
+    "name": "苏婉",
+    "title": "药园弟子",
+    "description": "负责照料宗门药园的少女，精通草药医术",
+    "iconColor": 16761035,
+    "defaultAffection": 15
+  },
+  {
+    "id": "elder_chen",
+    "name": "陈长老",
+    "title": "传功长老",
+    "description": "天剑宗传功长老，负责教授弟子功法",
+    "iconColor": 8421504,
+    "defaultAffection": 0
+  },
+  {
+    "id": "zi_yan",
+    "name": "紫嫣",
+    "title": "神秘散修",
+    "description": "来历不明的散修女子，似乎隐藏着不为人知的秘密",
+    "iconColor": 10494192,
+    "defaultAffection": 0
+  },
+  {
+    "id": "mo_yun",
+    "name": "墨云",
+    "title": "魔道探子",
+    "description": "潜伏在天剑宗附近的魔道修士，亦正亦邪",
+    "iconColor": 3355443,
+    "defaultAffection": 0
+  }
+]

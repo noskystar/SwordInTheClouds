@@ -1,0 +1,94 @@
+[
+  {
+    "id": "ling_yue_help",
+    "characterId": "ling_yue",
+    "description": "在凌月修炼遇阻时提供帮助",
+    "affectionChange": 10,
+    "minAffectionRequired": 0,
+    "maxAffectionAllowed": 80
+  },
+  {
+    "id": "ling_yue_spar",
+    "characterId": "ling_yue",
+    "description": "与凌月切磋剑法并虚心请教",
+    "affectionChange": 5,
+    "minAffectionRequired": 10
+  },
+  {
+    "id": "ling_yue_insult",
+    "characterId": "ling_yue",
+    "description": "出言不逊，轻视凌月的剑法",
+    "affectionChange": -15,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "xiao_feng_sword",
+    "characterId": "xiao_feng",
+    "description": "与萧风讨论剑道心得",
+    "affectionChange": 8,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "xiao_feng_share",
+    "characterId": "xiao_feng",
+    "description": "将自己的剑谱借给萧风参悟",
+    "affectionChange": 15,
+    "minAffectionRequired": 5
+  },
+  {
+    "id": "su_wan_herb",
+    "characterId": "su_wan",
+    "description": "帮助苏婉采集草药",
+    "affectionChange": 8,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "su_wan_gift",
+    "characterId": "su_wan",
+    "description": "送给苏婉珍稀的灵草作为礼物",
+    "affectionChange": 12,
+    "minAffectionRequired": 15
+  },
+  {
+    "id": "elder_chen_respect",
+    "characterId": "elder_chen",
+    "description": "向陈长老虚心请教功法",
+    "affectionChange": 5,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "elder_chen_rude",
+    "characterId": "elder_chen",
+    "description": "对陈长老出言不敬",
+    "affectionChange": -20,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "zi_yan_save",
+    "characterId": "zi_yan",
+    "description": "在紫嫣遇险时出手相救",
+    "affectionChange": 15,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "zi_yan_secret",
+    "characterId": "zi_yan",
+    "description": "发现紫嫣的秘密但选择保守",
+    "affectionChange": 20,
+    "minAffectionRequired": 20
+  },
+  {
+    "id": "mo_yun_betray",
+    "characterId": "mo_yun",
+    "description": "揭发墨云的魔道身份",
+    "affectionChange": -30,
+    "minAffectionRequired": 0
+  },
+  {
+    "id": "mo_yun_understand",
+    "characterId": "mo_yun",
+    "description": "理解墨云的处境并试图帮助他",
+    "affectionChange": 25,
+    "minAffectionRequired": 0
+  }
+]

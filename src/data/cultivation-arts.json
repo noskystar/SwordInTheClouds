@@ -1,0 +1,106 @@
+[
+  {
+    "id": "golden_sword_art",
+    "name": "金锋剑诀",
+    "description": "天剑宗基础剑诀，以金之锐气灌注剑身，攻击力强劲",
+    "element": "metal",
+    "levelRequirement": 1,
+    "statGrowth": {
+      "hpPerLevel": 3,
+      "mpPerLevel": 2,
+      "attackPerLevel": 3,
+      "defensePerLevel": 1,
+      "speedPerLevel": 1
+    },
+    "bonusStats": {
+      "attack": 5,
+      "critRate": 0.03
+    },
+    "skills": ["slash_metal"],
+    "passiveEffects": ["金属性剑诀伤害+10%"]
+  },
+  {
+    "id": "wood_spirit_art",
+    "name": "青木长生功",
+    "description": "以木之生机滋养肉身，生命力旺盛，恢复力强",
+    "element": "wood",
+    "levelRequirement": 5,
+    "realmRequirement": "lienqi",
+    "statGrowth": {
+      "hpPerLevel": 6,
+      "mpPerLevel": 2,
+      "attackPerLevel": 1,
+      "defensePerLevel": 2,
+      "speedPerLevel": 1
+    },
+    "bonusStats": {
+      "maxHp": 20,
+      "defense": 5
+    },
+    "skills": ["vine_bind"],
+    "passiveEffects": ["每回合恢复5%生命值"]
+  },
+  {
+    "id": "earth_steady_art",
+    "name": "厚土不动诀",
+    "description": "以土之厚重稳固根基，防御力惊人，不动如山",
+    "element": "earth",
+    "levelRequirement": 5,
+    "realmRequirement": "lienqi",
+    "statGrowth": {
+      "hpPerLevel": 5,
+      "mpPerLevel": 1,
+      "attackPerLevel": 1,
+      "defensePerLevel": 3,
+      "speedPerLevel": 0
+    },
+    "bonusStats": {
+      "defense": 10,
+      "maxHp": 30
+    },
+    "skills": ["stone_slam"],
+    "passiveEffects": ["受到物理伤害减少15%"]
+  },
+  {
+    "id": "water_flow_art",
+    "name": "流水剑意",
+    "description": "以水之势融于剑法，剑招连绵不绝，身法灵动",
+    "element": "water",
+    "levelRequirement": 10,
+    "realmRequirement": "zhuji",
+    "statGrowth": {
+      "hpPerLevel": 3,
+      "mpPerLevel": 4,
+      "attackPerLevel": 2,
+      "defensePerLevel": 1,
+      "speedPerLevel": 2
+    },
+    "bonusStats": {
+      "speed": 8,
+      "maxMp": 15
+    },
+    "skills": ["tidal_wave", "heal_spring"],
+    "passiveEffects": ["剑诀消耗灵力减少10%"]
+  },
+  {
+    "id": "fire_rage_art",
+    "name": "烈火焚天诀",
+    "description": "以火之暴烈催动剑气，攻击力惊人，暴击率极高",
+    "element": "fire",
+    "levelRequirement": 10,
+    "realmRequirement": "zhuji",
+    "statGrowth": {
+      "hpPerLevel": 2,
+      "mpPerLevel": 2,
+      "attackPerLevel": 4,
+      "defensePerLevel": 0,
+      "speedPerLevel": 1
+    },
+    "bonusStats": {
+      "attack": 8,
+      "critRate": 0.06
+    },
+    "skills": ["flame_burst"],
+    "passiveEffects": ["暴击伤害+20%"]
+  }
+]

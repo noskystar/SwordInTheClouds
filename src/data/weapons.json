@@ -1,0 +1,42 @@
+[
+  {
+    "id": "iron_sword",
+    "name": "铁剑",
+    "description": "普通铁匠打造的铁剑，锋利但无灵力",
+    "category": "equipment",
+    "equipmentType": "weapon",
+    "iconColor": 8421504,
+    "maxStack": 1,
+    "stats": { "attack": 5 }
+  },
+  {
+    "id": "spirit_sword",
+    "name": "灵剑",
+    "description": "注入灵力的长剑，可增幅剑诀威力",
+    "category": "equipment",
+    "equipmentType": "weapon",
+    "iconColor": 3553599,
+    "maxStack": 1,
+    "stats": { "attack": 12, "maxMp": 10 }
+  },
+  {
+    "id": "meteor_sword",
+    "name": "陨星剑",
+    "description": "以天外陨铁锻造的宝剑，锋利无比",
+    "category": "equipment",
+    "equipmentType": "weapon",
+    "iconColor": 16082491,
+    "maxStack": 1,
+    "stats": { "attack": 20, "critRate": 0.05 }
+  },
+  {
+    "id": "dragon_sword",
+    "name": "龙渊剑",
+    "description": "传说中斩龙仙人的佩剑，剑气如龙",
+    "category": "equipment",
+    "equipmentType": "weapon",
+    "iconColor": 16711680,
+    "maxStack": 1,
+    "stats": { "attack": 35, "critRate": 0.1, "critDamage": 0.2 }
+  }
+]

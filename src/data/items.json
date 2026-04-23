@@ -1,0 +1,118 @@
+[
+  {
+    "id": "hp_potion_small",
+    "name": "小还丹",
+    "description": "恢复少量生命值的丹药",
+    "category": "consumable",
+    "iconColor": 16711680,
+    "maxStack": 99,
+    "effect": { "type": "heal_hp", "value": 30 }
+  },
+  {
+    "id": "hp_potion_medium",
+    "name": "大还丹",
+    "description": "恢复中量生命值的丹药",
+    "category": "consumable",
+    "iconColor": 16711680,
+    "maxStack": 99,
+    "effect": { "type": "heal_hp", "value": 80 }
+  },
+  {
+    "id": "mp_potion_small",
+    "name": "回灵散",
+    "description": "恢复少量灵力的丹药",
+    "category": "consumable",
+    "iconColor": 255,
+    "maxStack": 99,
+    "effect": { "type": "heal_mp", "value": 20 }
+  },
+  {
+    "id": "mp_potion_medium",
+    "name": "聚灵丹",
+    "description": "恢复中量灵力的丹药",
+    "category": "consumable",
+    "iconColor": 255,
+    "maxStack": 99,
+    "effect": { "type": "heal_mp", "value": 50 }
+  },
+  {
+    "id": "herb",
+    "name": "灵草",
+    "description": "生长在灵气充裕之地的草药，可用于炼丹",
+    "category": "material",
+    "iconColor": 65280,
+    "maxStack": 99
+  },
+  {
+    "id": "stone_shard",
+    "name": "石碎片",
+    "description": "岩傀儡掉落的碎片，蕴含土之灵力",
+    "category": "material",
+    "iconColor": 9605778,
+    "maxStack": 99
+  },
+  {
+    "id": "fire_crystal",
+    "name": "火晶",
+    "description": "火狐体内凝结的晶体，蕴含火之灵力",
+    "category": "material",
+    "iconColor": 16082491,
+    "maxStack": 99
+  },
+  {
+    "id": "water_pearl",
+    "name": "水珠",
+    "description": "水蛇体内孕育的珍珠，蕴含水之灵力",
+    "category": "material",
+    "iconColor": 3553599,
+    "maxStack": 99
+  },
+  {
+    "id": "metal_scrap",
+    "name": "金属残片",
+    "description": "金刃怪掉落的残片，蕴含金之灵力",
+    "category": "material",
+    "iconColor": 13421772,
+    "maxStack": 99
+  },
+  {
+    "id": "iron_ore",
+    "name": "铁矿石",
+    "description": "普通的铁矿石，可用于锻造",
+    "category": "material",
+    "iconColor": 8421504,
+    "maxStack": 99
+  },
+  {
+    "id": "spirit_stone",
+    "name": "灵石",
+    "description": "蕴含精纯灵气的石头，修仙界的通用货币",
+    "category": "material",
+    "iconColor": 16776960,
+    "maxStack": 999
+  },
+  {
+    "id": "wood_essence",
+    "name": "木精",
+    "description": "百年树木凝聚的精华",
+    "category": "material",
+    "iconColor": 3381555,
+    "maxStack": 99
+  },
+  {
+    "id": "sword_manual_fragment",
+    "name": "剑谱残页",
+    "description": "某本失传剑谱的残页，集齐可合成完整剑谱",
+    "category": "quest",
+    "iconColor": 16776960,
+    "maxStack": 1
+  },
+  {
+    "id": "sect_token",
+    "name": "天剑宗令牌",
+    "description": "天剑宗弟子身份的象征",
+    "category": "quest",
+    "iconColor": 16776960,
+    "maxStack": 1
+  }
+]

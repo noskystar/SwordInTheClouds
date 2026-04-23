@@ -1,0 +1,56 @@
+[
+  {
+    "id": "hp_potion_small_recipe",
+    "name": "小还丹配方",
+    "description": "以灵草炼制的基础疗伤丹药",
+    "ingredients": [
+      { "itemId": "herb", "quantity": 2 }
+    ],
+    "outputItemId": "hp_potion_small",
+    "outputQuantity": 1
+  },
+  {
+    "id": "hp_potion_medium_recipe",
+    "name": "大还丹配方",
+    "description": "以灵草和木精炼制的疗伤丹药",
+    "ingredients": [
+      { "itemId": "herb", "quantity": 3 },
+      { "itemId": "wood_essence", "quantity": 1 }
+    ],
+    "outputItemId": "hp_potion_medium",
+    "outputQuantity": 1
+  },
+  {
+    "id": "mp_potion_small_recipe",
+    "name": "回灵散配方",
+    "description": "恢复灵力的基础丹药",
+    "ingredients": [
+      { "itemId": "water_pearl", "quantity": 1 },
+      { "itemId": "herb", "quantity": 1 }
+    ],
+    "outputItemId": "mp_potion_small",
+    "outputQuantity": 1
+  },
+  {
+    "id": "spirit_sword_recipe",
+    "name": "灵剑锻造",
+    "description": "以灵石和金属残片锻造的灵剑",
+    "ingredients": [
+      { "itemId": "metal_scrap", "quantity": 5 },
+      { "itemId": "spirit_stone", "quantity": 3 }
+    ],
+    "outputItemId": "spirit_sword",
+    "outputQuantity": 1
+  },
+  {
+    "id": "speed_boots_recipe",
+    "name": "轻云靴制作",
+    "description": "以灵草和石碎片制作的轻便靴子",
+    "ingredients": [
+      { "itemId": "stone_shard", "quantity": 3 },
+      { "itemId": "herb", "quantity": 2 }
+    ],
+    "outputItemId": "speed_boots",
+    "outputQuantity": 1
+  }
+]

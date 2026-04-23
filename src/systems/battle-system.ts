@@ -11,6 +11,7 @@ import type {
   FiveElement,
   SkillData,
 } from '../types/battle';
+import type { ItemEffect } from '../types/inventory';
 
 export const ATB_GAUGE_MAX = 1000;
 export const ATB_FACTOR = 0.01;
@@ -197,6 +198,9 @@ export class BattleSystem {
       case 'ultimate':
         this.handleUltimate(entity, action.targetId);
         break;
+      case 'item':
+        this.handleItem(entity, action.itemId);
+        break;
     }
 
     this.checkComboTrigger(entity);
@@ -288,6 +292,44 @@ export class BattleSystem {
     }
 
     this.recordAction(source.id, source.element, 'ultimate');
+  }
+
+  private handleItem(source: BattleEntity, itemId: string): void {
+    // Item effects are applied by the caller who owns the item data
+    // This method just records the action and emits an event
+    // The actual effect (heal/buff) should be pre-resolved before calling executeAction
+    this.emit('item_used', { type: 'item_used', entityId: source.id, itemId } as unknown as BattleEvent);
+    this.recordAction(source.id, source.element, 'item');
+  }
+
+  applyItemEffect(entityId: string, effect: ItemEffect): void {
+    const entity = this.entities.get(entityId);
+    if (!entity || !entity.isAlive) return;
+
+    switch (effect.type) {
+      case 'heal_hp': {
+        const healAmount = Math.min(effect.value, entity.maxHp - entity.hp);
+        entity.hp += healAmount;
+        this.emit('heal', { targetId: entityId, amount: healAmount } as BattleEvent);
+        break;
+      }
+      case 'heal_mp': {
+        const healAmount = Math.min(effect.value, entity.maxMp - entity.mp);
+        entity.mp += healAmount;
+        this.emit('mp_changed', { entityId, delta: healAmount } as BattleEvent);
+        break;
+      }
+      case 'buff':
+        if (effect.duration) {
+          this.applyBuff(entityId, {
+            type: 'atk_up',
+            value: effect.value,
+            duration: effect.duration,
+            sourceId: entityId,
+          });
+        }
+        break;
+    }
   }
 
   calculateDamage(

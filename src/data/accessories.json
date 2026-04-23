@@ -1,0 +1,62 @@
+[
+  {
+    "id": "speed_boots",
+    "name": "轻云靴",
+    "description": "穿上后身轻如燕，步法如风",
+    "category": "equipment",
+    "equipmentType": "boots",
+    "iconColor": 65280,
+    "maxStack": 1,
+    "stats": { "speed": 10, "defense": 2 }
+  },
+  {
+    "id": "spirit_boots",
+    "name": "踏云靴",
+    "description": "以灵兽皮制作的靴子，行走无声",
+    "category": "equipment",
+    "equipmentType": "boots",
+    "iconColor": 3553599,
+    "maxStack": 1,
+    "stats": { "speed": 18, "defense": 5 }
+  },
+  {
+    "id": "health_ring",
+    "name": "生机戒",
+    "description": "蕴含生命灵力的戒指，可增强体质",
+    "category": "equipment",
+    "equipmentType": "accessory",
+    "iconColor": 16711680,
+    "maxStack": 1,
+    "stats": { "maxHp": 30 }
+  },
+  {
+    "id": "mana_ring",
+    "name": "灵泉戒",
+    "description": "凝聚灵泉之力的戒指，可增幅灵力",
+    "category": "equipment",
+    "equipmentType": "accessory",
+    "iconColor": 255,
+    "maxStack": 1,
+    "stats": { "maxMp": 25 }
+  },
+  {
+    "id": "crit_amulet",
+    "name": "破军符",
+    "description": "刻有破军阵法的符咒，可提升暴击率",
+    "category": "equipment",
+    "equipmentType": "accessory",
+    "iconColor": 16082491,
+    "maxStack": 1,
+    "stats": { "critRate": 0.08, "attack": 5 }
+  },
+  {
+    "id": "defense_amulet",
+    "name": "金刚符",
+    "description": "刻有金刚护体阵的符咒，可提升防御",
+    "category": "equipment",
+    "equipmentType": "accessory",
+    "iconColor": 16776960,
+    "maxStack": 1,
+    "stats": { "defense": 10, "maxHp": 20 }
+  }
+]

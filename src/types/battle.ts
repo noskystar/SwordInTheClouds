@@ -92,7 +92,8 @@ export type BattleAction =
   | { type: 'defend' }
   | { type: 'flee' }
   | { type: 'skill'; skillId: string; targetId?: string }
-  | { type: 'ultimate'; targetId?: string };
+  | { type: 'ultimate'; targetId?: string }
+  | { type: 'item'; itemId: string; targetId?: string };
 
 export type BattleResult = 'victory' | 'defeat' | 'fled';
 
