@@ -1,0 +1,33 @@
+{
+  "width": 50,
+  "height": 30,
+  "tileWidth": 16,
+  "tileHeight": 16,
+  "spawnPoint": { "x": 48, "y": 240 },
+  "layers": {
+    "ground": {
+      "type": "ground",
+      "fill": "forest"
+    },
+    "collision": {
+      "type": "collision",
+      "rects": [
+        { "x": 0, "y": 0, "w": 50, "h": 3 },
+        { "x": 0, "y": 27, "w": 50, "h": 3 },
+        { "x": 0, "y": 0, "w": 3, "h": 30 },
+        { "x": 47, "y": 0, "w": 3, "h": 30 },
+        { "x": 10, "y": 10, "w": 5, "h": 5 },
+        { "x": 25, "y": 8, "w": 6, "h": 4 },
+        { "x": 35, "y": 15, "w": 4, "h": 6 }
+      ]
+    },
+    "objects": {
+      "type": "objects",
+      "items": [
+        { "id": "bm_to_gate", "type": "teleport", "x": 32, "y": 272, "w": 48, "h": 16, "target": "gate", "targetX": 160, "targetY": 160 },
+        { "id": "encounter_zone_1", "type": "encounter", "x": 80, "y": 80, "w": 80, "h": 80, "battleGroupId": "ch1_woods" },
+        { "id": "encounter_zone_2", "type": "encounter", "x": 200, "y": 120, "w": 100, "h": 80, "battleGroupId": "ch1_deep_woods" }
+      ]
+    }
+  }
+}

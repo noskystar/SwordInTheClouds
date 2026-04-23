@@ -1,0 +1,29 @@
+{
+  "width": 20,
+  "height": 16,
+  "tileWidth": 16,
+  "tileHeight": 16,
+  "spawnPoint": { "x": 80, "y": 144 },
+  "layers": {
+    "ground": {
+      "type": "ground",
+      "fill": "tatami"
+    },
+    "collision": {
+      "type": "collision",
+      "rects": [
+        { "x": 0, "y": 0, "w": 20, "h": 2 },
+        { "x": 0, "y": 14, "w": 20, "h": 2 },
+        { "x": 0, "y": 0, "w": 2, "h": 16 },
+        { "x": 18, "y": 0, "w": 2, "h": 16 }
+      ]
+    },
+    "objects": {
+      "type": "objects",
+      "items": [
+        { "id": "meditation_to_housing", "type": "teleport", "x": 0, "y": 112, "w": 16, "h": 32, "target": "disciples_housing", "targetX": 208, "targetY": 128 },
+        { "id": "manual_book", "type": "interactable", "x": 144, "y": 80, "w": 16, "h": 16, "action": "dialogue", "dialogueId": "meditation_manual" }
+      ]
+    }
+  }
+}

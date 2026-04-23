@@ -1,0 +1,32 @@
+{
+  "width": 30,
+  "height": 20,
+  "tileWidth": 16,
+  "tileHeight": 16,
+  "spawnPoint": { "x": 32, "y": 80 },
+  "layers": {
+    "ground": {
+      "type": "ground",
+      "fill": "wood"
+    },
+    "collision": {
+      "type": "collision",
+      "rects": [
+        { "x": 0, "y": 0, "w": 30, "h": 2 },
+        { "x": 0, "y": 18, "w": 30, "h": 2 },
+        { "x": 0, "y": 0, "w": 2, "h": 20 },
+        { "x": 28, "y": 0, "w": 2, "h": 20 },
+        { "x": 5, "y": 5, "w": 4, "h": 3 },
+        { "x": 12, "y": 5, "w": 4, "h": 3 },
+        { "x": 19, "y": 5, "w": 4, "h": 3 }
+      ]
+    },
+    "objects": {
+      "type": "objects",
+      "items": [
+        { "id": "housing_to_hall", "type": "teleport", "x": 0, "y": 64, "w": 16, "h": 64, "target": "main_hall", "targetX": 288, "targetY": 176 },
+        { "id": "housing_to_meditation", "type": "teleport", "x": 224, "y": 144, "w": 48, "h": 16, "target": "meditation_room", "targetX": 80, "targetY": 144 }
+      ]
+    }
+  }
+}

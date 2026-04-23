@@ -1,0 +1,30 @@
+{
+  "width": 40,
+  "height": 22,
+  "tileWidth": 16,
+  "tileHeight": 16,
+  "spawnPoint": { "x": 32, "y": 160 },
+  "layers": {
+    "ground": {
+      "type": "ground",
+      "fill": "marble"
+    },
+    "collision": {
+      "type": "collision",
+      "rects": [
+        { "x": 0, "y": 0, "w": 40, "h": 3 },
+        { "x": 0, "y": 19, "w": 40, "h": 3 },
+        { "x": 0, "y": 0, "w": 3, "h": 22 },
+        { "x": 37, "y": 0, "w": 3, "h": 22 },
+        { "x": 15, "y": 8, "w": 10, "h": 4 }
+      ]
+    },
+    "objects": {
+      "type": "objects",
+      "items": [
+        { "id": "hall_to_gate", "type": "teleport", "x": 0, "y": 80, "w": 16, "h": 80, "target": "gate", "targetX": 288, "targetY": 120 },
+        { "id": "hall_to_housing", "type": "teleport", "x": 304, "y": 160, "w": 16, "h": 48, "target": "disciples_housing", "targetX": 32, "targetY": 80 }
+      ]
+    }
+  }
+}

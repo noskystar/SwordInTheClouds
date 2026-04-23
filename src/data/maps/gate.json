@@ -1,0 +1,29 @@
+{
+  "width": 40,
+  "height": 22,
+  "tileWidth": 16,
+  "tileHeight": 16,
+  "spawnPoint": { "x": 80, "y": 176 },
+  "layers": {
+    "ground": {
+      "type": "ground",
+      "fill": "stone"
+    },
+    "collision": {
+      "type": "collision",
+      "rects": [
+        { "x": 0, "y": 0, "w": 40, "h": 2 },
+        { "x": 0, "y": 20, "w": 40, "h": 2 },
+        { "x": 0, "y": 0, "w": 2, "h": 22 },
+        { "x": 38, "y": 0, "w": 2, "h": 22 },
+        { "x": 18, "y": 5, "w": 4, "h": 2 }
+      ]
+    },
+    "objects": {
+      "type": "objects",
+      "items": [
+        { "id": "gate_exit", "type": "teleport", "x": 304, "y": 80, "w": 16, "h": 80, "target": "main_hall", "targetX": 32, "targetY": 160 }
+      ]
+    }
+  }
+}
