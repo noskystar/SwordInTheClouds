@@ -13,6 +13,7 @@ export class Player extends Phaser.GameObjects.Sprite {
   private speed = 80;
   private currentDirection: Direction = 'down';
   private isMoving = false;
+  private virtualDirection = { x: 0, y: 0 };
 
   constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, 'player');
@@ -75,6 +76,10 @@ export class Player extends Phaser.GameObjects.Sprite {
     this.handleMovement();
   }
 
+  setVirtualDirection(x: number, y: number): void {
+    this.virtualDirection = { x, y };
+  }
+
   private handleMovement(): void {
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setVelocity(0);
@@ -91,6 +96,12 @@ export class Player extends Phaser.GameObjects.Sprite {
     if (down) vy += 1;
     if (left) vx -= 1;
     if (right) vx += 1;
+
+    // Merge virtual joystick input
+    if (Math.abs(this.virtualDirection.x) > 0.1 || Math.abs(this.virtualDirection.y) > 0.1) {
+      vx = this.virtualDirection.x;
+      vy = this.virtualDirection.y;
+    }
 
     // Normalize diagonal movement
     if (vx !== 0 && vy !== 0) {

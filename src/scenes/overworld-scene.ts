@@ -12,7 +12,12 @@ import { DayNightSystem } from '../systems/day-night-system';
 import { QuestSystem } from '../systems/quest-system';
 import { WorldSystem } from '../systems/world-system';
 import { SaveSystem } from '../systems/save-system';
+import { InventorySystem } from '../systems/inventory-system';
+import { SettingsSystem } from '../systems/settings-system';
+import { PauseMenu } from '../ui/pause-menu';
+import { TouchControls } from '../ui/touch-controls';
 import questsData from '../data/quests.json';
+import itemsData from '../data/items.json';
 import gateMap from '../data/maps/gate.json';
 import mainHallMap from '../data/maps/main_hall.json';
 import disciplesHousingMap from '../data/maps/disciples_housing.json';
@@ -44,6 +49,11 @@ export class OverworldScene extends Scene {
   private nightOverlay?: Phaser.GameObjects.Rectangle;
   private fogGraphics?: Phaser.GameObjects.Graphics;
   private currentMapId = 'gate';
+  private inventorySystem!: InventorySystem;
+  private settingsSystem!: SettingsSystem;
+  private pauseMenu!: PauseMenu;
+  private escKey!: Phaser.Input.Keyboard.Key;
+  private touchControls?: TouchControls;
 
   constructor() {
     super({ key: 'OverworldScene' });
@@ -100,6 +110,26 @@ export class OverworldScene extends Scene {
 
     this.eKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.bKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B);
+    this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.escKey.on('down', () => this.pauseMenu.toggle());
+
+    this.inventorySystem = new InventorySystem(itemsData as import('../types/inventory').ItemData[]);
+    this.settingsSystem = new SettingsSystem();
+    this.pauseMenu = new PauseMenu(
+      this,
+      this.inventorySystem,
+      this.questSystem,
+      this.dayNightSystem,
+      this.settingsSystem,
+      () => ({ x: this.player.x, y: this.player.y }),
+      () => this.worldSystem.getAreaData(this.currentMapId)?.name ?? this.currentMapId,
+    );
+
+    this.touchControls = new TouchControls(this, {
+      onInteract: () => this.checkInteractions(),
+      onBattle: () => this.checkBattleTrigger(),
+      onMenu: () => this.pauseMenu.toggle(),
+    });
 
     this.dayNightSystem.on('phase_changed', () => {
       this.updateDayNightOverlay();
@@ -107,6 +137,9 @@ export class OverworldScene extends Scene {
   }
 
   update(_time: number, delta: number): void {
+    if (this.pauseMenu?.isVisible()) {
+      return;
+    }
     if (this.dialoguePanel?.isVisible()) {
       this.dialoguePanel.handleInput();
       this.eKeyWasDown = this.eKey.isDown;
@@ -122,6 +155,11 @@ export class OverworldScene extends Scene {
 
     this.dayNightSystem.tick(delta);
     this.updateDayNightOverlay();
+
+    if (this.touchControls?.isActive()) {
+      const dir = this.touchControls.getDirection();
+      this.player.setVirtualDirection(dir.x, dir.y);
+    }
 
     this.checkMapObjects();
     this.checkNPCProximity();

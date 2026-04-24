@@ -1,6 +1,8 @@
 import { Scene } from 'phaser';
 import { BattleSystem, type PlayerBattleStats } from '../systems/battle-system';
 import type { BattleEntity, BattleAction, BattleEvent, BattleResult, Buff, FiveElement, SkillData } from '../types/battle';
+import { SettingsSystem } from '../systems/settings-system';
+import { AudioSystem } from '../systems/audio-system';
 import skillsData from '../data/skills.json';
 import enemiesData from '../data/enemies.json';
 import battleGroupsData from '../data/battle-groups.json';
@@ -56,6 +58,7 @@ export class BattleScene extends Scene {
   private confirmKey!: Phaser.Input.Keyboard.Key;
   private cancelKey!: Phaser.Input.Keyboard.Key;
   private returnScene = 'OverworldScene';
+  private audioSystem!: AudioSystem;
 
   constructor() {
     super({ key: 'BattleScene' });
@@ -86,6 +89,7 @@ export class BattleScene extends Scene {
       comboSkillsData as import('../types/battle').ComboSkillData[]
     );
 
+    this.audioSystem = new AudioSystem(this, new SettingsSystem());
     this.setupInput();
     this.createEntityDisplays();
     this.createMenu();
@@ -263,10 +267,19 @@ export class BattleScene extends Scene {
     this.battleSystem.on('damage_dealt', (event: BattleEvent) => {
       if (event.type === 'damage_dealt') {
         const target = this.battleSystem.getEntity(event.targetId);
-        this.addLog(`${target?.name} 受到 ${event.damage} 点伤害`);
+        const isCrit = event.isCritical ?? false;
+        this.addLog(`${target?.name} 受到 ${event.damage} 点伤害${isCrit ? '（暴击！）' : ''}`);
         this.flashEntity(event.targetId, 0xff0000);
         this.updateEntityDisplay(event.targetId);
-        this.shakeEntity(event.targetId);
+        if (isCrit) {
+          this.audioSystem.playSFX('crit');
+          this.shakeEntity(event.targetId, 6, 80, 3);
+          this.shakeCamera(100, 0.003);
+          this.spawnParticles(event.targetId, 0xff0000, 12);
+        } else {
+          this.audioSystem.playSFX('hit');
+          this.shakeEntity(event.targetId);
+        }
       }
     });
 
@@ -276,6 +289,7 @@ export class BattleScene extends Scene {
         this.addLog(`${target?.name} 恢复 ${event.amount} 点生命`);
         this.flashEntity(event.targetId, 0x00ff00);
         this.updateEntityDisplay(event.targetId);
+        this.audioSystem.playSFX('heal');
       }
     });
 
@@ -325,7 +339,10 @@ export class BattleScene extends Scene {
       if (event.type === 'entity_defeated') {
         const entity = this.battleSystem.getEntity(event.entityId);
         this.addLog(`${entity?.name} 倒下了`);
+        this.spawnParticles(event.entityId, 0xaaaaaa, 20, 600);
         this.fadeOutEntity(event.entityId);
+        const isEnemy = this.battleSystem.getAllEntities().some((e: BattleEntity) => !e.isPlayer && e.id === event.entityId);
+        this.audioSystem.playSFX(isEnemy ? 'victory' : 'defeat');
       }
     });
 
@@ -339,6 +356,7 @@ export class BattleScene extends Scene {
 
     this.battleSystem.on('flee_attempted', (event: BattleEvent) => {
       if (event.type === 'flee_attempted') {
+        this.audioSystem.playSFX('flee');
         if (event.success) {
           this.addLog('成功逃跑！');
         } else {
@@ -357,6 +375,7 @@ export class BattleScene extends Scene {
 
     this.battleSystem.on('battle_ended', (event: BattleEvent) => {
       if (event.type === 'battle_ended') {
+        this.audioSystem.playSFX(event.result === 'victory' ? 'victory' : 'defeat');
         this.handleBattleEnd(event.result, event.rewards);
       }
     });
@@ -370,13 +389,16 @@ export class BattleScene extends Scene {
     if (this.menuState === 'action') {
       if (justDown(this.cursors.up)) {
         this.selectedMenuIndex = (this.selectedMenuIndex - 1 + MENU_OPTIONS.length) % MENU_OPTIONS.length;
+        this.audioSystem.playSFX('ui_click');
         this.updateMenuSelection();
       }
       if (justDown(this.cursors.down)) {
         this.selectedMenuIndex = (this.selectedMenuIndex + 1) % MENU_OPTIONS.length;
+        this.audioSystem.playSFX('ui_click');
         this.updateMenuSelection();
       }
       if (justDown(this.confirmKey)) {
+        this.audioSystem.playSFX('ui_confirm');
         this.selectAction(this.selectedMenuIndex);
       }
       return;
@@ -386,17 +408,21 @@ export class BattleScene extends Scene {
       const aliveEnemies = this.battleSystem.getAliveEnemies();
       if (justDown(this.cursors.up)) {
         this.selectedTargetIndex = (this.selectedTargetIndex - 1 + aliveEnemies.length) % aliveEnemies.length;
+        this.audioSystem.playSFX('ui_click');
         this.updateTargetSelection();
       }
       if (justDown(this.cursors.down)) {
         this.selectedTargetIndex = (this.selectedTargetIndex + 1) % aliveEnemies.length;
+        this.audioSystem.playSFX('ui_click');
         this.updateTargetSelection();
       }
       if (justDown(this.confirmKey)) {
+        this.audioSystem.playSFX('ui_confirm');
         const target = aliveEnemies[this.selectedTargetIndex];
         this.executePlayerAction(target.id);
       }
       if (justDown(this.cancelKey)) {
+        this.audioSystem.playSFX('ui_cancel');
         this.hideTargetSelection();
         this.showActionMenu();
       }
@@ -406,17 +432,21 @@ export class BattleScene extends Scene {
     if (this.menuState === 'skill') {
       if (justDown(this.cursors.up)) {
         this.selectedMenuIndex = (this.selectedMenuIndex - 1 + this.skillList.length) % this.skillList.length;
+        this.audioSystem.playSFX('ui_click');
         this.updateMenuSelection();
       }
       if (justDown(this.cursors.down)) {
         this.selectedMenuIndex = (this.selectedMenuIndex + 1) % this.skillList.length;
+        this.audioSystem.playSFX('ui_click');
         this.updateMenuSelection();
       }
       if (justDown(this.confirmKey)) {
+        this.audioSystem.playSFX('ui_confirm');
         const skill = this.skillList[this.selectedMenuIndex];
         this.selectSkill(skill);
       }
       if (justDown(this.cancelKey)) {
+        this.audioSystem.playSFX('ui_cancel');
         this.showActionMenu();
       }
       return;
@@ -681,21 +711,53 @@ export class BattleScene extends Scene {
     });
   }
 
-  private shakeEntity(entityId: string): void {
+  private shakeEntity(entityId: string, amplitude = 3, duration = 50, repeat = 2): void {
     const display = this.entityDisplays.get(entityId);
     if (!display) return;
 
     const originalX = display.container.x;
     this.tweens.add({
       targets: display.container,
-      x: originalX + 3,
-      duration: 50,
+      x: originalX + amplitude,
+      duration,
       yoyo: true,
-      repeat: 2,
+      repeat,
       onComplete: () => {
         display.container.x = originalX;
       },
     });
+  }
+
+  private shakeCamera(duration = 100, intensity = 0.003): void {
+    this.cameras.main.shake(duration, intensity);
+  }
+
+  private spawnParticles(entityId: string, color: number, count = 8, lifespan = 400): void {
+    const display = this.entityDisplays.get(entityId);
+    if (!display) return;
+
+    const cx = display.container.x;
+    const cy = display.container.y;
+
+    for (let i = 0; i < count; i++) {
+      const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
+      const speed = 20 + Math.random() * 40;
+      const px = cx + Math.cos(angle) * 8;
+      const py = cy + Math.sin(angle) * 8;
+
+      const p = this.add.rectangle(px, py, 2, 2, color);
+      p.setDepth(10);
+      this.tweens.add({
+        targets: p,
+        x: px + Math.cos(angle) * speed,
+        y: py + Math.sin(angle) * speed,
+        alpha: 0,
+        scale: 0.5,
+        duration: lifespan,
+        ease: 'Power2',
+        onComplete: () => p.destroy(),
+      });
+    }
   }
 
   private fadeOutEntity(entityId: string): void {
