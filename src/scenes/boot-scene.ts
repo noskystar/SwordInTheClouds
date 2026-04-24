@@ -68,24 +68,25 @@ export class BootScene extends Scene {
 
   private setupPixelPerfectScaling(): void {
     const canvas = this.game.canvas;
+    // Fit the game resolution to the full viewport with an integer zoom cap for crisp pixels.
     const applyIntegerScale = () => {
       const parent = canvas.parentElement;
       const availableWidth = parent?.clientWidth || window.innerWidth;
       const availableHeight = parent?.clientHeight || window.innerHeight;
       const scaleX = availableWidth / GAME_WIDTH;
       const scaleY = availableHeight / GAME_HEIGHT;
-      const scale = Math.max(1, Math.floor(Math.min(scaleX, scaleY)));
+      // Cap zoom at 3 so the game stays playable on small screens
+      const zoom = Math.max(1, Math.min(Math.floor(Math.min(scaleX, scaleY)), 3));
 
-      this.scale.setZoom(scale);
+      this.scale.setZoom(zoom);
       this.scale.refresh();
       canvas.style.imageRendering = 'pixelated';
-      // On HiDPI screens, force canvas internal resolution to match display for crisp pixels
+      // Force HiDPI canvas resolution so pixels stay sharp
       const dpr = window.devicePixelRatio || 1;
-      const effectiveScale = this.scale.zoom;
-      canvas.width = Math.floor(GAME_WIDTH * effectiveScale * dpr);
-      canvas.height = Math.floor(GAME_HEIGHT * effectiveScale * dpr);
-      canvas.style.width = `${GAME_WIDTH * effectiveScale}px`;
-      canvas.style.height = `${GAME_HEIGHT * effectiveScale}px`;
+      canvas.width = Math.floor(GAME_WIDTH * zoom * dpr);
+      canvas.height = Math.floor(GAME_HEIGHT * zoom * dpr);
+      canvas.style.width = `${GAME_WIDTH * zoom}px`;
+      canvas.style.height = `${GAME_HEIGHT * zoom}px`;
     };
 
     applyIntegerScale();

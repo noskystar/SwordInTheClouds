@@ -18,8 +18,8 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   antialiasGL: false,
   roundPixels: true,
   scale: {
-    mode: Phaser.Scale.NONE,
-    autoCenter: Phaser.Scale.NO_CENTER,
+    mode: Phaser.Scale.FIT,
+    autoCenter: Phaser.Scale.CENTER_BOTH,
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
   },
