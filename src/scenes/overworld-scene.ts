@@ -262,18 +262,7 @@ export class OverworldScene extends Scene {
     // Player collides with obstacles
     this.physics.add.collider(this.player, this.obstacles);
 
-    // Player overlaps with NPCs for proximity detection
-    for (const npc of this.npcs) {
-      this.physics.add.overlap(
-        this.player,
-        npc,
-        () => {
-          npc.setPlayerNearby(true);
-        },
-        undefined,
-        this
-      );
-    }
+    // Proximity detection is handled by checkNPCProximity() in update()
   }
 
   private setupHUD(): void {
