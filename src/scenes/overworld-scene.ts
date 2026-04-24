@@ -53,7 +53,7 @@ export class OverworldScene extends Scene {
     this.generateTextures();
   }
 
-  create(data: SceneTransitionData): void {
+  create(data?: SceneTransitionData): void {
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
     this.saveSystem = new SaveSystem();
@@ -86,12 +86,13 @@ export class OverworldScene extends Scene {
         fogRegion: { x: 0, y: 0, width: 800, height: 480 }, mapFile: 'back_mountain.json',
       },
     ]);
+    this.worldSystem.unlockArea('gate');
 
     this.mapLoader = new MapLoader(this);
-    this.loadMap(this.currentMapId, data.playerX, data.playerY);
+    this.loadMap(this.currentMapId, data?.playerX, data?.playerY);
     this.setupDayNightOverlay();
     this.setupFogOverlay();
-    this.createPlayer(data.playerX, data.playerY);
+    this.createPlayer(data?.playerX, data?.playerY);
     this.createNPCs();
     this.setupCamera();
     this.setupCollisions();
@@ -364,6 +365,7 @@ export class OverworldScene extends Scene {
     const regions = this.worldSystem.getFogRegions();
     for (const region of regions) {
       if (region.isUnlocked) continue;
+      if (region.areaId !== this.currentMapId) continue;
       this.fogGraphics.fillStyle(0x000000, 0.7);
       this.fogGraphics.fillRect(region.region.x, region.region.y, region.region.width, region.region.height);
     }
