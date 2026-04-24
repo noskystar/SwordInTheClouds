@@ -29,6 +29,16 @@ export class TitleScene extends Scene {
     this.settingsSystem = new SettingsSystem();
     this.saveSystem = new SaveSystem();
 
+    // Title background
+    const bg = this.add.image(
+      this.cameras.main.width / 2,
+      this.cameras.main.height / 2,
+      'bg_title'
+    );
+    bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+    bg.setOrigin(0.5);
+    bg.setDepth(0);
+
     // Title
     const titleText = this.add.text(
       this.cameras.main.width / 2,

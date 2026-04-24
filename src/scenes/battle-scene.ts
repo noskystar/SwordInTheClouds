@@ -17,7 +17,7 @@ interface BattleSceneData {
 
 interface EntityDisplay {
   container: Phaser.GameObjects.Container;
-  sprite: Phaser.GameObjects.Rectangle;
+  sprite: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
   nameText: Phaser.GameObjects.Text;
   hpBar: Phaser.GameObjects.Rectangle;
   hpBarBg: Phaser.GameObjects.Rectangle;
@@ -75,8 +75,16 @@ export class BattleScene extends Scene {
       return;
     }
 
-    const bgColor = group.backgroundColor ?? 0x1a1a2e;
-    this.cameras.main.setBackgroundColor(bgColor);
+    // Show battle background
+    const bgKey = this.getBackgroundKey(data.battleGroupId);
+    if (this.textures.exists(bgKey)) {
+      const bg = this.add.image(this.cameras.main.width / 2, this.cameras.main.height / 2, bgKey);
+      bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+      bg.setOrigin(0.5);
+      bg.setDepth(0);
+    } else {
+      this.cameras.main.setBackgroundColor(group.backgroundColor ?? 0x1a1a2e);
+    }
 
     const enemies = group.enemies
       .map((eid) => enemiesData.find((e) => e.id === eid))
@@ -137,8 +145,17 @@ export class BattleScene extends Scene {
   private createEntityDisplay(entity: BattleEntity, x: number, y: number): void {
     const container = this.add.container(x, y);
 
-    const sprite = this.add.rectangle(0, -8, 24, 24, entity.color);
-    sprite.setStrokeStyle(1, 0xffffff);
+    // Try to use a sprite image, fall back to colored rectangle
+    let sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
+    const spriteKey = entity.isPlayer ? null : this.getEnemySpriteKey(entity.id);
+    if (spriteKey && this.textures.exists(spriteKey)) {
+      sprite = this.add.image(0, -12, spriteKey);
+      sprite.setDisplaySize(entity.isPlayer ? 24 : 32, entity.isPlayer ? 24 : 24);
+      (sprite as Phaser.GameObjects.Image).setOrigin(0.5);
+    } else {
+      sprite = this.add.rectangle(0, -8, 24, 24, entity.color);
+      sprite.setStrokeStyle(1, 0xffffff);
+    }
 
     const nameText = this.add.text(0, -27, entity.name, uiTextStyle({
       fontSize: '7px',
@@ -698,11 +715,15 @@ export class BattleScene extends Scene {
     const display = this.entityDisplays.get(entityId);
     if (!display) return;
 
-    const originalColor = display.sprite.fillColor;
-    display.sprite.setFillStyle(color);
-    this.time.delayedCall(150, () => {
-      display.sprite.setFillStyle(originalColor);
-    });
+    // Only flash if sprite is a rectangle (not an image)
+    if (display.sprite instanceof Phaser.GameObjects.Rectangle) {
+      const rect = display.sprite;
+      const originalColor = rect.fillColor;
+      rect.setFillStyle(color);
+      this.time.delayedCall(150, () => {
+        rect.setFillStyle(originalColor);
+      });
+    }
   }
 
   private shakeEntity(entityId: string, amplitude = 3, duration = 50, repeat = 2): void {
@@ -771,6 +792,34 @@ export class BattleScene extends Scene {
       this.logEntries.shift();
     }
     this.battleLog.setText(this.logEntries.join('\n'));
+  }
+
+  private getBackgroundKey(battleGroupId: string): string {
+    const bgMap: Record<string, string> = {
+      demo_forest: 'bg_battle_forest',
+      demo_cave: 'bg_battle_cave',
+      demo_volcano: 'bg_battle_cave',
+      demo_river: 'bg_battle_forest',
+      demo_mixed: 'bg_battle_forest',
+      ch1_woods: 'bg_battle_forest',
+      ch1_deep_woods: 'bg_battle_forest',
+      ch1_corruption: 'bg_battle_cave',
+    };
+    return bgMap[battleGroupId] ?? 'bg_battle_forest';
+  }
+
+  private getEnemySpriteKey(enemyId: string): string | null {
+    const spriteMap: Record<string, string> = {
+      spirit_wolf: 'enemy_wolf',
+      dark_spy: 'enemy_shadow_clone',
+      corrupted_spirit: 'enemy_elder_1',
+      wood_spirit: 'enemy_spirit',
+      stone_golem: 'enemy_bandit',
+      flame_fox: 'enemy_spirit',
+      water_serpent: 'enemy_spirit',
+      metal_blade: 'enemy_bandit',
+    };
+    return spriteMap[enemyId] ?? null;
   }
 
   private getElementColor(element: FiveElement): string {

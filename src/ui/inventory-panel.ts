@@ -14,7 +14,7 @@ export class InventoryPanel extends Phaser.GameObjects.Container {
   private slotSprites: Phaser.GameObjects.Rectangle[] = [];
   private slotTexts: Phaser.GameObjects.Text[] = [];
   private isOpen = false;
-  private bg!: Phaser.GameObjects.Rectangle;
+  private bg!: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
   private titleText!: Phaser.GameObjects.Text;
 
   constructor(scene: Scene, inventorySystem: InventorySystem) {
@@ -35,16 +35,26 @@ export class InventoryPanel extends Phaser.GameObjects.Container {
   }
 
   private createPanel(): void {
-    // Background
-    this.bg = this.scene.add.rectangle(
-      PANEL_WIDTH / 2,
-      PANEL_HEIGHT / 2,
-      PANEL_WIDTH,
-      PANEL_HEIGHT,
-      0x1a1a2e,
-      0.95
-    );
-    this.bg.setStrokeStyle(1, 0x4a90d9);
+    // Background - try to use the inventory panel image
+    if (this.scene.textures.exists('ui_panel_inventory')) {
+      this.bg = this.scene.add.image(
+        PANEL_WIDTH / 2,
+        PANEL_HEIGHT / 2,
+        'ui_panel_inventory'
+      );
+      this.bg.setDisplaySize(PANEL_WIDTH, PANEL_HEIGHT);
+      this.bg.setOrigin(0.5);
+    } else {
+      this.bg = this.scene.add.rectangle(
+        PANEL_WIDTH / 2,
+        PANEL_HEIGHT / 2,
+        PANEL_WIDTH,
+        PANEL_HEIGHT,
+        0x1a1a2e,
+        0.95
+      );
+      this.bg.setStrokeStyle(1, 0x4a90d9);
+    }
     this.add(this.bg);
 
     // Title

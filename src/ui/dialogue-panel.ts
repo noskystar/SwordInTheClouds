@@ -12,7 +12,7 @@ const OPTION_LINE_HEIGHT = 12;
 export class DialoguePanel {
   private scene: Scene;
   private container!: Phaser.GameObjects.Container;
-  private bg!: Phaser.GameObjects.Rectangle;
+  private bg!: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
   private nameText!: Phaser.GameObjects.Text;
   private bodyText!: Phaser.GameObjects.Text;
   private optionTexts: Phaser.GameObjects.Text[] = [];
@@ -103,8 +103,15 @@ export class DialoguePanel {
     const panelH = PANEL_HEIGHT;
     const panelX = PANEL_MARGIN;
     const panelY = height - panelH - PANEL_MARGIN;
-    this.bg = this.scene.add.rectangle(panelX + panelW / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
-    this.bg.setStrokeStyle(1, 0x4a4a6a);
+    // Try to use the dialogue background image, fall back to colored rectangle
+    if (this.scene.textures.exists('ui_dialogue_bg')) {
+      this.bg = this.scene.add.image(panelX + panelW / 2, panelY + panelH / 2, 'ui_dialogue_bg');
+      this.bg.setDisplaySize(panelW, panelH);
+      this.bg.setOrigin(0.5);
+    } else {
+      this.bg = this.scene.add.rectangle(panelX + panelW / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
+      this.bg.setStrokeStyle(1, 0x4a4a6a);
+    }
 
     // Speaker name
     this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', uiTextStyle({
