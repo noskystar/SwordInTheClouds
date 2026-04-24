@@ -69,7 +69,7 @@ export class EndingScene extends Scene {
     this.tweens.add({ targets: typeLabel, alpha: 1, duration: 1000, delay: 2500 });
     this.tweens.add({ targets: prompt, alpha: 1, duration: 1000, delay: 3500 });
 
-    this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).on('down', () => {
+    this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).once('down', () => {
       this.cameras.main.fadeOut(500, 0, 0, 0);
       this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
         this.scene.start('TitleScene');
