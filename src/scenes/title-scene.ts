@@ -35,9 +35,9 @@ export class TitleScene extends Scene {
       this.cameras.main.height / 2 - 30,
       '云深不知剑',
       uiTextStyle({
-        fontSize: '20px',
+        fontSize: '28px',
         color: '#ffffff',
-        padding: { y: 2 },
+        padding: { y: 3 },
       })
     );
     titleText.setOrigin(0.5);
@@ -48,9 +48,9 @@ export class TitleScene extends Scene {
       this.cameras.main.height / 2 - 8,
       '—— 按方向键选择，回车确认 ——',
       uiTextStyle({
-        fontSize: '8px',
+        fontSize: '10px',
         color: '#888888',
-        padding: { y: 1 },
+        padding: { y: 2 },
       })
     );
     subtitleText.setOrigin(0.5);
@@ -98,10 +98,10 @@ export class TitleScene extends Scene {
         startY + i * gap,
         item.label,
         uiTextStyle({
-          fontSize: '8px',
-          color: item.enabled ? '#aaaaaa' : '#555555',
+          fontSize: '10px',
+          color: item.enabled ? '#cccccc' : '#555555',
           backgroundColor: '#00000000',
-          padding: { x: 4, y: 2 },
+          padding: { x: 6, y: 3 },
         })
       );
       text.setOrigin(0.5);

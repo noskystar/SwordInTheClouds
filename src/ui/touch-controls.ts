@@ -123,7 +123,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
       // Label
       const text = this.scene.add.text(btn.x, btnY - 3, btn.label, uiTextStyle({
-        fontSize: '11px',
+        fontSize: '14px',
         color: '#ffffff',
         fontStyle: 'bold',
       }));
@@ -132,7 +132,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
       // Description below button
       const desc = this.scene.add.text(btn.x, btnY + btnRadius + 5, btn.desc, uiTextStyle({
-        fontSize: '6px',
+        fontSize: '8px',
         color: '#aaaaaa',
       }));
       desc.setOrigin(0.5);
