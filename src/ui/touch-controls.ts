@@ -1,8 +1,8 @@
 import type { Scene } from 'phaser';
 import { uiTextStyle } from './text-style';
 
-const JOYSTICK_RADIUS = 32;
-const KNOB_RADIUS = 14;
+const JOYSTICK_RADIUS = 48;
+const KNOB_RADIUS = 20;
 
 export class TouchControls extends Phaser.GameObjects.Container {
   private joystickBase!: Phaser.GameObjects.Arc;
