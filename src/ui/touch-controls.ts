@@ -1,8 +1,8 @@
 import type { Scene } from 'phaser';
 import { uiTextStyle } from './text-style';
 
-const JOYSTICK_RADIUS = 24;
-const KNOB_RADIUS = 10;
+const JOYSTICK_RADIUS = 32;
+const KNOB_RADIUS = 14;
 
 export class TouchControls extends Phaser.GameObjects.Container {
   private joystickBase!: Phaser.GameObjects.Arc;
@@ -97,29 +97,46 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private createButtons(): void {
-    const btnY = 140;
-    const btnGap = 28;
-    const startX = 280;
+    const btnY = 130;
+    const btnGap = 38;
+    const startX = 265;
+    const btnRadius = 16; // Larger for touch targets
 
     const buttons = [
-      { label: 'E', x: startX, color: 0x66aa66, action: this.onInteract },
-      { label: 'B', x: startX + btnGap, color: 0xaa6666, action: this.onBattle },
-      { label: 'M', x: startX + btnGap * 2, color: 0x6666aa, action: this.onMenu },
+      { label: 'E', x: startX, color: 0x44bb44, action: this.onInteract, desc: '交互' },
+      { label: 'B', x: startX + btnGap, color: 0xcc4444, action: this.onBattle, desc: '战斗' },
+      { label: 'M', x: startX + btnGap * 2, color: 0x4466cc, action: this.onMenu, desc: '菜单' },
     ];
 
     for (const btn of buttons) {
-      const bg = this.scene.add.circle(btn.x, btnY, 10, btn.color, 0.8);
-      bg.setStrokeStyle(1, 0xffffff);
+      // Outer ring for better visibility
+      const outerRing = this.scene.add.circle(btn.x, btnY, btnRadius + 3, btn.color, 0.3);
+      outerRing.setStrokeStyle(2, btn.color);
+      this.add(outerRing);
+
+      // Main button
+      const bg = this.scene.add.circle(btn.x, btnY, btnRadius, btn.color, 0.85);
+      bg.setStrokeStyle(1, 0xffffff, 0.5);
       bg.setInteractive({ useHandCursor: true });
       bg.on('pointerdown', btn.action);
       this.add(bg);
 
-      const text = this.scene.add.text(btn.x, btnY, btn.label, uiTextStyle({
-        fontSize: '8px',
+      // Label
+      const text = this.scene.add.text(btn.x, btnY - 3, btn.label, uiTextStyle({
+        fontSize: '11px',
         color: '#ffffff',
+        fontStyle: 'bold',
       }));
       text.setOrigin(0.5);
       this.add(text);
+
+      // Description below button
+      const desc = this.scene.add.text(btn.x, btnY + btnRadius + 5, btn.desc, uiTextStyle({
+        fontSize: '6px',
+        color: '#aaaaaa',
+      }));
+      desc.setOrigin(0.5);
+      this.add(desc);
     }
   }
 

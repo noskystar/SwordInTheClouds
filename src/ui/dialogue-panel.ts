@@ -6,7 +6,7 @@ type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
 const PANEL_MARGIN = 4;
-const PANEL_HEIGHT = 104;
+const PANEL_HEIGHT = 112;
 const OPTION_LINE_HEIGHT = 12;
 
 export class DialoguePanel {
@@ -113,13 +113,13 @@ export class DialoguePanel {
       padding: { y: 1 },
     }));
 
-    // Body text
+    // Body text - larger area, proper word wrap
     this.bodyText = this.scene.add.text(panelX + 4, panelY + 18, '', uiTextStyle({
       fontSize: '7px',
       color: '#eeeeee',
-      wordWrap: { width: panelW - 8 },
-      lineSpacing: 3,
-      maxLines: 4,
+      wordWrap: { width: panelW - 10, callback: undefined },
+      lineSpacing: 4,
+      maxLines: 6,
       padding: { y: 2 },
     }));
 
@@ -218,14 +218,16 @@ export class DialoguePanel {
     const panelH = PANEL_HEIGHT;
     const panelX = PANEL_MARGIN;
     const panelY = height - panelH - 4;
-    const startY = panelY + 64;
+    const startY = panelY + 72; // Adjusted for larger panel
+    const availableHeight = panelY + panelH - startY - 4;
+    const optionHeight = Math.min(OPTION_LINE_HEIGHT, Math.floor(availableHeight / Math.max(this.options.length, 1)));
 
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
 
       const cursorX = panelX + 6;
       const textX = cursorX + 8;
-      const y = startY + i * OPTION_LINE_HEIGHT;
+      const y = startY + i * optionHeight;
 
       if (i === 0) {
         this.cursor = this.scene.add.text(cursorX, y, '▶', uiTextStyle({
@@ -236,10 +238,12 @@ export class DialoguePanel {
         this.container.add(this.cursor);
       }
 
+      const textWidth = this.scene.cameras.main.width - panelX - 16;
       const text = this.scene.add.text(textX, y, opt.text, uiTextStyle({
         fontSize: '7px',
         color: i === 0 ? '#ffff00' : '#cccccc',
         padding: { y: 1 },
+        wordWrap: { width: textWidth },
       }));
       text.setInteractive({ useHandCursor: true });
       text.on('pointerdown', () => {
@@ -261,8 +265,10 @@ export class DialoguePanel {
       const height = this.scene.cameras.main.height;
       const panelH = PANEL_HEIGHT;
       const panelY = height - panelH - 4;
-      const startY = panelY + 64;
-      this.cursor.setY(startY + this.selectedIndex * OPTION_LINE_HEIGHT);
+      const startY = panelY + 72;
+      const availableHeight = panelY + panelH - startY - 4;
+      const optionHeight = Math.min(OPTION_LINE_HEIGHT, Math.floor(availableHeight / Math.max(this.options.length, 1)));
+      this.cursor.setY(startY + this.selectedIndex * optionHeight);
     }
     for (let i = 0; i < this.optionTexts.length; i++) {
       this.optionTexts[i].setColor(i === this.selectedIndex ? '#ffff00' : '#cccccc');

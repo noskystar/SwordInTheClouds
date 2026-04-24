@@ -35,6 +35,13 @@ export class BootScene extends Scene {
       this.scale.setZoom(scale);
       this.scale.refresh();
       canvas.style.imageRendering = 'pixelated';
+      // On HiDPI screens, force canvas internal resolution to match display for crisp pixels
+      const dpr = window.devicePixelRatio || 1;
+      const effectiveScale = this.scale.zoom;
+      canvas.width = Math.floor(GAME_WIDTH * effectiveScale * dpr);
+      canvas.height = Math.floor(GAME_HEIGHT * effectiveScale * dpr);
+      canvas.style.width = `${GAME_WIDTH * effectiveScale}px`;
+      canvas.style.height = `${GAME_HEIGHT * effectiveScale}px`;
     };
 
     applyIntegerScale();
