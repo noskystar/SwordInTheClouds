@@ -9,6 +9,9 @@ export class WorldSystem {
   constructor(areas: AreaData[] = []) {
     for (const area of areas) {
       this.areaData.set(area.id, area);
+      if (area.unlockCondition.type === 'flag' && area.unlockCondition.value === 'always_unlocked') {
+        this.unlockedAreas.add(area.id);
+      }
     }
   }
 
