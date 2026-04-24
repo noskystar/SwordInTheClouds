@@ -149,7 +149,6 @@ export class BattleSystem {
       if (entity.buffs.some((b) => b.type === 'stun')) {
         if (entity.atbGauge >= ATB_GAUGE_MAX) {
           entity.atbGauge = 0;
-          this.tickBuffsAtTurnStart(entity);
         }
         continue;
       }
