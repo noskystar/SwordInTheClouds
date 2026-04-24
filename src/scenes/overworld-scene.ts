@@ -109,11 +109,13 @@ export class OverworldScene extends Scene {
     if (this.dialoguePanel?.isVisible()) {
       this.dialoguePanel.handleInput();
       this.eKeyWasDown = this.eKey.isDown;
+      this.bKeyWasDown = this.bKey.isDown;
       return;
     }
     if (this.isDialogueOpen) {
       this.checkDialogueClose();
       this.eKeyWasDown = this.eKey.isDown;
+      this.bKeyWasDown = this.bKey.isDown;
       return;
     }
 
@@ -125,6 +127,7 @@ export class OverworldScene extends Scene {
     this.checkInteractions();
     this.checkBattleTrigger();
     this.eKeyWasDown = this.eKey.isDown;
+    this.bKeyWasDown = this.bKey.isDown;
   }
 
   private generateTextures(): void {
