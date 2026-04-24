@@ -46,28 +46,32 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.add(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
-    this.joystickBase.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-      this.isDragging = true;
-      this.pointerId = pointer.id;
-      this.updateKnobPosition(pointer.x, pointer.y);
-    });
-
-    this.scene.input.on('pointermove', (pointer: Phaser.Input.Pointer) => {
-      if (this.isDragging && pointer.id === this.pointerId) {
-        this.updateKnobPosition(pointer.x, pointer.y);
-      }
-    });
-
-    this.scene.input.on('pointerup', (pointer: Phaser.Input.Pointer) => {
-      if (this.isDragging && pointer.id === this.pointerId) {
-        this.isDragging = false;
-        this.pointerId = null;
-        this.joystickKnob.x = this.joystickCenter.x;
-        this.joystickKnob.y = this.joystickCenter.y;
-        this.direction = { x: 0, y: 0 };
-      }
-    });
+    this.joystickBase.on('pointerdown', this.onJoystickPointerDown, this);
+    this.scene.input.on('pointermove', this.onPointerMove, this);
+    this.scene.input.on('pointerup', this.onPointerUp, this);
   }
+
+  private onJoystickPointerDown(pointer: Phaser.Input.Pointer): void {
+    this.isDragging = true;
+    this.pointerId = pointer.id;
+    this.updateKnobPosition(pointer.x, pointer.y);
+  }
+
+  private onPointerMove = (pointer: Phaser.Input.Pointer): void => {
+    if (this.isDragging && pointer.id === this.pointerId) {
+      this.updateKnobPosition(pointer.x, pointer.y);
+    }
+  };
+
+  private onPointerUp = (pointer: Phaser.Input.Pointer): void => {
+    if (this.isDragging && pointer.id === this.pointerId) {
+      this.isDragging = false;
+      this.pointerId = null;
+      this.joystickKnob.x = this.joystickCenter.x;
+      this.joystickKnob.y = this.joystickCenter.y;
+      this.direction = { x: 0, y: 0 };
+    }
+  };
 
   private updateKnobPosition(worldX: number, worldY: number): void {
     const dx = worldX - this.x - this.joystickCenter.x;
@@ -125,5 +129,12 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
   isActive(): boolean {
     return this.visible;
+  }
+
+  destroy(fromScene?: boolean): void {
+    this.scene.input.off('pointermove', this.onPointerMove, this);
+    this.scene.input.off('pointerup', this.onPointerUp, this);
+    this.joystickBase.off('pointerdown', this.onJoystickPointerDown, this);
+    super.destroy(fromScene);
   }
 }

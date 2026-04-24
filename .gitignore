@@ -42,20 +42,16 @@ __tests__/
 **/*.spec.*
 
 # QA / local debug scripts (ad-hoc, not product code)
-qa-*.mjs
-test-*.mjs
+# All moved to tmp/qa-scripts/
 
 # QA artifacts (screenshots, reports, recordings)
 .gstack/
 playwright-report/
 test-results/
+tmp/
 
 # Claude / agent local settings
 .claude/settings.local.json
-
-# Local scratch exports (ad-hoc)
-after-enter
-after-keypress
 
 # Vite cache
 .vite/

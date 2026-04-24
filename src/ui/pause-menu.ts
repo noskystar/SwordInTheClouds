@@ -173,8 +173,7 @@ export class PauseMenu extends Phaser.GameObjects.Container {
     this.inventoryPanel.setVisible(true);
     this.inventoryPanel.refresh();
     // We don't add it to contentContainer because it's already in the scene.
-    // Just track it for cleanup.
-    this.contentElements.push(this.inventoryPanel);
+    // Don't track in contentElements — it's a reusable panel managed by clearContent().
   }
 
   private showQuestTab(): void {
@@ -254,7 +253,7 @@ export class PauseMenu extends Phaser.GameObjects.Container {
   private showSettingsTab(): void {
     this.settingsPanel.setPosition(CONTENT_X + 8, 8);
     this.settingsPanel.setVisible(true);
-    this.contentElements.push(this.settingsPanel);
+    // Don't track in contentElements — reusable panel managed by clearContent().
   }
 
   open(): void {
