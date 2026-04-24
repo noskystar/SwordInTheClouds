@@ -79,6 +79,7 @@ export class DialogueSystem {
     if (!node) return;
 
     const visibleOptions = this.getVisibleOptions(node);
+    if (optionIndex < 0 || optionIndex >= visibleOptions.length) return;
     const option = visibleOptions[optionIndex];
     if (!option) return;
 
