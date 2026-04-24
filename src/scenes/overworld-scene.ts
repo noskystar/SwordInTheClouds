@@ -485,34 +485,11 @@ export class OverworldScene extends Scene {
     this.dialogueSystem = new DialogueSystem();
     this.dialogueSystem.loadDialogue(data);
 
-    this.dialogueSystem.on('start_quest', (e: unknown) => {
-      const evt = e as { questId: string };
-      this.questSystem.acceptQuest(evt.questId);
-    });
-    this.dialogueSystem.on('advance_quest', (e: unknown) => {
-      const evt = e as { questId: string; stage: string };
-      this.questSystem.advanceObjective(evt.questId, evt.stage, 1);
-    });
-    this.dialogueSystem.on('complete_quest', (e: unknown) => {
-      const evt = e as { questId: string };
-      // Completing a quest via dialogue effect - mark all objectives complete
-      const quest = this.questSystem.getQuestData(evt.questId);
-      if (quest) {
-        for (const stage of quest.stages) {
-          for (const obj of stage.objectives) {
-            this.questSystem.advanceObjective(evt.questId, obj.id, obj.requiredCount);
-          }
-        }
-      }
-    });
-    this.dialogueSystem.on('start_battle', (e: unknown) => {
-      const evt = e as { enemyGroupId: string };
-      this.startEncounter(evt.enemyGroupId);
-    });
-    this.dialogueSystem.on('teleport', (e: unknown) => {
-      const evt = e as { scene: string; x: number; y: number };
-      this.transitionToScene(evt.scene, evt.x, evt.y);
-    });
+    this.dialogueSystem.on('start_quest', this.onStartQuest);
+    this.dialogueSystem.on('advance_quest', this.onAdvanceQuest);
+    this.dialogueSystem.on('complete_quest', this.onCompleteQuest);
+    this.dialogueSystem.on('start_battle', this.onStartBattle);
+    this.dialogueSystem.on('teleport', this.onTeleport);
 
     this.dialoguePanel = new DialoguePanel(this);
     this.dialoguePanel.setCallbacks(
@@ -538,12 +515,49 @@ export class OverworldScene extends Scene {
   }
 
   private endDialogue(): void {
+    this.dialogueSystem?.off('start_quest', this.onStartQuest);
+    this.dialogueSystem?.off('advance_quest', this.onAdvanceQuest);
+    this.dialogueSystem?.off('complete_quest', this.onCompleteQuest);
+    this.dialogueSystem?.off('start_battle', this.onStartBattle);
+    this.dialogueSystem?.off('teleport', this.onTeleport);
     this.dialoguePanel?.destroy();
     this.dialoguePanel = undefined;
     this.dialogueSystem = undefined;
     this.isDialogueOpen = false;
     this.physics.resume();
   }
+
+  private onStartQuest = (e: unknown): void => {
+    const evt = e as { questId: string };
+    this.questSystem.acceptQuest(evt.questId);
+  };
+
+  private onAdvanceQuest = (e: unknown): void => {
+    const evt = e as { questId: string; stage: string };
+    this.questSystem.advanceObjective(evt.questId, evt.stage, 1);
+  };
+
+  private onCompleteQuest = (e: unknown): void => {
+    const evt = e as { questId: string };
+    const quest = this.questSystem.getQuestData(evt.questId);
+    if (quest) {
+      for (const stage of quest.stages) {
+        for (const obj of stage.objectives) {
+          this.questSystem.advanceObjective(evt.questId, obj.id, obj.requiredCount);
+        }
+      }
+    }
+  };
+
+  private onStartBattle = (e: unknown): void => {
+    const evt = e as { enemyGroupId: string };
+    this.startEncounter(evt.enemyGroupId);
+  };
+
+  private onTeleport = (e: unknown): void => {
+    const evt = e as { scene: string; x: number; y: number };
+    this.transitionToScene(evt.scene, evt.x, evt.y);
+  };
 
   private bKeyWasDown = false;
 
