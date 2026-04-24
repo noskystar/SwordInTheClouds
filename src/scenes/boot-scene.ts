@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 
 export class BootScene extends Scene {
   constructor() {
@@ -13,10 +14,31 @@ export class BootScene extends Scene {
   }
 
   create(): void {
+    this.setupPixelPerfectScaling();
+
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start('TitleScene');
     });
+  }
+
+  private setupPixelPerfectScaling(): void {
+    const canvas = this.game.canvas;
+    const applyIntegerScale = () => {
+      const parent = canvas.parentElement;
+      const availableWidth = parent?.clientWidth || window.innerWidth;
+      const availableHeight = parent?.clientHeight || window.innerHeight;
+      const scaleX = availableWidth / GAME_WIDTH;
+      const scaleY = availableHeight / GAME_HEIGHT;
+      const scale = Math.max(1, Math.floor(Math.min(scaleX, scaleY)));
+
+      this.scale.setZoom(scale);
+      this.scale.refresh();
+      canvas.style.imageRendering = 'pixelated';
+    };
+
+    applyIntegerScale();
+    window.addEventListener('resize', applyIntegerScale);
   }
 
   private createLoadingBar(): void {

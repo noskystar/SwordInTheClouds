@@ -2,6 +2,7 @@ import { Scene } from 'phaser';
 import { SaveSystem } from '../systems/save-system';
 import { SettingsSystem } from '../systems/settings-system';
 import { SettingsPanel } from '../ui/settings-panel';
+import { uiTextStyle } from '../ui/text-style';
 
 interface MenuItem {
   label: string;
@@ -33,11 +34,11 @@ export class TitleScene extends Scene {
       this.cameras.main.width / 2,
       this.cameras.main.height / 2 - 30,
       '云深不知剑',
-      {
+      uiTextStyle({
         fontSize: '20px',
         color: '#ffffff',
-        fontFamily: 'monospace',
-      }
+        padding: { y: 2 },
+      })
     );
     titleText.setOrigin(0.5);
 
@@ -46,11 +47,11 @@ export class TitleScene extends Scene {
       this.cameras.main.width / 2,
       this.cameras.main.height / 2 - 8,
       '—— 按方向键选择，回车确认 ——',
-      {
-        fontSize: '6px',
+      uiTextStyle({
+        fontSize: '8px',
         color: '#888888',
-        fontFamily: 'monospace',
-      }
+        padding: { y: 1 },
+      })
     );
     subtitleText.setOrigin(0.5);
 
@@ -96,13 +97,12 @@ export class TitleScene extends Scene {
         this.cameras.main.width / 2,
         startY + i * gap,
         item.label,
-        {
+        uiTextStyle({
           fontSize: '8px',
           color: item.enabled ? '#aaaaaa' : '#555555',
-          fontFamily: 'monospace',
           backgroundColor: '#00000000',
           padding: { x: 4, y: 2 },
-        }
+        })
       );
       text.setOrigin(0.5);
 

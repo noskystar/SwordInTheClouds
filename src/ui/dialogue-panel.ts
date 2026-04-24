@@ -1,8 +1,13 @@
 import { Scene } from 'phaser';
 import type { DialogueNode, DialogueOption } from '../types/dialogue';
+import { uiTextStyle } from './text-style';
 
 type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
+
+const PANEL_MARGIN = 4;
+const PANEL_HEIGHT = 104;
+const OPTION_LINE_HEIGHT = 12;
 
 export class DialoguePanel {
   private scene: Scene;
@@ -94,35 +99,36 @@ export class DialoguePanel {
     this.container.setName('dialogue-panel');
 
     // Background
-    const panelW = width - 8;
-    const panelH = 76;
-    const panelX = 4;
-    const panelY = height - panelH - 4;
+    const panelW = width - PANEL_MARGIN * 2;
+    const panelH = PANEL_HEIGHT;
+    const panelX = PANEL_MARGIN;
+    const panelY = height - panelH - PANEL_MARGIN;
     this.bg = this.scene.add.rectangle(panelX + panelW / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
     this.bg.setStrokeStyle(1, 0x4a4a6a);
 
     // Speaker name
-    this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', {
-      fontSize: '6px',
+    this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', uiTextStyle({
+      fontSize: '8px',
       color: '#ffff00',
-      fontFamily: 'monospace',
-    });
+      padding: { y: 1 },
+    }));
 
     // Body text
-    this.bodyText = this.scene.add.text(panelX + 4, panelY + 14, '', {
-      fontSize: '6px',
+    this.bodyText = this.scene.add.text(panelX + 4, panelY + 18, '', uiTextStyle({
+      fontSize: '7px',
       color: '#eeeeee',
-      fontFamily: 'monospace',
       wordWrap: { width: panelW - 8 },
-      lineSpacing: 2,
-    });
+      lineSpacing: 3,
+      maxLines: 4,
+      padding: { y: 2 },
+    }));
 
     // Continue hint
-    this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 4, '▶ E/空格继续', {
-      fontSize: '5px',
+    this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 4, '▶ E/空格继续', uiTextStyle({
+      fontSize: '6px',
       color: '#888888',
-      fontFamily: 'monospace',
-    });
+      padding: { y: 1 },
+    }));
     this.continueHint.setOrigin(1, 1);
     this.continueHint.setVisible(false);
 
@@ -209,32 +215,32 @@ export class DialoguePanel {
 
   private showOptions(): void {
     const height = this.scene.cameras.main.height;
-    const panelH = 76;
-    const panelX = 4;
+    const panelH = PANEL_HEIGHT;
+    const panelX = PANEL_MARGIN;
     const panelY = height - panelH - 4;
-    const startY = panelY + 36;
+    const startY = panelY + 64;
 
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
 
       const cursorX = panelX + 6;
       const textX = cursorX + 8;
-      const y = startY + i * 10;
+      const y = startY + i * OPTION_LINE_HEIGHT;
 
       if (i === 0) {
-        this.cursor = this.scene.add.text(cursorX, y, '▶', {
-          fontSize: '6px',
+        this.cursor = this.scene.add.text(cursorX, y, '▶', uiTextStyle({
+          fontSize: '7px',
           color: '#ffff00',
-          fontFamily: 'monospace',
-        });
+          padding: { y: 1 },
+        }));
         this.container.add(this.cursor);
       }
 
-      const text = this.scene.add.text(textX, y, opt.text, {
-        fontSize: '6px',
+      const text = this.scene.add.text(textX, y, opt.text, uiTextStyle({
+        fontSize: '7px',
         color: i === 0 ? '#ffff00' : '#cccccc',
-        fontFamily: 'monospace',
-      });
+        padding: { y: 1 },
+      }));
       text.setInteractive({ useHandCursor: true });
       text.on('pointerdown', () => {
         this.selectedIndex = i;
@@ -253,10 +259,10 @@ export class DialoguePanel {
   private updateOptionHighlight(): void {
     if (this.cursor) {
       const height = this.scene.cameras.main.height;
-      const panelH = 76;
+      const panelH = PANEL_HEIGHT;
       const panelY = height - panelH - 4;
-      const startY = panelY + 36;
-      this.cursor.setY(startY + this.selectedIndex * 10);
+      const startY = panelY + 64;
+      this.cursor.setY(startY + this.selectedIndex * OPTION_LINE_HEIGHT);
     }
     for (let i = 0; i < this.optionTexts.length; i++) {
       this.optionTexts[i].setColor(i === this.selectedIndex ? '#ffff00' : '#cccccc');

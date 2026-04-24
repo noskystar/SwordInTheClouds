@@ -16,6 +16,7 @@ import { InventorySystem } from '../systems/inventory-system';
 import { SettingsSystem } from '../systems/settings-system';
 import { PauseMenu } from '../ui/pause-menu';
 import { TouchControls } from '../ui/touch-controls';
+import { uiTextStyle } from '../ui/text-style';
 import questsData from '../data/quests.json';
 import itemsData from '../data/items.json';
 import gateMap from '../data/maps/gate.json';
@@ -322,13 +323,12 @@ export class OverworldScene extends Scene {
   private setupHUD(): void {
     const halfW = this.cameras.main.width / 2;
     const halfH = this.cameras.main.height / 2;
-    const hintText = this.add.text(4 - halfW, 4 - halfH, 'WASD/方向键移动  E 交互  B 战斗', {
-      fontSize: '6px',
+    const hintText = this.add.text(4 - halfW, 4 - halfH, 'WASD/方向键移动  E 交互  B 战斗', uiTextStyle({
+      fontSize: '7px',
       color: '#ffffff',
-      fontFamily: 'monospace',
       backgroundColor: '#00000088',
       padding: { x: 2, y: 1 },
-    });
+    }));
     hintText.setScrollFactor(0);
     hintText.setDepth(10);
   }
@@ -662,34 +662,35 @@ export class OverworldScene extends Scene {
     const halfW = this.cameras.main.width / 2;
     const halfH = this.cameras.main.height / 2;
     const width = this.cameras.main.width;
-    const height = 40;
+    const height = 56;
 
     const bg = this.add.rectangle(0, halfH - height / 2, width, height, 0x000000, 0.8);
     bg.setName('dialogue-ui');
     bg.setScrollFactor(0);
 
-    const nameText = this.add.text(4 - halfW, halfH - height + 2, speaker, {
-      fontSize: '6px',
+    const nameText = this.add.text(4 - halfW, halfH - height + 2, speaker, uiTextStyle({
+      fontSize: '8px',
       color: '#ffff00',
-      fontFamily: 'monospace',
-    });
+      padding: { y: 1 },
+    }));
     nameText.setName('dialogue-ui');
     nameText.setScrollFactor(0);
 
-    const dialogueText = this.add.text(4 - halfW, halfH - height + 12, text, {
-      fontSize: '6px',
+    const dialogueText = this.add.text(4 - halfW, halfH - height + 16, text, uiTextStyle({
+      fontSize: '8px',
       color: '#ffffff',
-      fontFamily: 'monospace',
       wordWrap: { width: width - 8 },
-    });
+      lineSpacing: 4,
+      padding: { y: 2 },
+    }));
     dialogueText.setName('dialogue-ui');
     dialogueText.setScrollFactor(0);
 
-    const closeHint = this.add.text(halfW - 4, halfH - 2, '按 E 关闭', {
-      fontSize: '5px',
+    const closeHint = this.add.text(halfW - 4, halfH - 2, '按 E 关闭', uiTextStyle({
+      fontSize: '6px',
       color: '#aaaaaa',
-      fontFamily: 'monospace',
-    });
+      padding: { y: 1 },
+    }));
     closeHint.setName('dialogue-ui');
     closeHint.setOrigin(1, 1);
     closeHint.setScrollFactor(0);

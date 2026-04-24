@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { uiTextStyle } from '../ui/text-style';
 
 export interface NPCConfig {
   id: string;
@@ -48,13 +49,12 @@ export class NPC extends Phaser.GameObjects.Sprite {
   }
 
   private createInteractPrompt(): void {
-    const prompt = this.scene.add.text(this.x, this.y - 18, 'E', {
-      fontSize: '6px',
+    const prompt = this.scene.add.text(this.x, this.y - 20, 'E', uiTextStyle({
+      fontSize: '9px',
       color: '#ffff00',
-      fontFamily: 'monospace',
       backgroundColor: '#00000088',
       padding: { x: 2, y: 1 },
-    });
+    }));
     prompt.setOrigin(0.5);
     prompt.setVisible(false);
     prompt.setName(`interact-prompt-${this.config.id}`);

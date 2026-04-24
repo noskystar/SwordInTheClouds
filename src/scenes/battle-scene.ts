@@ -7,6 +7,7 @@ import skillsData from '../data/skills.json';
 import enemiesData from '../data/enemies.json';
 import battleGroupsData from '../data/battle-groups.json';
 import comboSkillsData from '../data/combo-skills.json';
+import { uiTextStyle } from '../ui/text-style';
 
 interface BattleSceneData {
   battleGroupId: string;
@@ -139,18 +140,16 @@ export class BattleScene extends Scene {
     const sprite = this.add.rectangle(0, -8, 24, 24, entity.color);
     sprite.setStrokeStyle(1, 0xffffff);
 
-    const nameText = this.add.text(0, -26, entity.name, {
-      fontSize: '6px',
+    const nameText = this.add.text(0, -27, entity.name, uiTextStyle({
+      fontSize: '7px',
       color: '#ffffff',
-      fontFamily: 'monospace',
-    });
+    }));
     nameText.setOrigin(0.5);
 
-    const elementText = this.add.text(entity.isPlayer ? -14 : 14, -26, ELEMENT_NAMES[entity.element], {
-      fontSize: '5px',
+    const elementText = this.add.text(entity.isPlayer ? -14 : 14, -27, ELEMENT_NAMES[entity.element], uiTextStyle({
+      fontSize: '7px',
       color: this.getElementColor(entity.element),
-      fontFamily: 'monospace',
-    });
+    }));
     elementText.setOrigin(0.5);
 
     const hpBarBg = this.add.rectangle(0, 8, 32, 4, 0x333333);
@@ -165,11 +164,10 @@ export class BattleScene extends Scene {
     const atbBar = this.add.rectangle(-16, 20, 0, 2, 0xffff00);
     atbBar.setOrigin(0, 0.5);
 
-    const hpText = this.add.text(0, 8, `${entity.hp}/${entity.maxHp}`, {
-      fontSize: '4px',
+    const hpText = this.add.text(0, 8, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
+      fontSize: '6px',
       color: '#ffffff',
-      fontFamily: 'monospace',
-    });
+    }));
     hpText.setOrigin(0.5);
 
     container.add([sprite, nameText, elementText, hpBarBg, hpBar, mpBarBg, mpBar, atbBarBg, atbBar, hpText]);
@@ -200,24 +198,22 @@ export class BattleScene extends Scene {
     this.menuContainer.add(bg);
 
     for (let i = 0; i < MENU_OPTIONS.length; i++) {
-      const text = this.add.text(-50, -14 + i * 10, MENU_OPTIONS[i], {
-        fontSize: '7px',
+      const text = this.add.text(-50, -14 + i * 10, MENU_OPTIONS[i], uiTextStyle({
+        fontSize: '8px',
         color: '#aaaaaa',
-        fontFamily: 'monospace',
-      });
+      }));
       this.menuItems.push(text);
       this.menuContainer.add(text);
     }
   }
 
   private createBattleLog(): void {
-    this.battleLog = this.add.text(160, 12, '', {
-      fontSize: '6px',
+    this.battleLog = this.add.text(160, 12, '', uiTextStyle({
+      fontSize: '8px',
       color: '#ffffff',
-      fontFamily: 'monospace',
       align: 'center',
       wordWrap: { width: 300 },
-    });
+    }));
     this.battleLog.setOrigin(0.5, 0);
     this.battleLog.setDepth(10);
   }
@@ -226,22 +222,20 @@ export class BattleScene extends Scene {
     const container = this.add.container(40, 155);
     container.setDepth(10);
 
-    const label = this.add.text(0, -8, '剑意', {
-      fontSize: '5px',
+    const label = this.add.text(0, -9, '剑意', uiTextStyle({
+      fontSize: '7px',
       color: '#ffcc00',
-      fontFamily: 'monospace',
-    });
+    }));
     label.setOrigin(0.5);
 
     const barBg = this.add.rectangle(0, 0, 40, 4, 0x333333);
     this.swordIntentBar = this.add.rectangle(-20, 0, 0, 4, 0xffaa00);
     this.swordIntentBar.setOrigin(0, 0.5);
 
-    this.swordIntentText = this.add.text(0, 6, '0/100', {
-      fontSize: '5px',
+    this.swordIntentText = this.add.text(0, 7, '0/100', uiTextStyle({
+      fontSize: '7px',
       color: '#ffcc00',
-      fontFamily: 'monospace',
-    });
+    }));
     this.swordIntentText.setOrigin(0.5);
 
     container.add([label, barBg, this.swordIntentBar, this.swordIntentText]);
@@ -694,7 +688,7 @@ export class BattleScene extends Scene {
         display.container.x + 18,
         display.container.y - 20 + i * 6,
         this.getBuffName(buff.type),
-        { fontSize: '4px', color: '#ffff00', fontFamily: 'monospace' }
+        uiTextStyle({ fontSize: '6px', color: '#ffff00' })
       );
       display.buffIcons.push(icon);
     }

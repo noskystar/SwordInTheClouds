@@ -14,14 +14,14 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   height: GAME_HEIGHT,
   backgroundColor: '#1a1a2e',
   pixelArt: true,
+  antialias: false,
+  antialiasGL: false,
   roundPixels: true,
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.NONE,
     autoCenter: Phaser.Scale.CENTER_BOTH,
-    min: {
-      width: GAME_WIDTH,
-      height: GAME_HEIGHT,
-    },
+    width: GAME_WIDTH,
+    height: GAME_HEIGHT,
   },
   physics: {
     default: 'arcade',

@@ -1,5 +1,6 @@
 import type { Scene } from 'phaser';
 import { SettingsSystem, type GameSettings } from '../systems/settings-system';
+import { uiTextStyle } from './text-style';
 
 const PANEL_WIDTH = 180;
 const PANEL_HEIGHT = 140;
@@ -49,20 +50,18 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
     this.add(this.bg);
 
     // Title
-    this.titleText = this.scene.add.text(PANEL_WIDTH / 2, 10, '设置', {
+    this.titleText = this.scene.add.text(PANEL_WIDTH / 2, 10, '设置', uiTextStyle({
       fontSize: '10px',
       color: '#ffffff',
-      fontFamily: 'monospace',
-    });
+    }));
     this.titleText.setOrigin(0.5);
     this.add(this.titleText);
 
     // Close button
-    const closeBtn = this.scene.add.text(PANEL_WIDTH - 10, 8, 'X', {
+    const closeBtn = this.scene.add.text(PANEL_WIDTH - 10, 8, 'X', uiTextStyle({
       fontSize: '8px',
       color: '#ff6666',
-      fontFamily: 'monospace',
-    });
+    }));
     closeBtn.setOrigin(1, 0);
     closeBtn.setInteractive({ useHandCursor: true });
     closeBtn.on('pointerdown', () => this.close());
@@ -72,11 +71,10 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
     let currentY = 28;
     for (let i = 0; i < this.sliders.length; i++) {
       const config = this.sliders[i];
-      const label = this.scene.add.text(8, currentY, config.label, {
+      const label = this.scene.add.text(8, currentY, config.label, uiTextStyle({
         fontSize: '7px',
         color: '#cccccc',
-        fontFamily: 'monospace',
-      });
+      }));
       this.add(label);
 
       const barX = 60;
@@ -97,11 +95,10 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
       this.add(knob);
       this.sliderKnobs.push(knob);
 
-      const valueText = this.scene.add.text(barX + barW + 4, currentY, '0%', {
+      const valueText = this.scene.add.text(barX + barW + 4, currentY, '0%', uiTextStyle({
         fontSize: '6px',
         color: '#aaaaaa',
-        fontFamily: 'monospace',
-      });
+      }));
       this.add(valueText);
       this.sliderLabels.push(valueText);
 
@@ -111,22 +108,20 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
     // Options (text speed, battle speed)
     for (let i = 0; i < this.options.length; i++) {
       const config = this.options[i];
-      const label = this.scene.add.text(8, currentY, config.label, {
+      const label = this.scene.add.text(8, currentY, config.label, uiTextStyle({
         fontSize: '7px',
         color: '#cccccc',
-        fontFamily: 'monospace',
-      });
+      }));
       this.add(label);
 
       const choiceContainer = this.scene.add.container(60, currentY - 2);
       for (let j = 0; j < config.choices.length; j++) {
-        const choiceText = this.scene.add.text(j * 32, 0, config.choices[j], {
+        const choiceText = this.scene.add.text(j * 32, 0, config.choices[j], uiTextStyle({
           fontSize: '7px',
           color: '#888888',
-          fontFamily: 'monospace',
           backgroundColor: '#00000000',
           padding: { x: 2, y: 1 },
-        });
+        }));
         choiceText.setInteractive({ useHandCursor: true });
         choiceText.on('pointerdown', () => {
           this.settingsSystem.set(config.key, j);
@@ -140,11 +135,10 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
     }
 
     // Reset button
-    const resetBtn = this.scene.add.text(PANEL_WIDTH / 2, PANEL_HEIGHT - 10, '恢复默认', {
+    const resetBtn = this.scene.add.text(PANEL_WIDTH / 2, PANEL_HEIGHT - 10, '恢复默认', uiTextStyle({
       fontSize: '7px',
       color: '#ffaa66',
-      fontFamily: 'monospace',
-    });
+    }));
     resetBtn.setOrigin(0.5);
     resetBtn.setInteractive({ useHandCursor: true });
     resetBtn.on('pointerdown', () => {

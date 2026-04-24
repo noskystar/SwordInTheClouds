@@ -1,6 +1,7 @@
 import { Scene } from 'phaser';
 import { ENDINGS } from '../systems/ending-system';
 import type { EndingType } from '../types/ending';
+import { uiTextStyle } from '../ui/text-style';
 
 interface EndingSceneData {
   endingId: EndingType;
@@ -28,39 +29,35 @@ export class EndingScene extends Scene {
     this.cameras.main.setBackgroundColor(ENDING_BG_COLORS[this.endingId]);
     this.cameras.main.fadeIn(1000, 0, 0, 0);
 
-    const title = this.add.text(160, 50, `结局：${ending?.name ?? '未知'}`, {
+    const title = this.add.text(160, 50, `结局：${ending?.name ?? '未知'}`, uiTextStyle({
       fontSize: '10px',
       color: '#ffffff',
-      fontFamily: 'monospace',
       align: 'center',
-    });
+    }));
     title.setOrigin(0.5);
     title.setAlpha(0);
 
-    const desc = this.add.text(160, 90, ending?.description ?? '', {
+    const desc = this.add.text(160, 90, ending?.description ?? '', uiTextStyle({
       fontSize: '7px',
       color: '#cccccc',
-      fontFamily: 'monospace',
       align: 'center',
       wordWrap: { width: 280 },
-    });
+    }));
     desc.setOrigin(0.5);
     desc.setAlpha(0);
 
     const isHidden = ending?.condition.hidden ?? false;
-    const typeLabel = this.add.text(160, 130, isHidden ? '【隐藏结局】' : '【普通结局】', {
+    const typeLabel = this.add.text(160, 130, isHidden ? '【隐藏结局】' : '【普通结局】', uiTextStyle({
       fontSize: '6px',
       color: isHidden ? '#ffcc00' : '#888888',
-      fontFamily: 'monospace',
-    });
+    }));
     typeLabel.setOrigin(0.5);
     typeLabel.setAlpha(0);
 
-    const prompt = this.add.text(160, 160, '按 SPACE 返回标题画面', {
+    const prompt = this.add.text(160, 160, '按 SPACE 返回标题画面', uiTextStyle({
       fontSize: '6px',
       color: '#aaaaaa',
-      fontFamily: 'monospace',
-    });
+    }));
     prompt.setOrigin(0.5);
     prompt.setAlpha(0);
 

@@ -1,5 +1,6 @@
 import type { Scene } from 'phaser';
 import type { InventorySystem } from '../systems/inventory-system';
+import { uiTextStyle } from './text-style';
 
 export const SLOT_SIZE = 18;
 export const SLOT_GAP = 2;
@@ -47,11 +48,10 @@ export class InventoryPanel extends Phaser.GameObjects.Container {
     this.add(this.bg);
 
     // Title
-    this.titleText = this.scene.add.text(PANEL_WIDTH / 2, 10, '物品栏', {
+    this.titleText = this.scene.add.text(PANEL_WIDTH / 2, 10, '物品栏', uiTextStyle({
       fontSize: '8px',
       color: '#ffffff',
-      fontFamily: 'monospace',
-    });
+    }));
     this.titleText.setOrigin(0.5);
     this.add(this.titleText);
 
@@ -66,11 +66,10 @@ export class InventoryPanel extends Phaser.GameObjects.Container {
         this.add(slot);
         this.slotSprites.push(slot);
 
-        const text = this.scene.add.text(slotX, slotY, '', {
+        const text = this.scene.add.text(slotX, slotY, '', uiTextStyle({
           fontSize: '6px',
           color: '#ffffff',
-          fontFamily: 'monospace',
-        });
+        }));
         text.setOrigin(0.5);
         this.add(text);
         this.slotTexts.push(text);

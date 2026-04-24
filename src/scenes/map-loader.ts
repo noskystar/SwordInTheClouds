@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { uiTextStyle } from '../ui/text-style';
 
 export interface MapObject {
   id: string;
@@ -121,11 +122,10 @@ export class MapLoader {
       const rect = this.scene.add.rectangle(obj.x + obj.w / 2, obj.y + obj.h / 2, obj.w, obj.h, color, 0.3);
       rect.setDepth(0.5);
 
-      this.scene.add.text(obj.x + obj.w / 2, obj.y - 4, obj.id, {
+      this.scene.add.text(obj.x + obj.w / 2, obj.y - 4, obj.id, uiTextStyle({
         fontSize: '5px',
         color: '#ffffff',
-        fontFamily: 'monospace',
-      }).setOrigin(0.5).setDepth(1);
+      })).setOrigin(0.5).setDepth(1);
 
       visuals.push(rect);
     }

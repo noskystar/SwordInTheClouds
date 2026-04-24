@@ -1,5 +1,6 @@
 import type { Scene } from 'phaser';
 import type { InventorySystem } from '../systems/inventory-system';
+import { uiTextStyle } from './text-style';
 
 export const QUICK_SLOT_COUNT = 6;
 export const QUICK_SLOT_SIZE = 16;
@@ -37,21 +38,19 @@ export class QuickBar extends Phaser.GameObjects.Container {
       this.add(slot);
       this.slotSprites.push(slot);
 
-      const text = this.scene.add.text(slotX, slotY, '', {
+      const text = this.scene.add.text(slotX, slotY, '', uiTextStyle({
         fontSize: '6px',
         color: '#ffffff',
-        fontFamily: 'monospace',
-      });
+      }));
       text.setOrigin(0.5);
       this.add(text);
       this.slotTexts.push(text);
 
       // Key hint (1-6)
-      const hint = this.scene.add.text(slotX, -4, `${i + 1}`, {
+      const hint = this.scene.add.text(slotX, -4, `${i + 1}`, uiTextStyle({
         fontSize: '5px',
         color: '#aaaaaa',
-        fontFamily: 'monospace',
-      });
+      }));
       hint.setOrigin(0.5);
       this.add(hint);
       this.keyHintTexts.push(hint);

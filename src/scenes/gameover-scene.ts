@@ -1,4 +1,5 @@
 import { Scene } from 'phaser';
+import { uiTextStyle } from '../ui/text-style';
 
 interface GameOverData {
   returnScene?: string;
@@ -19,11 +20,10 @@ export class GameOverScene extends Scene {
       this.cameras.main.width / 2,
       this.cameras.main.height / 2 - 20,
       '陨落',
-      {
+      uiTextStyle({
         fontSize: '20px',
         color: '#cc4444',
-        fontFamily: 'monospace',
-      }
+      })
     );
     titleText.setOrigin(0.5);
 
@@ -31,11 +31,10 @@ export class GameOverScene extends Scene {
       this.cameras.main.width / 2,
       this.cameras.main.height / 2 + 10,
       '按 R 重试  按 T 返回标题',
-      {
+      uiTextStyle({
         fontSize: '7px',
         color: '#aaaaaa',
-        fontFamily: 'monospace',
-      }
+      })
     );
     subtitleText.setOrigin(0.5);
 

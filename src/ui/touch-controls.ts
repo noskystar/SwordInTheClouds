@@ -1,4 +1,5 @@
 import type { Scene } from 'phaser';
+import { uiTextStyle } from './text-style';
 
 const JOYSTICK_RADIUS = 24;
 const KNOB_RADIUS = 10;
@@ -113,11 +114,10 @@ export class TouchControls extends Phaser.GameObjects.Container {
       bg.on('pointerdown', btn.action);
       this.add(bg);
 
-      const text = this.scene.add.text(btn.x, btnY, btn.label, {
+      const text = this.scene.add.text(btn.x, btnY, btn.label, uiTextStyle({
         fontSize: '8px',
         color: '#ffffff',
-        fontFamily: 'monospace',
-      });
+      }));
       text.setOrigin(0.5);
       this.add(text);
     }

@@ -5,6 +5,7 @@ import type { DayNightSystem } from '../systems/day-night-system';
 import { SettingsSystem } from '../systems/settings-system';
 import { SettingsPanel } from './settings-panel';
 import { InventoryPanel } from './inventory-panel';
+import { uiTextStyle } from './text-style';
 
 const TAB_WIDTH = 50;
 const CONTENT_X = TAB_WIDTH + 4;
@@ -62,13 +63,12 @@ export class PauseMenu extends Phaser.GameObjects.Container {
   private createTabs(): void {
     for (let i = 0; i < this.tabs.length; i++) {
       const y = 20 + i * 28;
-      const text = this.scene.add.text(6, y, this.tabs[i], {
+      const text = this.scene.add.text(6, y, this.tabs[i], uiTextStyle({
         fontSize: '8px',
         color: '#888888',
-        fontFamily: 'monospace',
         backgroundColor: '#00000000',
         padding: { x: 3, y: 2 },
-      });
+      }));
       text.setInteractive({ useHandCursor: true });
       text.on('pointerdown', () => this.selectTab(i));
       this.tabTexts.push(text);
@@ -156,11 +156,10 @@ export class PauseMenu extends Phaser.GameObjects.Container {
 
     let y = 12;
     for (const line of lines) {
-      const text = this.scene.add.text(8, y, line, {
+      const text = this.scene.add.text(8, y, line, uiTextStyle({
         fontSize: '7px',
         color: '#cccccc',
-        fontFamily: 'monospace',
-      });
+      }));
       this.contentContainer.add(text);
       this.contentElements.push(text);
       y += 11;
@@ -182,43 +181,39 @@ export class PauseMenu extends Phaser.GameObjects.Container {
 
     let y = 12;
 
-    const header1 = this.scene.add.text(8, y, `进行中的任务 (${activeQuests.length})`, {
+    const header1 = this.scene.add.text(8, y, `进行中的任务 (${activeQuests.length})`, uiTextStyle({
       fontSize: '8px',
       color: '#4a90d9',
-      fontFamily: 'monospace',
-    });
+    }));
     this.contentContainer.add(header1);
     this.contentElements.push(header1);
     y += 14;
 
     if (activeQuests.length === 0) {
-      const empty = this.scene.add.text(8, y, '暂无进行中的任务', {
+      const empty = this.scene.add.text(8, y, '暂无进行中的任务', uiTextStyle({
         fontSize: '7px',
         color: '#666666',
-        fontFamily: 'monospace',
-      });
+      }));
       this.contentContainer.add(empty);
       this.contentElements.push(empty);
       y += 12;
     } else {
       for (const quest of activeQuests) {
         const questData = this.questSystem.getQuestData(quest.questId);
-        const name = this.scene.add.text(8, y, questData?.name ?? quest.questId, {
+        const name = this.scene.add.text(8, y, questData?.name ?? quest.questId, uiTextStyle({
           fontSize: '7px',
           color: '#ffffff',
-          fontFamily: 'monospace',
-        });
+        }));
         this.contentContainer.add(name);
         this.contentElements.push(name);
         y += 10;
 
         const stage = questData?.stages[quest.currentStageIndex];
         if (stage) {
-          const desc = this.scene.add.text(12, y, stage.description, {
+          const desc = this.scene.add.text(12, y, stage.description, uiTextStyle({
             fontSize: '6px',
             color: '#aaaaaa',
-            fontFamily: 'monospace',
-          });
+          }));
           this.contentContainer.add(desc);
           this.contentElements.push(desc);
           y += 10;
@@ -228,22 +223,20 @@ export class PauseMenu extends Phaser.GameObjects.Container {
     }
 
     y += 8;
-    const header2 = this.scene.add.text(8, y, `已完成 (${completedQuests.length})`, {
+    const header2 = this.scene.add.text(8, y, `已完成 (${completedQuests.length})`, uiTextStyle({
       fontSize: '8px',
       color: '#66aa66',
-      fontFamily: 'monospace',
-    });
+    }));
     this.contentContainer.add(header2);
     this.contentElements.push(header2);
     y += 14;
 
     for (const questId of completedQuests) {
       const quest = this.questSystem.getQuestData(questId);
-      const name = this.scene.add.text(8, y, quest?.name ?? questId, {
+      const name = this.scene.add.text(8, y, quest?.name ?? questId, uiTextStyle({
         fontSize: '7px',
         color: '#888888',
-        fontFamily: 'monospace',
-      });
+      }));
       this.contentContainer.add(name);
       this.contentElements.push(name);
       y += 10;
