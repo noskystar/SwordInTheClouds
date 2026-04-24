@@ -29,7 +29,7 @@ export class SaveSystem {
   }
 
   getSaveData(): GameSaveData | null {
-    return this.cache ? { ...this.cache } : null;
+    return this.cache ? (JSON.parse(JSON.stringify(this.cache)) as GameSaveData) : null;
   }
 
   save(data: GameSaveData): boolean {
