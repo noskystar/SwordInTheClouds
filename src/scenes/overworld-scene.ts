@@ -308,7 +308,7 @@ export class OverworldScene extends Scene {
 
       this.mapLoader.createVisualObjects(this.mapObjects);
 
-      if (!playerX || !playerY) {
+      if (playerX === undefined || playerY === undefined) {
         this.playerSpawnX = loaded.spawnPoint.x;
         this.playerSpawnY = loaded.spawnPoint.y;
       }
