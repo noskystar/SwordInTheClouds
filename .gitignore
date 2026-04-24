@@ -50,6 +50,13 @@ test-*.mjs
 playwright-report/
 test-results/
 
+# Claude / agent local settings
+.claude/settings.local.json
+
+# Local scratch exports (ad-hoc)
+after-enter
+after-keypress
+
 # Vite cache
 .vite/
 
