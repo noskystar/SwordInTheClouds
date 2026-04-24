@@ -53,7 +53,7 @@ export class OverworldScene extends Scene {
     this.generateTextures();
   }
 
-  create(data: SceneTransitionData): void {
+  create(data: SceneTransitionData = {}): void {
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
     this.saveSystem = new SaveSystem();
@@ -128,13 +128,25 @@ export class OverworldScene extends Scene {
   }
 
   private generateTextures(): void {
-    // Generate player texture (simple colored rectangle with head)
+    // Generate player texture (two frames for walk animation)
     const playerGfx = this.make.graphics({ x: 0, y: 0 });
+    // Frame 0
     playerGfx.fillStyle(0x4a90d9, 1);
     playerGfx.fillRect(0, 0, 16, 16);
     playerGfx.fillStyle(0xffccaa, 1);
     playerGfx.fillRect(4, 2, 8, 6);
-    playerGfx.generateTexture('player', 16, 16);
+    // Frame 1 (slightly different for walking animation)
+    playerGfx.fillStyle(0x4a90d9, 1);
+    playerGfx.fillRect(16, 0, 16, 16);
+    playerGfx.fillStyle(0xffccaa, 1);
+    playerGfx.fillRect(20, 2, 8, 6);
+    playerGfx.fillStyle(0x3a80c9, 1);
+    playerGfx.fillRect(18, 12, 4, 4);
+    playerGfx.generateTexture('player', 32, 16);
+
+    const playerTex = this.textures.get('player');
+    playerTex.add('0', 0, 0, 0, 16, 16);
+    playerTex.add('1', 0, 16, 0, 16, 16);
 
     // Generate NPC texture
     const npcGfx = this.make.graphics({ x: 0, y: 0 });
