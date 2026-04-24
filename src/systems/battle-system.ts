@@ -199,7 +199,8 @@ export class BattleSystem {
         break;
       case 'flee':
         this.handleFlee(entity);
-        return;
+        if ((this.turnState as string) === 'ended') return;
+        break;
       case 'skill':
         this.handleSkill(entity, action.skillId, action.targetId);
         break;
