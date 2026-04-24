@@ -48,6 +48,14 @@ export class EquipmentSystem {
       return { success: false };
     }
 
+    // If already equipped elsewhere, remove from old slot first
+    for (const [slot, equippedId] of this.equipped) {
+      if (equippedId === itemId) {
+        this.equipped.set(slot, null);
+        break;
+      }
+    }
+
     let targetSlot: EquipmentSlot;
 
     if (preferredSlot && this.isValidSlotForType(preferredSlot, item.equipmentType)) {
