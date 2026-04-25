@@ -30,28 +30,22 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.setDepth(80);
   }
 
-  /** Create controls positioned in CSS pixel space (1:1 with canvas render).
-   *  We use the canvas native resolution (W x H from camera) as the coordinate space.
-   *  Coordinates are relative to the camera viewport origin, so scrollFactor=0
-   *  keeps them fixed on screen regardless of world scrolling. */
   private createControls(): void {
-    // camera.width/height returns the GAME resolution (640x360), not CSS pixels
+    // Game resolution is 640x360, zoomed 2x on screen (390x219 CSS px).
+    // With scrollFactor=0, local coords = screen coords in game units.
+    // joystick at worldX=20 → screenX=40 (~10% from left of 390px canvas)
+    // buttons at worldX=190 → screenX=380 (~97% from left = right edge of 390px canvas)
+    // worldY=130 → screenY=260 (near visible world bottom ~145, within camera view)
     const W = this.scene.cameras.main.width;   // 640
-    const H = this.scene.cameras.main.height;  // 360
+    const H = this.scene.cameras.main.height;   // 360
 
-    // ── Joystick: bottom-left corner ──────────────────────────────────────
-    // Use fractions of H so they stay inside the canvas visible area.
-    // The canvas maps 360 world units → ~219 CSS px (at zoom=2).
-    // We position controls in the bottom ~25% of the canvas.
-    const jRadius   = Math.round(H * 0.065);
-    const jBaseX    = Math.round(W * 0.14);
-    // Bottom portion of canvas visible area (inside world bounds ~35-145 at scene start).
-    // jBaseY ≈ H*0.36 puts the joystick near the bottom of the visible world.
-    const jBaseY    = Math.round(H * 0.36);
-    const knobR     = Math.round(jRadius * 0.45);
+    const jRadius = Math.round(H * 0.065);
+    const jBaseX  = 20;
+    const jBaseY  = 130;
+    const knobR   = Math.round(jRadius * 0.45);
 
-    this.joystickCenter  = { x: jBaseX, y: jBaseY };
-    this.knobMaxRadius   = jRadius - knobR;
+    this.joystickCenter = { x: jBaseX, y: jBaseY };
+    this.knobMaxRadius  = jRadius - knobR;
 
     this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x333344, 0.75);
     this.joystickBase.setStrokeStyle(2.5, 0x556677);
@@ -66,9 +60,9 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.scene.input.on('pointerup',   this.onPointerUp,   this);
     this.scene.input.on('pointerdown', this.onScreenTap,    this);
 
-    // ── Buttons: bottom-right, vertical stack ────────────────────────────
-    const btnX   = W - Math.round(W * 0.10);
-    const btnY   = Math.round(H * 0.36);     // same vertical level as joystick
+    // Buttons: bottom-right, vertical stack, fixed at right edge
+    const btnX   = 190;
+    const btnY   = jBaseY;
     const btnGap = Math.round(H * 0.085);
     const btnR   = Math.round(H * 0.04);
 
@@ -76,13 +70,13 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.createButton(btnX, btnY,           btnR, 'B', 0xcc4444, this.onBattle,   '战斗');
     this.createButton(btnX, btnY + btnGap, btnR, 'M', 0x4466cc, this.onMenu,     '菜单');
 
-    // ── Dialogue advance: right half of canvas ──────────────────────────
-    const advZone = this.scene.add.rectangle(W * 0.7, H * 0.5, W * 0.6, H * 0.6, 0x000000, 0.001);
+    // Dialogue advance: right 40% of canvas (worldX > 384)
+    const advZone = this.scene.add.rectangle(W * 0.8, H * 0.5, W * 0.4, H, 0x000000, 0.001);
     advZone.setInteractive({ useHandCursor: false });
     advZone.on('pointerdown', () => this.onDialogueAdvance(), this);
     this.add(advZone);
 
-    console.log(`[TouchControls] Created W=${W} H=${H} jBase=(${jBaseX},${jBaseY}) btnX=${btnX}`);
+    console.log(`[TouchControls] Created jBase=(${jBaseX},${jBaseY}) btnX=${btnX}`);
   }
 
   private createButton(
@@ -117,8 +111,8 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private onJoystickDown(pointer: Phaser.Input.Pointer): void {
-    this.isDragging  = true;
-    this.pointerId   = pointer.id;
+    this.isDragging = true;
+    this.pointerId  = pointer.id;
     this.updateKnob(pointer.x, pointer.y);
   }
 
@@ -131,7 +125,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private onPointerUp(pointer: Phaser.Input.Pointer): void {
     if (this.isDragging && pointer.id === this.pointerId) {
       this.isDragging = false;
-      this.pointerId   = null;
+      this.pointerId  = null;
       this.joystickKnob.x = this.joystickCenter.x;
       this.joystickKnob.y = this.joystickCenter.y;
       this.direction = { x: 0, y: 0 };
@@ -140,7 +134,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
   private onScreenTap(pointer: Phaser.Input.Pointer): void {
     const W = this.scene.cameras.main.width;
-    if (pointer.x > W * 0.5) {
+    if (pointer.x > W * 0.6) {
       this.onDialogueAdvance();
     }
   }
