@@ -45,13 +45,6 @@ export class BootScene extends Scene {
     this.load.image('tileset_building', 'assets/images/tilesets/tileset_building.png');
     this.load.image('tileset_props', 'assets/images/tilesets/tileset_props.png');
 
-    // === 16x16 Pixel Art Game Tiles (for overworld) ===
-    this.load.image('grass_tile',  'assets/images/tilesets/grass_tile.png');
-    this.load.image('tree_tile',   'assets/images/tilesets/tree_tile.png');
-    this.load.image('path_tile',   'assets/images/tilesets/path_tile.png');
-    this.load.image('player_tile', 'assets/images/characters/player/player_tile.png');
-    this.load.image('player_walk_frame', 'assets/images/characters/player/player_walk_frame.png');
-
     // === Effects ===
     this.load.image('fx_slash', 'assets/images/effects/fx_slash.png');
     this.load.image('fx_fire', 'assets/images/effects/fx_fire.png');
