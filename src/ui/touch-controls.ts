@@ -13,7 +13,6 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private onBattle!: () => void;
   private onMenu!: () => void;
   private onDialogueAdvance!: () => void;
-  private isTouchDevice = false;
 
   constructor(
     scene: Scene,
@@ -25,62 +24,65 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.onMenu = callbacks.onMenu;
     this.onDialogueAdvance = callbacks.onDialogueAdvance;
 
-    this.isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    if (!this.isTouchDevice) {
-      this.setVisible(false);
-      return;
-    }
-
     this.setScrollFactor(0);
+    scene.add.existing(this);
     this.createControls();
     this.setDepth(80);
-    scene.add.existing(this);
   }
 
+  /** Create controls positioned in CSS pixel space (1:1 with canvas render).
+   *  We use the canvas native resolution (W x H from camera) as the coordinate space.
+   *  Coordinates are relative to the camera viewport origin, so scrollFactor=0
+   *  keeps them fixed on screen regardless of world scrolling. */
   private createControls(): void {
-    const W = this.scene.cameras.main.width;
-    const H = this.scene.cameras.main.height;
+    // camera.width/height returns the GAME resolution (640x360), not CSS pixels
+    const W = this.scene.cameras.main.width;   // 640
+    const H = this.scene.cameras.main.height;  // 360
 
-    // Joystick: bottom-left, size relative to screen
-    const jRadius = Math.round(H * 0.09);
-    const jBaseX = Math.round(W * 0.13);
-    const jBaseY = H - Math.round(H * 0.16);
-    const knobRadius = Math.round(jRadius * 0.45);
+    // ── Joystick: bottom-left corner ──────────────────────────────────────
+    // Use fractions of H so they stay inside the canvas visible area.
+    // The canvas maps 360 world units → ~219 CSS px (at zoom=2).
+    // We position controls in the bottom ~25% of the canvas.
+    const jRadius   = Math.round(H * 0.065);
+    const jBaseX    = Math.round(W * 0.14);
+    // Bottom portion of canvas visible area (inside world bounds ~35-145 at scene start).
+    // jBaseY ≈ H*0.36 puts the joystick near the bottom of the visible world.
+    const jBaseY    = Math.round(H * 0.36);
+    const knobR     = Math.round(jRadius * 0.45);
 
-    this.joystickCenter = { x: jBaseX, y: jBaseY };
-    this.knobMaxRadius = jRadius - knobRadius;
+    this.joystickCenter  = { x: jBaseX, y: jBaseY };
+    this.knobMaxRadius   = jRadius - knobR;
 
-    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x333344, 0.7);
+    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x333344, 0.75);
     this.joystickBase.setStrokeStyle(2.5, 0x556677);
-    this.joystickBase.setScrollFactor(0);
-    this.joystickBase.setInteractive({ draggable: false });
-    this.joystickBase.on('pointerdown', this.onJoystickDown, this);
     this.add(this.joystickBase);
 
-    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobRadius, 0x4a90d9, 0.95);
-    this.joystickKnob.setScrollFactor(0);
+    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0x4a90d9, 0.95);
     this.add(this.joystickKnob);
 
+    this.joystickBase.setInteractive({ draggable: false });
+    this.joystickBase.on('pointerdown', this.onJoystickDown, this);
     this.scene.input.on('pointermove', this.onPointerMove, this);
-    this.scene.input.on('pointerup', this.onPointerUp, this);
-    this.scene.input.on('pointerdown', this.onScreenTap, this);
+    this.scene.input.on('pointerup',   this.onPointerUp,   this);
+    this.scene.input.on('pointerdown', this.onScreenTap,    this);
 
-    // Buttons: bottom-right, stacked vertically
-    const btnX = W - Math.round(W * 0.12);
-    const btnY = H - Math.round(H * 0.08);
-    const btnGap = Math.round(H * 0.09);
-    const btnR = Math.round(H * 0.04);
+    // ── Buttons: bottom-right, vertical stack ────────────────────────────
+    const btnX   = W - Math.round(W * 0.10);
+    const btnY   = Math.round(H * 0.36);     // same vertical level as joystick
+    const btnGap = Math.round(H * 0.085);
+    const btnR   = Math.round(H * 0.04);
 
     this.createButton(btnX, btnY - btnGap, btnR, 'E', 0x44bb44, this.onInteract, '交互');
-    this.createButton(btnX, btnY, btnR, 'B', 0xcc4444, this.onBattle, '战斗');
-    this.createButton(btnX, btnY + btnGap, btnR, 'M', 0x4466cc, this.onMenu, '菜单');
+    this.createButton(btnX, btnY,           btnR, 'B', 0xcc4444, this.onBattle,   '战斗');
+    this.createButton(btnX, btnY + btnGap, btnR, 'M', 0x4466cc, this.onMenu,     '菜单');
 
-    // Dialogue advance: large zone covering right 60% of screen
-    const advZone = this.scene.add.rectangle(W * 0.7, H * 0.5, W * 0.6, H * 0.5, 0x000000, 0.001);
-    advZone.setScrollFactor(0);
+    // ── Dialogue advance: right half of canvas ──────────────────────────
+    const advZone = this.scene.add.rectangle(W * 0.7, H * 0.5, W * 0.6, H * 0.6, 0x000000, 0.001);
     advZone.setInteractive({ useHandCursor: false });
     advZone.on('pointerdown', () => this.onDialogueAdvance(), this);
     this.add(advZone);
+
+    console.log(`[TouchControls] Created W=${W} H=${H} jBase=(${jBaseX},${jBaseY}) btnX=${btnX}`);
   }
 
   private createButton(
@@ -89,38 +91,34 @@ export class TouchControls extends Phaser.GameObjects.Container {
   ): void {
     const ring = this.scene.add.circle(x, y, r + 4, color, 0.25);
     ring.setStrokeStyle(2.5, color);
-    ring.setScrollFactor(0);
     this.add(ring);
 
     const bg = this.scene.add.circle(x, y, r, color, 0.88);
     bg.setStrokeStyle(1.5, 0xffffff, 0.5);
-    bg.setScrollFactor(0);
     bg.setInteractive({ useHandCursor: true });
     bg.on('pointerdown', action, this);
     this.add(bg);
 
-    const fontSize = Math.max(14, Math.round(r * 1.1));
+    const fontSize = Math.max(16, Math.round(r * 1.1));
     const text = this.scene.add.text(x, y, label, uiTextStyle({
       fontSize: fontSize + 'px',
       color: '#ffffff',
       fontStyle: 'bold',
     }));
     text.setOrigin(0.5);
-    text.setScrollFactor(0);
     this.add(text);
 
     const descEl = this.scene.add.text(x, y + r + 6, desc, uiTextStyle({
-      fontSize: Math.max(10, Math.round(fontSize * 0.55)) + 'px',
+      fontSize: Math.max(12, Math.round(fontSize * 0.55)) + 'px',
       color: '#aaaaaa',
     }));
     descEl.setOrigin(0.5);
-    descEl.setScrollFactor(0);
     this.add(descEl);
   }
 
   private onJoystickDown(pointer: Phaser.Input.Pointer): void {
-    this.isDragging = true;
-    this.pointerId = pointer.id;
+    this.isDragging  = true;
+    this.pointerId   = pointer.id;
     this.updateKnob(pointer.x, pointer.y);
   }
 
@@ -133,7 +131,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private onPointerUp(pointer: Phaser.Input.Pointer): void {
     if (this.isDragging && pointer.id === this.pointerId) {
       this.isDragging = false;
-      this.pointerId = null;
+      this.pointerId   = null;
       this.joystickKnob.x = this.joystickCenter.x;
       this.joystickKnob.y = this.joystickCenter.y;
       this.direction = { x: 0, y: 0 };
@@ -148,20 +146,20 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private updateKnob(px: number, py: number): void {
-    const dx = px - this.joystickCenter.x;
-    const dy = py - this.joystickCenter.y;
+    const dx   = px - this.joystickCenter.x;
+    const dy   = py - this.joystickCenter.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     const maxR = this.knobMaxRadius;
 
-    const nx = dist > 0 ? (dist > maxR ? (dx / dist) * maxR : dx) : 0;
-    const ny = dist > 0 ? (dist > maxR ? (dy / dist) * maxR : dy) : 0;
+    const nx = dist > maxR ? (dx / dist) * maxR : dx;
+    const ny = dist > maxR ? (dy / dist) * maxR : dy;
 
     this.joystickKnob.x = this.joystickCenter.x + nx;
     this.joystickKnob.y = this.joystickCenter.y + ny;
 
     this.direction = {
-      x: dist > maxR ? nx / maxR : nx / Math.max(dist, 1),
-      y: dist > maxR ? ny / maxR : ny / Math.max(dist, 1),
+      x: dist > 0 ? nx / maxR : 0,
+      y: dist > 0 ? ny / maxR : 0,
     };
   }
 
@@ -175,8 +173,8 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
   destroy(fromScene?: boolean): void {
     this.scene.input.off('pointermove', this.onPointerMove, this);
-    this.scene.input.off('pointerup', this.onPointerUp, this);
-    this.scene.input.off('pointerdown', this.onScreenTap, this);
+    this.scene.input.off('pointerup',   this.onPointerUp,   this);
+    this.scene.input.off('pointerdown', this.onScreenTap,   this);
     if (this.joystickBase) {
       this.joystickBase.off('pointerdown', this.onJoystickDown, this);
     }
