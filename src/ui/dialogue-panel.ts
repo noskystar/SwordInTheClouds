@@ -194,6 +194,24 @@ export class DialoguePanel {
     }
   }
 
+  // Called from touch input - bypasses keyboard state entirely
+  handleInputTouch(): void {
+    if (!this.container.visible) return;
+
+    // Skip typing immediately
+    if (this.isTyping) {
+      this.skipTyping();
+      return;
+    }
+
+    // Advance: select option if available, otherwise close
+    if (this.options.length > 0) {
+      this.onSelect?.(this.selectedIndex);
+    } else {
+      this.onClose?.();
+    }
+  }
+
   private typeNextChar(): void {
     this.displayedChars++;
     this.bodyText.setText(this.fullText.slice(0, this.displayedChars));

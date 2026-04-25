@@ -14,18 +14,23 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private onInteract!: () => void;
   private onBattle!: () => void;
   private onMenu!: () => void;
+  private onDialogueAdvance!: () => void;
 
   constructor(
     scene: Scene,
-    callbacks: { onInteract: () => void; onBattle: () => void; onMenu: () => void }
+    callbacks: { onInteract: () => void; onBattle: () => void; onMenu: () => void; onDialogueAdvance: () => void }
   ) {
-    super(scene, 0, 0);
+        super(scene, 0, 0);
+    // Fix controls to screen, not world position
+    this.setScrollFactor(0);
     this.onInteract = callbacks.onInteract;
     this.onBattle = callbacks.onBattle;
     this.onMenu = callbacks.onMenu;
+    this.onDialogueAdvance = callbacks.onDialogueAdvance;
 
     this.createJoystick();
     this.createButtons();
+    this.createDialogueAdvanceZone();
     this.setDepth(80);
     scene.add.existing(this);
 
@@ -41,9 +46,11 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
     this.joystickBase = this.scene.add.circle(cx, cy, JOYSTICK_RADIUS, 0x333344, 0.6);
     this.joystickBase.setStrokeStyle(2, 0x555566);
+    this.joystickBase.setScrollFactor(0);
     this.add(this.joystickBase);
 
     this.joystickKnob = this.scene.add.circle(cx, cy, KNOB_RADIUS, 0x4a90d9, 0.9);
+    this.joystickKnob.setScrollFactor(0);
     this.add(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
@@ -94,6 +101,19 @@ export class TouchControls extends Phaser.GameObjects.Container {
       x: dist > 0 ? nx / maxDist : 0,
       y: dist > 0 ? ny / maxDist : 0,
     };
+  }
+
+  private createDialogueAdvanceZone(): void {
+    // Invisible zone on the right half of screen for dialogue advancement
+    const screenW = this.scene.cameras.main.width;
+    const screenH = this.scene.cameras.main.height;
+    const zone = this.scene.add.rectangle(screenW * 0.75, screenH * 0.5, screenW * 0.5, screenH * 0.3, 0x000000, 0);
+    zone.setScrollFactor(0);
+    zone.setInteractive({ useHandCursor: false });
+    zone.on('pointerdown', () => {
+      this.onDialogueAdvance();
+    });
+    this.add(zone);
   }
 
   private createButtons(): void {

@@ -113,6 +113,7 @@ export class OverworldScene extends Scene {
     this.bKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B);
     this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     this.escKey.on('down', () => this.pauseMenu.toggle());
+    this.eKey.on('down', () => this.advanceDialogueFromKey());
 
     this.inventorySystem = new InventorySystem(itemsData as import('../types/inventory').ItemData[]);
     this.settingsSystem = new SettingsSystem();
@@ -133,6 +134,11 @@ export class OverworldScene extends Scene {
       },
       onBattle: () => this.checkBattleTrigger(),
       onMenu: () => this.pauseMenu.toggle(),
+      onDialogueAdvance: () => {
+        if (this.dialoguePanel?.isVisible()) {
+          this.dialoguePanel.handleInputTouch();
+        }
+      },
     });
 
     this.dayNightSystem.on('phase_changed', () => {
@@ -500,6 +506,12 @@ export class OverworldScene extends Scene {
 
   private eKeyWasDown = false;
   private touchInteractWasDown = false;
+
+  private advanceDialogueFromKey(): void {
+    if (this.dialoguePanel?.isVisible()) {
+      this.dialoguePanel.handleInput();
+    }
+  }
 
   private checkInteractions(): void {
     const eKeyIsDown = this.eKey.isDown;
