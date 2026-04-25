@@ -47,14 +47,14 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.joystickCenter = { x: jBaseX, y: jBaseY };
     this.knobMaxRadius  = jRadius - knobR;
 
-    // Base: dark navy for contrast
-    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x222233, 0.85);
-    this.joystickBase.setStrokeStyle(3, 0x667788);
+    // Base: semi-transparent dark circle
+    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x111122, 0.7);
+    this.joystickBase.setStrokeStyle(2.5, 0x445566);
     this.add(this.joystickBase);
 
-    // Knob: bright white-yellow for maximum visibility against dark base
-    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xffffff, 1.0);
-    this.joystickKnob.setStrokeStyle(1.5, 0xffee00);
+    // Knob: bright orange-red, impossible to miss
+    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xff4422, 1.0);
+    this.joystickKnob.setStrokeStyle(2, 0xffffff);
     this.add(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
