@@ -120,13 +120,14 @@ export class DialoguePanel {
       padding: { y: 1 },
     }));
 
-    // Body text - larger area, proper word wrap
+    // Body text - larger area, proper word wrap with fixed dimensions for crisp rendering
     this.bodyText = this.scene.add.text(panelX + 4, panelY + 18, '', uiTextStyle({
       fontSize: '7px',
       color: '#eeeeee',
-      wordWrap: { width: panelW - 10, callback: undefined },
+      fixedWidth: panelW - 10,
+      fixedHeight: 80,
+      wordWrap: { width: panelW - 10 },
       lineSpacing: 4,
-      maxLines: 6,
       padding: { y: 2 },
     }));
 
@@ -250,6 +251,7 @@ export class DialoguePanel {
         fontSize: '7px',
         color: i === 0 ? '#ffff00' : '#cccccc',
         padding: { y: 1 },
+        fixedWidth: textWidth,
         wordWrap: { width: textWidth },
       }));
       text.setInteractive({ useHandCursor: true });
