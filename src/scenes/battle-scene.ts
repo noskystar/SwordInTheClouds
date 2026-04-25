@@ -150,7 +150,6 @@ export class BattleScene extends Scene {
     const spriteKey = entity.isPlayer ? null : this.getEnemySpriteKey(entity.id);
     if (spriteKey && this.textures.exists(spriteKey)) {
       sprite = this.add.image(0, -12, spriteKey);
-      sprite.setDisplaySize(entity.isPlayer ? 24 : 32, entity.isPlayer ? 24 : 24);
       (sprite as Phaser.GameObjects.Image).setOrigin(0.5);
     } else {
       sprite = this.add.rectangle(0, -8, 24, 24, entity.color);
