@@ -127,7 +127,10 @@ export class OverworldScene extends Scene {
     );
 
     this.touchControls = new TouchControls(this, {
-      onInteract: () => this.checkInteractions(),
+      onInteract: () => {
+        this.touchInteractWasDown = false;
+        this.checkInteractions();
+      },
       onBattle: () => this.checkBattleTrigger(),
       onMenu: () => this.pauseMenu.toggle(),
     });
@@ -496,13 +499,18 @@ export class OverworldScene extends Scene {
   }
 
   private eKeyWasDown = false;
+  private touchInteractWasDown = false;
 
   private checkInteractions(): void {
     const eKeyIsDown = this.eKey.isDown;
     const justPressed = eKeyIsDown && !this.eKeyWasDown;
     this.eKeyWasDown = eKeyIsDown;
 
-    if (!justPressed) return;
+    // For touch button, fire immediately without debounce
+    const touchJustPressed = !this.touchInteractWasDown;
+    this.touchInteractWasDown = true;
+
+    if (!justPressed && !touchJustPressed) return;
 
     for (const npc of this.npcs) {
       const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);

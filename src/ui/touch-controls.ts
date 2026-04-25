@@ -1,8 +1,8 @@
 import type { Scene } from 'phaser';
 import { uiTextStyle } from './text-style';
 
-const JOYSTICK_RADIUS = 48;
-const KNOB_RADIUS = 20;
+const JOYSTICK_RADIUS = 32;
+const KNOB_RADIUS = 14;
 
 export class TouchControls extends Phaser.GameObjects.Container {
   private joystickBase!: Phaser.GameObjects.Arc;
@@ -35,7 +35,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private createJoystick(): void {
-    const cx = 40;
+    const cx = 32;
     const cy = 140;
     this.joystickCenter = { x: cx, y: cy };
 
@@ -100,7 +100,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
     const btnY = 130;
     const btnGap = 38;
     const startX = 265;
-    const btnRadius = 16; // Larger for touch targets
+    const btnRadius = 12;
 
     const buttons = [
       { label: 'E', x: startX, color: 0x44bb44, action: this.onInteract, desc: '交互' },
