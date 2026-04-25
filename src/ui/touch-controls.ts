@@ -52,9 +52,9 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.joystickBase.setStrokeStyle(2.5, 0x445566);
     this.add(this.joystickBase);
 
-    // Knob: bright orange-red, impossible to miss
-    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xff4422, 1.0);
-    this.joystickKnob.setStrokeStyle(2, 0xffffff);
+    // Knob: bright yellow-orange, highly visible against dark base
+    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xFFAA00, 1.0);
+    this.joystickKnob.setStrokeStyle(2.5, 0xFFFF88);
     this.add(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
@@ -63,9 +63,8 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.scene.input.on('pointerup',   this.onPointerUp,   this);
     this.scene.input.on('pointerdown', this.onScreenTap,    this);
 
-    // Buttons: bottom-right, near right edge of visible world
-    // jBaseX=20 (left ~10%). btnX=400 should be ~75% from left (right side).
-    const btnX   = 400;
+    // Buttons: bottom-right corner, at ~90% from left edge
+    const btnX   = Math.round(W * 0.90);
     const btnY   = jBaseY;
     const btnGap = Math.round(H * 0.085);
     const btnR   = Math.round(H * 0.04);
