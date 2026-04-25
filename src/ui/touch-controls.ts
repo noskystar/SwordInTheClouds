@@ -47,11 +47,14 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.joystickCenter = { x: jBaseX, y: jBaseY };
     this.knobMaxRadius  = jRadius - knobR;
 
-    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x333344, 0.75);
-    this.joystickBase.setStrokeStyle(2.5, 0x556677);
+    // Base: dark navy for contrast
+    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x222233, 0.85);
+    this.joystickBase.setStrokeStyle(3, 0x667788);
     this.add(this.joystickBase);
 
-    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0x4a90d9, 0.95);
+    // Knob: bright white-yellow for maximum visibility against dark base
+    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xffffff, 1.0);
+    this.joystickKnob.setStrokeStyle(1.5, 0xffee00);
     this.add(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
@@ -60,8 +63,9 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.scene.input.on('pointerup',   this.onPointerUp,   this);
     this.scene.input.on('pointerdown', this.onScreenTap,    this);
 
-    // Buttons: bottom-right, vertical stack, fixed at right edge
-    const btnX   = 190;
+    // Buttons: bottom-right, near right edge of visible world
+    // jBaseX=20 (left ~10%). btnX=400 should be ~75% from left (right side).
+    const btnX   = 400;
     const btnY   = jBaseY;
     const btnGap = Math.round(H * 0.085);
     const btnR   = Math.round(H * 0.04);
