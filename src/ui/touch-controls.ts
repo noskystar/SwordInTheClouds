@@ -33,9 +33,16 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private createControls(): void {
     // Game resolution is 640x360, zoomed 2x on screen (390x219 CSS px).
     // With scrollFactor=0, local coords = screen coords in game units.
-    // joystick at worldX=20 → screenX=40 (~10% from left of 390px canvas)
-    // buttons at worldX=190 → screenX=380 (~97% from left = right edge of 390px canvas)
-    // worldY=130 → screenY=260 (near visible world bottom ~145, within camera view)
+    // Canvas CSS is 390x219px, game is 640x360px at zoom=2.
+    // Camera visible area = 320 game pixels wide (640/2) at player position.
+    // scrollFactor=0 makes local coords relative to camera viewport top-left.
+    // With camera at x=320, visible range is [160, 480].
+    // For controls to appear at screen edges (10% and 90% of 390px canvas):
+    //   screen_x = local_x * zoom = local_x * 2  =>  local_x = screen_x / 2
+    //   10% of 390 = 39px  =>  local_x = 39/2 = ~20
+    //   90% of 390 = 351px  =>  local_x = 351/2 = ~175
+    // joystick at localX=20  →  screenX=40 (~10% from left, correct)
+    // buttons at localX=175  →  screenX=350 (~90% from left, correct)
     const W = this.scene.cameras.main.width;   // 640
     const H = this.scene.cameras.main.height;   // 360
 
@@ -64,7 +71,8 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.scene.input.on('pointerdown', this.onScreenTap,    this);
 
     // Buttons: bottom-right corner, at ~90% from left edge
-    const btnX   = Math.round(W * 0.90);
+    // btnX=175 → screenX=350 (90% of 390px canvas, right side)
+    const btnX   = 175;
     const btnY   = jBaseY;
     const btnGap = Math.round(H * 0.085);
     const btnR   = Math.round(H * 0.04);
