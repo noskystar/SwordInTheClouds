@@ -180,50 +180,96 @@ export class OverworldScene extends Scene {
   }
 
   private generateTextures(): void {
-    // Generate player texture (two frames for walk animation)
-    const playerGfx = this.make.graphics({ x: 0, y: 0 });
-    // Frame 0
-    playerGfx.fillStyle(0x4a90d9, 1);
-    playerGfx.fillRect(0, 0, 16, 16);
-    playerGfx.fillStyle(0xffccaa, 1);
-    playerGfx.fillRect(4, 2, 8, 6);
-    // Frame 1 (slightly different for walking animation)
-    playerGfx.fillStyle(0x4a90d9, 1);
-    playerGfx.fillRect(16, 0, 16, 16);
-    playerGfx.fillStyle(0xffccaa, 1);
-    playerGfx.fillRect(20, 2, 8, 6);
-    playerGfx.fillStyle(0x3a80c9, 1);
-    playerGfx.fillRect(18, 12, 4, 4);
-    playerGfx.generateTexture('player', 32, 16);
+    // --- Player sprite (2 frames: idle + walk) ---
+    // Each frame is 16x16, martial arts youth in blue robes
+    const drawPlayer = (g: Phaser.GameObjects.Graphics, px: number, py: number, darkRobe: number) => {
+      // Robe body
+      g.fillStyle(darkRobe, 1);
+      g.fillRect(px + 3, py + 6, 10, 9);
+      // Robe lighter center
+      g.fillStyle(0x4a90d9, 1);
+      g.fillRect(px + 5, py + 6, 6, 8);
+      // Head (skin)
+      g.fillStyle(0xffccaa, 1);
+      g.fillRect(px + 4, py + 1, 8, 6);
+      // Hair (dark)
+      g.fillStyle(0x1a1a2e, 1);
+      g.fillRect(px + 3, py, 10, 3);
+      g.fillRect(px + 2, py + 1, 2, 3);
+      // Eyes
+      g.fillStyle(0x1a1a2e, 1);
+      g.fillRect(px + 5, py + 3, 2, 1);
+      g.fillRect(px + 9, py + 3, 2, 1);
+      // Belt
+      g.fillStyle(0x8b6914, 1);
+      g.fillRect(px + 3, py + 9, 10, 1);
+      // Feet
+      g.fillStyle(0x3d3d3d, 1);
+      g.fillRect(px + 4, py + 14, 3, 2);
+      g.fillRect(px + 9, py + 14, 3, 2);
+    };
 
+    const playerGfx = this.make.graphics({ x: 0, y: 0 });
+    // Frame 0: idle
+    drawPlayer(playerGfx, 0, 0, 0x3a7bd5);
+    // Frame 1: walk offset
+    drawPlayer(playerGfx, 16, 0, 0x3a7bd5);
+    playerGfx.generateTexture('player', 32, 16);
     const playerTex = this.textures.get('player');
     playerTex.add('0', 0, 0, 0, 16, 16);
     playerTex.add('1', 0, 16, 0, 16, 16);
 
-    // Generate NPC texture
+    // --- NPC sprite (16x16, red-robed martial artist) ---
     const npcGfx = this.make.graphics({ x: 0, y: 0 });
-    npcGfx.fillStyle(0xcc6666, 1);
-    npcGfx.fillRect(0, 0, 16, 16);
-    npcGfx.fillStyle(0xffccaa, 1);
-    npcGfx.fillRect(4, 2, 8, 6);
+    drawPlayer(npcGfx, 0, 0, 0xb84c4c);
     npcGfx.generateTexture('npc-1', 16, 16);
 
-    // Generate ground tile
+    // --- Ground tile (16x16, grassy field with detail) ---
     const groundGfx = this.make.graphics({ x: 0, y: 0 });
-    groundGfx.fillStyle(0x3d7a3d, 1);
+    groundGfx.fillStyle(0x2d6b2d, 1);
     groundGfx.fillRect(0, 0, 16, 16);
-    groundGfx.fillStyle(0x4a8f4a, 1);
-    groundGfx.fillRect(0, 0, 8, 8);
-    groundGfx.fillRect(8, 8, 8, 8);
+    // Grass blade details
+    groundGfx.fillStyle(0x3d8a3d, 1);
+    groundGfx.fillRect(1, 1, 2, 3);
+    groundGfx.fillRect(5, 0, 1, 2);
+    groundGfx.fillRect(8, 2, 2, 2);
+    groundGfx.fillRect(12, 0, 2, 3);
+    groundGfx.fillRect(14, 3, 1, 2);
+    groundGfx.fillRect(3, 6, 2, 2);
+    groundGfx.fillRect(10, 5, 1, 3);
+    groundGfx.fillRect(0, 10, 2, 2);
+    groundGfx.fillRect(7, 9, 2, 2);
+    groundGfx.fillRect(13, 11, 2, 2);
+    groundGfx.fillRect(2, 13, 1, 2);
+    groundGfx.fillRect(9, 14, 2, 1);
+    // Flowers
+    groundGfx.fillStyle(0xf0c0e0, 1);
+    groundGfx.fillRect(4, 4, 1, 1);
+    groundGfx.fillStyle(0xe0e040, 1);
+    groundGfx.fillRect(11, 8, 1, 1);
+    groundGfx.fillStyle(0xf080c0, 1);
+    groundGfx.fillRect(1, 12, 1, 1);
     groundGfx.generateTexture('ground', 16, 16);
 
-    // Generate wall/tree obstacle texture
-    const wallGfx = this.make.graphics({ x: 0, y: 0 });
-    wallGfx.fillStyle(0x5c4033, 1);
-    wallGfx.fillRect(2, 0, 12, 16);
-    wallGfx.fillStyle(0x2d5a2d, 1);
-    wallGfx.fillRect(0, 0, 16, 6);
-    wallGfx.generateTexture('tree', 16, 16);
+    // --- Tree/obstacle (16x16, pine tree) ---
+    const treeGfx = this.make.graphics({ x: 0, y: 0 });
+    // Trunk
+    treeGfx.fillStyle(0x5c4033, 1);
+    treeGfx.fillRect(6, 11, 4, 5);
+    // Foliage layers (dark green)
+    treeGfx.fillStyle(0x1f5f1f, 1);
+    treeGfx.fillRect(2, 0, 12, 5);
+    treeGfx.fillRect(3, 4, 10, 4);
+    treeGfx.fillRect(4, 7, 8, 4);
+    // Lighter green accents
+    treeGfx.fillStyle(0x2d7a2d, 1);
+    treeGfx.fillRect(3, 1, 4, 2);
+    treeGfx.fillRect(9, 0, 3, 2);
+    treeGfx.fillRect(4, 5, 3, 2);
+    treeGfx.fillRect(8, 5, 3, 2);
+    treeGfx.fillRect(5, 8, 2, 2);
+    treeGfx.fillRect(7, 8, 3, 2);
+    treeGfx.generateTexture('tree', 16, 16);
   }
 
   private createMap(): void {
