@@ -5,8 +5,8 @@ import { BattleScene } from './scenes/battle-scene';
 import { GameOverScene } from './scenes/gameover-scene';
 import { EndingScene } from './scenes/ending-scene';
 
-export const GAME_WIDTH = 320;
-export const GAME_HEIGHT = 180;
+export const GAME_WIDTH = 640;
+export const GAME_HEIGHT = 360;
 
 export const gameConfig: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,

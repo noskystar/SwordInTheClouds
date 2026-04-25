@@ -115,14 +115,14 @@ export class DialoguePanel {
 
     // Speaker name
     this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', uiTextStyle({
-      fontSize: '8px',
+      fontSize: '16px',
       color: '#ffff00',
       padding: { x: 0, y: 0 },
     }));
 
     // Body text - larger area, proper word wrap with fixed dimensions for crisp rendering
     this.bodyText = this.scene.add.text(panelX + 4, panelY + 18, '', uiTextStyle({
-      fontSize: '7px',
+      fontSize: '14px',
       color: '#eeeeee',
       fixedWidth: panelW - 10,
       fixedHeight: 80,
@@ -133,7 +133,7 @@ export class DialoguePanel {
 
     // Continue hint
     this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 4, '▶ E/空格继续', uiTextStyle({
-      fontSize: '6px',
+      fontSize: '12px',
       color: '#888888',
       padding: { y: 1 },
     }));
@@ -239,7 +239,7 @@ export class DialoguePanel {
 
       if (i === 0) {
         this.cursor = this.scene.add.text(cursorX, y, '▶', uiTextStyle({
-          fontSize: '7px',
+          fontSize: '14px',
           color: '#ffff00',
           padding: { x: 0, y: 0 },
         }));
@@ -248,7 +248,7 @@ export class DialoguePanel {
 
       const textWidth = this.scene.cameras.main.width - panelX - 16;
       const text = this.scene.add.text(textX, y, opt.text, uiTextStyle({
-        fontSize: '7px',
+        fontSize: '14px',
         color: i === 0 ? '#ffff00' : '#cccccc',
         padding: { x: 0, y: 0 },
         fixedWidth: textWidth,
