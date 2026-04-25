@@ -40,8 +40,9 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private createJoystick(): void {
-    const cx = 32;
-    const cy = 140;
+    // Position in bottom-left corner, using 320x180 coordinate space
+    const cx = 64;
+    const cy = 260;
     this.joystickCenter = { x: cx, y: cy };
 
     this.joystickBase = this.scene.add.circle(cx, cy, JOYSTICK_RADIUS, 0x333344, 0.6);
@@ -82,8 +83,10 @@ export class TouchControls extends Phaser.GameObjects.Container {
   };
 
   private updateKnobPosition(worldX: number, worldY: number): void {
-    const dx = worldX - this.x - this.joystickCenter.x;
-    const dy = worldY - this.y - this.joystickCenter.y;
+    // Since container is at world origin and scrollFactor=0, world coords = screen coords
+    // The joystick center is in the container's local coordinate space
+    const dx = worldX - this.joystickCenter.x;
+    const dy = worldY - this.joystickCenter.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     const maxDist = JOYSTICK_RADIUS - KNOB_RADIUS;
 
@@ -107,7 +110,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
     // Invisible zone on the right half of screen for dialogue advancement
     const screenW = this.scene.cameras.main.width;
     const screenH = this.scene.cameras.main.height;
-    const zone = this.scene.add.rectangle(screenW * 0.75, screenH * 0.5, screenW * 0.5, screenH * 0.3, 0x000000, 0);
+    const zone = this.scene.add.rectangle(screenW * 0.75, screenH * 0.6, screenW * 0.5, screenH * 0.5, 0x000000, 0.001);
     zone.setScrollFactor(0);
     zone.setInteractive({ useHandCursor: false });
     zone.on('pointerdown', () => {
@@ -117,10 +120,11 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private createButtons(): void {
-    const btnY = 130;
-    const btnGap = 38;
-    const startX = 265;
-    const btnRadius = 12;
+    // Position relative to GAME resolution (640x360)
+    const btnY = 260;
+    const btnGap = 70;
+    const startX = 480;
+    const btnRadius = 20;
 
     const buttons = [
       { label: 'E', x: startX, color: 0x44bb44, action: this.onInteract, desc: '交互' },
@@ -129,33 +133,33 @@ export class TouchControls extends Phaser.GameObjects.Container {
     ];
 
     for (const btn of buttons) {
-      // Outer ring for better visibility
-      const outerRing = this.scene.add.circle(btn.x, btnY, btnRadius + 3, btn.color, 0.3);
+      const outerRing = this.scene.add.circle(btn.x, btnY, btnRadius + 4, btn.color, 0.3);
       outerRing.setStrokeStyle(2, btn.color);
+      outerRing.setScrollFactor(0);
       this.add(outerRing);
 
-      // Main button
       const bg = this.scene.add.circle(btn.x, btnY, btnRadius, btn.color, 0.85);
-      bg.setStrokeStyle(1, 0xffffff, 0.5);
+      bg.setStrokeStyle(1.5, 0xffffff, 0.6);
+      bg.setScrollFactor(0);
       bg.setInteractive({ useHandCursor: true });
       bg.on('pointerdown', btn.action);
       this.add(bg);
 
-      // Label
-      const text = this.scene.add.text(btn.x, btnY - 3, btn.label, uiTextStyle({
-        fontSize: '14px',
+      const text = this.scene.add.text(btn.x, btnY, btn.label, uiTextStyle({
+        fontSize: '24px',
         color: '#ffffff',
         fontStyle: 'bold',
       }));
       text.setOrigin(0.5);
+      text.setScrollFactor(0);
       this.add(text);
 
-      // Description below button
-      const desc = this.scene.add.text(btn.x, btnY + btnRadius + 5, btn.desc, uiTextStyle({
-        fontSize: '8px',
-        color: '#aaaaaa',
+      const desc = this.scene.add.text(btn.x, btnY + btnRadius + 8, btn.desc, uiTextStyle({
+        fontSize: '16px',
+        color: '#bbbbbb',
       }));
       desc.setOrigin(0.5);
+      desc.setScrollFactor(0);
       this.add(desc);
     }
   }
