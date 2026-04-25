@@ -117,7 +117,7 @@ export class DialoguePanel {
     this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', uiTextStyle({
       fontSize: '8px',
       color: '#ffff00',
-      padding: { y: 1 },
+      padding: { x: 0, y: 0 },
     }));
 
     // Body text - larger area, proper word wrap with fixed dimensions for crisp rendering
@@ -128,7 +128,7 @@ export class DialoguePanel {
       fixedHeight: 80,
       wordWrap: { width: panelW - 10 },
       lineSpacing: 4,
-      padding: { y: 2 },
+      padding: { x: 0, y: 0 },
     }));
 
     // Continue hint
@@ -241,7 +241,7 @@ export class DialoguePanel {
         this.cursor = this.scene.add.text(cursorX, y, '▶', uiTextStyle({
           fontSize: '7px',
           color: '#ffff00',
-          padding: { y: 1 },
+          padding: { x: 0, y: 0 },
         }));
         this.container.add(this.cursor);
       }
@@ -250,7 +250,7 @@ export class DialoguePanel {
       const text = this.scene.add.text(textX, y, opt.text, uiTextStyle({
         fontSize: '7px',
         color: i === 0 ? '#ffff00' : '#cccccc',
-        padding: { y: 1 },
+        padding: { x: 0, y: 0 },
         fixedWidth: textWidth,
         wordWrap: { width: textWidth },
       }));

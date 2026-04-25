@@ -57,6 +57,13 @@ export class BootScene extends Scene {
   }
 
   create(): void {
+    const canvas = this.game.canvas;
+    const ctx = this.game.context;
+    if (ctx && 'imageSmoothingEnabled' in ctx) {
+      (ctx as CanvasRenderingContext2D).imageSmoothingEnabled = false;
+    }
+    canvas.style.imageRendering = 'pixelated';
+
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
       this.scene.start('TitleScene');

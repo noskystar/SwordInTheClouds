@@ -17,8 +17,11 @@ export const gameConfig: Phaser.Types.Core.GameConfig = {
   antialias: false,
   antialiasGL: false,
   roundPixels: true,
+  // @ts-ignore - sharpness exists in Phaser 3.80+; ignored safely in 3.70
+  sharpness: 1,
+  rendererOptions: { antialias: false },
   scale: {
-    mode: Phaser.Scale.FIT,
+    mode: Phaser.Scale.WIDTH_CONTROLS_HEIGHT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: GAME_WIDTH,
     height: GAME_HEIGHT,
