@@ -31,24 +31,17 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   private createControls(): void {
-    // Game resolution is 640x360, zoomed 2x on screen (390x219 CSS px).
+    // Game resolution is 640x360.
     // With scrollFactor=0, local coords = screen coords in game units.
-    // Canvas CSS is 390x219px, game is 640x360px at zoom=2.
-    // Camera visible area = 320 game pixels wide (640/2) at player position.
-    // scrollFactor=0 makes local coords relative to camera viewport top-left.
-    // With camera at x=320, visible range is [160, 480].
-    // For controls to appear at screen edges (10% and 90% of 390px canvas):
-    //   screen_x = local_x * zoom = local_x * 2  =>  local_x = screen_x / 2
-    //   10% of 390 = 39px  =>  local_x = 39/2 = ~20
-    //   90% of 390 = 351px  =>  local_x = 351/2 = ~175
-    // joystick at localX=20  →  screenX=40 (~10% from left, correct)
-    // buttons at localX=175  →  screenX=350 (~90% from left, correct)
+    // Joystick: BOTTOM-LEFT corner
+    // Buttons: BOTTOM-RIGHT corner, HORIZONTALLY arranged (E, B, M in a row)
     const W = this.scene.cameras.main.width;   // 640
-    const H = this.scene.cameras.main.height;   // 360
+    const H = this.scene.cameras.main.height;  // 360
 
-    const jRadius = Math.round(H * 0.065);
-    const jBaseX  = 20;
-    const jBaseY  = 130;
+    const jRadius = Math.round(H * 0.07);
+    // Joystick: bottom-left corner (Y=88% down screen = near bottom)
+    const jBaseX  = 25;
+    const jBaseY  = Math.round(H * 0.88);
     const knobR   = Math.round(jRadius * 0.45);
 
     this.joystickCenter = { x: jBaseX, y: jBaseY };
@@ -59,9 +52,9 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.joystickBase.setStrokeStyle(2.5, 0x445566);
     this.add(this.joystickBase);
 
-    // Knob: bright yellow-orange, highly visible against dark base
-    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xFFAA00, 1.0);
-    this.joystickKnob.setStrokeStyle(2.5, 0xFFFF88);
+    // Knob: BRIGHT YELLOW with dark stroke for maximum visibility
+    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xFFFF00, 1.0);
+    this.joystickKnob.setStrokeStyle(3.5, 0x996600);  // dark gold stroke
     this.add(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
@@ -70,16 +63,16 @@ export class TouchControls extends Phaser.GameObjects.Container {
     this.scene.input.on('pointerup',   this.onPointerUp,   this);
     this.scene.input.on('pointerdown', this.onScreenTap,    this);
 
-    // Buttons: bottom-right corner, at ~90% from left edge
-    // btnX=175 → screenX=350 (90% of 390px canvas, right side)
-    const btnX   = 175;
-    const btnY   = jBaseY;
-    const btnGap = Math.round(H * 0.085);
-    const btnR   = Math.round(H * 0.04);
+    // Buttons: BOTTOM-RIGHT corner, HORIZONTALLY arranged
+    // All buttons share the same Y (bottom area), spread horizontally to the right
+    const btnX    = Math.round(W * 0.78);   // ~78% from left = right side
+    const btnY    = Math.round(H * 0.88);   // same Y as joystick (bottom)
+    const btnGap  = Math.round(H * 0.11);   // horizontal gap between buttons
+    const btnR    = Math.round(H * 0.045); // button radius
 
-    this.createButton(btnX, btnY - btnGap, btnR, 'E', 0x44bb44, this.onInteract, '交互');
-    this.createButton(btnX, btnY,           btnR, 'B', 0xcc4444, this.onBattle,   '战斗');
-    this.createButton(btnX, btnY + btnGap, btnR, 'M', 0x4466cc, this.onMenu,     '菜单');
+    this.createButton(btnX - btnGap, btnY, btnR, 'E', 0x44ff44, this.onInteract, '交互');
+    this.createButton(btnX,          btnY, btnR, 'B', 0xff4444, this.onBattle,   '战斗');
+    this.createButton(btnX + btnGap, btnY, btnR, 'M', 0x4488ff, this.onMenu,     '菜单');
 
     // Dialogue advance: right 40% of canvas (worldX > 384)
     const advZone = this.scene.add.rectangle(W * 0.8, H * 0.5, W * 0.4, H, 0x000000, 0.001);
@@ -87,7 +80,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
     advZone.on('pointerdown', () => this.onDialogueAdvance(), this);
     this.add(advZone);
 
-    console.log(`[TouchControls] Created jBase=(${jBaseX},${jBaseY}) btnX=${btnX}`);
+    console.log(`[TouchControls] Created jBase=(${jBaseX},${jBaseY}) btnY=${btnY}`);
   }
 
   private createButton(
