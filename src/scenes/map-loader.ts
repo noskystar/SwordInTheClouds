@@ -46,7 +46,7 @@ export interface LoadedMap {
 }
 
 const GROUND_COLORS: Record<string, number> = {
-  stone: 0x888888,
+  stone: 0x8b7355,
   marble: 0xdddddd,
   wood: 0x8b5a2b,
   tatami: 0xc4a35a,

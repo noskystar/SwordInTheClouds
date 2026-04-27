@@ -17,6 +17,7 @@ export class BootScene extends Scene {
     // === Player ===
     this.load.image('player_idle', 'assets/images/characters/player/player_idle.png');
     this.load.image('player_portrait', 'assets/images/characters/player/player_portrait.png');
+    this.load.spritesheet('player_walk', 'assets/images/characters/player/player_walk.png', { frameWidth: 16, frameHeight: 16 });
 
     // === NPCs (overworld sprites reuse portraits, scaled in-game) ===
     this.load.image('npc_master', 'assets/images/characters/npcs/npc_master_portrait.png');
@@ -25,6 +26,9 @@ export class BootScene extends Scene {
     this.load.image('npc_third_brother', 'assets/images/characters/npcs/npc_third_brother_portrait.png');
     this.load.image('npc_junior_sister', 'assets/images/characters/npcs/npc_junior_sister_portrait.png');
     this.load.image('npc_spirit_pet', 'assets/images/characters/npcs/npc_spirit_pet_portrait.png');
+    // Walk cycle spritesheets
+    this.load.spritesheet('npc_master_walk', 'assets/images/characters/npcs/walk/npc_master_walk.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet('npc_junior_sister_walk', 'assets/images/characters/npcs/walk/npc_junior_sister_walk.png', { frameWidth: 16, frameHeight: 16 });
 
     // === NPC Portraits (for dialogue panels) ===
     this.load.image('npc_master_portrait', 'assets/images/characters/npcs/npc_master_portrait.png');

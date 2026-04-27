@@ -60,10 +60,9 @@ export class Player extends Phaser.GameObjects.Sprite {
     }
 
     if (!anims.exists('player-walk')) {
-      // Use idle frame for walk if no walk sprite sheet available
       anims.create({
         key: 'player-walk',
-        frames: [{ key: 'player_idle', frame: 0 }],
+        frames: this.anims.generateFrameNumbers('player_walk', { start: 0, end: 3 }),
         frameRate: 8,
         repeat: -1,
       });
