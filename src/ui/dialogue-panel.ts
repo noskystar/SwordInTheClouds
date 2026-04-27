@@ -6,12 +6,12 @@ type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
 const PANEL_MARGIN_RATIO = 0.015;     // panel bottom margin as % of screen height
-const PANEL_HEIGHT_RATIO = 0.50;      // panel height as % of screen height (taller for more text)
-const NAME_FONT_RATIO = 0.048;        // name text font as % of screen height (~17px @ 360h)
-const BODY_FONT_RATIO = 0.042;        // body text font as % of screen height (~15px @ 360h)
-const OPTION_FONT_RATIO = 0.042;      // option text font as % of screen height (~15px @ 360h)
-const HINT_FONT_RATIO = 0.036;        // hint text font as % of screen height (~13px @ 360h)
-const OPTION_LINE_RATIO = 0.045;      // option line height as % of screen height (~16px @ 360h)
+const PANEL_HEIGHT_RATIO = 0.40;      // panel height as % of screen height
+const NAME_FONT_RATIO = 0.038;        // name text font as % of screen height (~14px @ 360h)
+const BODY_FONT_RATIO = 0.034;        // body text font as % of screen height (~12px @ 360h)
+const OPTION_FONT_RATIO = 0.034;      // option text font as % of screen height (~12px @ 360h)
+const HINT_FONT_RATIO = 0.030;        // hint text font as % of screen height (~11px @ 360h)
+const OPTION_LINE_RATIO = 0.038;      // option line height as % of screen height (~14px @ 360h)
 
 export class DialoguePanel {
   private scene: Scene;

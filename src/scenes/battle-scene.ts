@@ -325,6 +325,23 @@ export class BattleScene extends Scene {
         fontSize: '12px',
         color: '#aaaaaa',
       }));
+      text.setDepth(51);
+      text.setInteractive({ useHandCursor: true });
+      text.on('pointerover', () => {
+        if ((this.menuState !== 'action' && this.menuState !== 'skill') || !text.visible) return;
+        this.selectedMenuIndex = i;
+        this.updateMenuSelection();
+      });
+      text.on('pointerdown', () => {
+        if ((this.menuState !== 'action' && this.menuState !== 'skill') || !text.visible) return;
+        this.selectedMenuIndex = i;
+        this.updateMenuSelection();
+        if (this.menuState === 'action') {
+          this.menuConfirm();
+        } else if (this.menuState === 'skill') {
+          this.skillConfirm();
+        }
+      });
       this.menuItems.push(text);
       this.menuContainer.add(text);
     }
