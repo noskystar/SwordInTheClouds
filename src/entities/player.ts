@@ -16,9 +16,12 @@ export class Player extends Phaser.GameObjects.Sprite {
   private virtualDirection = { x: 0, y: 0 };
 
   constructor(scene: Scene, x: number, y: number) {
-    super(scene, x, y, 'player');
+    super(scene, x, y, 'player_idle');
     scene.add.existing(this);
     scene.physics.add.existing(this);
+
+    // Scale down the high-res pixel-art sprite to game size
+    this.setDisplaySize(16, 24);
 
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(10, 10);
@@ -50,19 +53,17 @@ export class Player extends Phaser.GameObjects.Sprite {
     if (!anims.exists('player-idle')) {
       anims.create({
         key: 'player-idle',
-        frames: [{ key: 'player', frame: 0 }],
+        frames: [{ key: 'player_idle', frame: 0 }],
         frameRate: 1,
         repeat: -1,
       });
     }
 
     if (!anims.exists('player-walk')) {
+      // Use idle frame for walk if no walk sprite sheet available
       anims.create({
         key: 'player-walk',
-        frames: [
-          { key: 'player', frame: 0 },
-          { key: 'player', frame: 1 },
-        ],
+        frames: [{ key: 'player_idle', frame: 0 }],
         frameRate: 8,
         repeat: -1,
       });

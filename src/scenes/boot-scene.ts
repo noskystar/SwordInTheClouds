@@ -15,10 +15,18 @@ export class BootScene extends Scene {
     this.load.image('bg_battle_cave', 'assets/images/backgrounds/bg_battle_cave.png');
 
     // === Player ===
+    this.load.image('player_idle', 'assets/images/characters/player/player_idle.png');
     this.load.image('player_portrait', 'assets/images/characters/player/player_portrait.png');
-    this.load.image('player_sprite_sheet', 'assets/images/characters/player/player_sprite_sheet.png');
 
-    // === NPCs ===
+    // === NPCs (overworld sprites reuse portraits, scaled in-game) ===
+    this.load.image('npc_master', 'assets/images/characters/npcs/npc_master_portrait.png');
+    this.load.image('npc_senior_brother', 'assets/images/characters/npcs/npc_senior_brother_portrait.png');
+    this.load.image('npc_second_sister', 'assets/images/characters/npcs/npc_second_sister_portrait.png');
+    this.load.image('npc_third_brother', 'assets/images/characters/npcs/npc_third_brother_portrait.png');
+    this.load.image('npc_junior_sister', 'assets/images/characters/npcs/npc_junior_sister_portrait.png');
+    this.load.image('npc_spirit_pet', 'assets/images/characters/npcs/npc_spirit_pet_portrait.png');
+
+    // === NPC Portraits (for dialogue panels) ===
     this.load.image('npc_master_portrait', 'assets/images/characters/npcs/npc_master_portrait.png');
     this.load.image('npc_senior_brother_portrait', 'assets/images/characters/npcs/npc_senior_brother_portrait.png');
     this.load.image('npc_second_sister_portrait', 'assets/images/characters/npcs/npc_second_sister_portrait.png');
@@ -32,6 +40,11 @@ export class BootScene extends Scene {
     this.load.image('enemy_spirit', 'assets/images/characters/enemies/enemy_spirit.png');
     this.load.image('enemy_elder_1', 'assets/images/characters/enemies/enemy_elder_1.png');
     this.load.image('enemy_shadow_clone', 'assets/images/characters/enemies/enemy_shadow_clone.png');
+    // Missing enemy sprites (will fall back to colored rectangle until generated)
+    this.load.image('enemy_stone_golem', 'assets/images/characters/enemies/enemy_stone_golem.png');
+    this.load.image('enemy_flame_fox', 'assets/images/characters/enemies/enemy_flame_fox.png');
+    this.load.image('enemy_water_serpent', 'assets/images/characters/enemies/enemy_water_serpent.png');
+    this.load.image('enemy_metal_blade', 'assets/images/characters/enemies/enemy_metal_blade.png');
 
     // === UI ===
     this.load.image('ui_frame_9patch', 'assets/images/ui/ui_frame_9patch.png');

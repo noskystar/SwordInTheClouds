@@ -180,49 +180,8 @@ export class OverworldScene extends Scene {
   }
 
   private generateTextures(): void {
-    // --- Player sprite (2 frames: idle + walk) ---
-    // Each frame is 16x16, martial arts youth in blue robes
-    const drawPlayer = (g: Phaser.GameObjects.Graphics, px: number, py: number, darkRobe: number) => {
-      // Robe body
-      g.fillStyle(darkRobe, 1);
-      g.fillRect(px + 3, py + 6, 10, 9);
-      // Robe lighter center
-      g.fillStyle(0x4a90d9, 1);
-      g.fillRect(px + 5, py + 6, 6, 8);
-      // Head (skin)
-      g.fillStyle(0xffccaa, 1);
-      g.fillRect(px + 4, py + 1, 8, 6);
-      // Hair (dark)
-      g.fillStyle(0x1a1a2e, 1);
-      g.fillRect(px + 3, py, 10, 3);
-      g.fillRect(px + 2, py + 1, 2, 3);
-      // Eyes
-      g.fillStyle(0x1a1a2e, 1);
-      g.fillRect(px + 5, py + 3, 2, 1);
-      g.fillRect(px + 9, py + 3, 2, 1);
-      // Belt
-      g.fillStyle(0x8b6914, 1);
-      g.fillRect(px + 3, py + 9, 10, 1);
-      // Feet
-      g.fillStyle(0x3d3d3d, 1);
-      g.fillRect(px + 4, py + 14, 3, 2);
-      g.fillRect(px + 9, py + 14, 3, 2);
-    };
-
-    const playerGfx = this.make.graphics({ x: 0, y: 0 });
-    // Frame 0: idle
-    drawPlayer(playerGfx, 0, 0, 0x3a7bd5);
-    // Frame 1: walk offset
-    drawPlayer(playerGfx, 16, 0, 0x3a7bd5);
-    playerGfx.generateTexture('player', 32, 16);
-    const playerTex = this.textures.get('player');
-    playerTex.add('0', 0, 0, 0, 16, 16);
-    playerTex.add('1', 0, 16, 0, 16, 16);
-
-    // --- NPC sprite (16x16, red-robed martial artist) ---
-    const npcGfx = this.make.graphics({ x: 0, y: 0 });
-    drawPlayer(npcGfx, 0, 0, 0xb84c4c);
-    npcGfx.generateTexture('npc-1', 16, 16);
+    // Player and NPC sprites now loaded from assets/images/characters/
+    // Keep procedural textures for environment objects only
 
     // --- Ground tile (16x16, grassy field with detail) ---
     const groundGfx = this.make.graphics({ x: 0, y: 0 });
@@ -331,7 +290,7 @@ export class OverworldScene extends Scene {
         name: '长老',
         x: 200,
         y: 120,
-        texture: 'npc-1',
+        texture: 'npc_master',
         dialogueId: 'demo-elder',
       },
       {
@@ -339,7 +298,7 @@ export class OverworldScene extends Scene {
         name: '弟子',
         x: 400,
         y: 200,
-        texture: 'npc-1',
+        texture: 'npc_junior_sister',
         dialogues: ['听说大师兄最近行为有些奇怪……'],
       },
     ];

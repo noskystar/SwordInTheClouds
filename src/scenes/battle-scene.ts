@@ -257,6 +257,7 @@ export class BattleScene extends Scene {
     if (spriteKey && this.textures.exists(spriteKey)) {
       sprite = this.add.image(0, -12, spriteKey);
       (sprite as Phaser.GameObjects.Image).setOrigin(0.5);
+      (sprite as Phaser.GameObjects.Image).setDisplaySize(24, 24);
     } else {
       sprite = this.add.rectangle(0, -8, 24, 24, entity.color);
       sprite.setStrokeStyle(1, 0xffffff);
@@ -980,15 +981,16 @@ export class BattleScene extends Scene {
   }
 
   private getEnemySpriteKey(enemyId: string): string | null {
+    // Each enemy maps to its own sprite key; missing sprites fall back to colored rectangle
     const spriteMap: Record<string, string> = {
       spirit_wolf: 'enemy_wolf',
-      dark_spy: 'enemy_shadow_clone',
-      corrupted_spirit: 'enemy_elder_1',
+      dark_spy: 'enemy_bandit',
+      corrupted_spirit: 'enemy_spirit',
       wood_spirit: 'enemy_spirit',
-      stone_golem: 'enemy_bandit',
-      flame_fox: 'enemy_spirit',
-      water_serpent: 'enemy_spirit',
-      metal_blade: 'enemy_bandit',
+      stone_golem: 'enemy_stone_golem',
+      flame_fox: 'enemy_flame_fox',
+      water_serpent: 'enemy_water_serpent',
+      metal_blade: 'enemy_metal_blade',
     };
     return spriteMap[enemyId] ?? null;
   }

@@ -24,6 +24,9 @@ export class NPC extends Phaser.GameObjects.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this, true);
 
+    // Scale portrait down to overworld sprite size
+    this.setDisplaySize(16, 16);
+
     const body = this.body as Phaser.Physics.Arcade.StaticBody;
     body.setSize(12, 12);
     body.setOffset(2, 8);
