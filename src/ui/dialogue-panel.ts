@@ -72,12 +72,11 @@ export class DialoguePanel {
     this.container.setVisible(true);
     this.container.setAlpha(1);
 
-    // Start typewriter
+    // Start typewriter effect
     this.isTyping = true;
     this.typingTimer = this.scene.time.addEvent({
-      delay: 40,
-      callback: this.typeNextChar,
-      callbackScope: this,
+      delay: 30,
+      callback: () => this.typeNextChar(),
       repeat: this.fullText.length - 1,
     });
   }
@@ -109,47 +108,53 @@ export class DialoguePanel {
     const panelX = panelMargin;
     const panelY = height - panelH - panelMargin;
 
+    // Camera zoom compensation for fixed UI elements
+    const camera = this.scene.cameras.main;
+    const zoom = camera.zoom;
+    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
+    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+    const sz = (v: number) => v / zoom;
+
     const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
     const bodyFontSize = Math.max(9, Math.round(height * BODY_FONT_RATIO));
     const hintFontSize = Math.max(8, Math.round(height * HINT_FONT_RATIO));
-    const innerPad = Math.max(2, Math.round(panelH * 0.02));
-    const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
-    const bodyHeight = Math.round(panelH * 0.45);
+    const innerPad = Math.max(4, Math.round(panelH * 0.04));
+    const gapNameBody = Math.max(3, Math.round(panelH * 0.03));
     const lineSpacing = Math.max(3, Math.round(bodyFontSize * 0.35));
 
     // Background
     if (this.scene.textures.exists('ui_dialogue_bg')) {
-      this.bg = this.scene.add.image(panelX + panelW / 2, panelY + panelH / 2, 'ui_dialogue_bg');
-      this.bg.setDisplaySize(panelW, panelH);
+      this.bg = this.scene.add.image(toWorldX(panelX + panelW / 2), toWorldY(panelY + panelH / 2), 'ui_dialogue_bg');
+      this.bg.setDisplaySize(sz(panelW), sz(panelH));
       this.bg.setOrigin(0.5);
     } else {
-      this.bg = this.scene.add.rectangle(panelX + panelW / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
-      this.bg.setStrokeStyle(1, 0x4a4a6a);
+      this.bg = this.scene.add.rectangle(toWorldX(panelX + panelW / 2), toWorldY(panelY + panelH / 2), sz(panelW), sz(panelH), 0x1a1a2e, 0.95);
+      this.bg.setStrokeStyle(sz(1), 0x4a4a6a);
     }
 
     // Speaker name
     const nameY = panelY + innerPad;
-    this.nameText = this.scene.add.text(panelX + innerPad, nameY, '', uiTextStyle({
+    this.nameText = this.scene.add.text(toWorldX(panelX + innerPad), toWorldY(nameY), '', uiTextStyle({
       fontSize: nameFontSize + 'px',
       color: '#ffff00',
       padding: { x: 0, y: 0 },
     }));
 
-    // Body text - word wrap with fixed dimensions for crisp rendering
+    // Body text - word wrap with fixed width; height grows with content
     const bodyY = nameY + nameFontSize + gapNameBody;
-    this.bodyText = this.scene.add.text(panelX + innerPad, bodyY, '', uiTextStyle({
+    const textBlockW = sz(panelW - innerPad * 2);
+    this.bodyText = this.scene.add.text(toWorldX(panelX + innerPad), toWorldY(bodyY), '', uiTextStyle({
       fontSize: bodyFontSize + 'px',
       color: '#eeeeee',
-      fixedWidth: panelW - innerPad * 2,
-      fixedHeight: bodyHeight,
-      wordWrap: { width: panelW - innerPad * 2, useAdvancedWrap: true },
+      fixedWidth: textBlockW,
+      wordWrap: { width: textBlockW, useAdvancedWrap: true },
       lineSpacing,
       padding: { x: 0, y: 0 },
     }));
 
     // Continue hint (positioned to stay inside panel bounds)
     const hintY = panelY + panelH - hintFontSize - Math.round(panelH * 0.03);
-    this.continueHint = this.scene.add.text(panelX + panelW - innerPad, hintY, '▶ E/空格继续', uiTextStyle({
+    this.continueHint = this.scene.add.text(toWorldX(panelX + panelW - innerPad), toWorldY(hintY), '▶ E/空格继续', uiTextStyle({
       fontSize: hintFontSize + 'px',
       color: '#888888',
       padding: { y: 1 },
@@ -158,6 +163,13 @@ export class DialoguePanel {
     this.continueHint.setVisible(false);
 
     this.container.add([this.bg, this.nameText, this.bodyText, this.continueHint]);
+
+    // Each element must have scrollFactor=0 to stay fixed on screen under zoom
+    this.bg.setScrollFactor(0);
+    this.nameText.setScrollFactor(0);
+    this.bodyText.setScrollFactor(0);
+    this.continueHint.setScrollFactor(0);
+
     this.container.setScrollFactor(0);
     this.container.setDepth(100);
   }
@@ -259,6 +271,12 @@ export class DialoguePanel {
   private showOptions(): void {
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
+    const camera = this.scene.cameras.main;
+    const zoom = camera.zoom;
+    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
+    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+    const sz = (v: number) => v / zoom;
+
     const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
     const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
     const panelX = panelMargin;
@@ -267,17 +285,19 @@ export class DialoguePanel {
     const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
     const optionFontSize = Math.max(9, Math.round(height * OPTION_FONT_RATIO));
     const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
-    const innerPad = Math.max(2, Math.round(panelH * 0.02));
-    const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
-    const bodyHeight = Math.round(panelH * 0.45);
-    const gapBodyOptions = Math.max(2, Math.round(panelH * 0.018));
+    const innerPad = Math.max(4, Math.round(panelH * 0.04));
+    const gapNameBody = Math.max(3, Math.round(panelH * 0.03));
+    const gapBodyOptions = Math.max(6, Math.round(panelH * 0.06));
 
     const nameY = panelY + innerPad;
     const bodyY = nameY + nameFontSize + gapNameBody;
-    const startY = bodyY + bodyHeight + gapBodyOptions;
-    const bottomPad = Math.max(2, Math.round(panelH * 0.03));
+    // bodyText rendered height in screen pixels; divide by zoom for world coords
+    const actualBodyHeight = this.bodyText.height / zoom;
+    const startY = bodyY + actualBodyHeight + gapBodyOptions;
+    const bottomPad = Math.max(4, Math.round(panelH * 0.05));
     const availableHeight = panelY + panelH - startY - bottomPad;
-    const optionHeight = Math.min(optionLineHeight, Math.floor(availableHeight / Math.max(this.options.length, 1)));
+    const minOptionHeight = Math.round(optionFontSize * 1.5);
+    const optionHeight = Math.min(Math.max(optionLineHeight, minOptionHeight), Math.floor(availableHeight / Math.max(this.options.length, 1)));
 
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
@@ -287,22 +307,24 @@ export class DialoguePanel {
       const y = startY + i * optionHeight;
 
       if (i === 0) {
-        this.cursor = this.scene.add.text(cursorX, y, '▶', uiTextStyle({
+        this.cursor = this.scene.add.text(toWorldX(cursorX), toWorldY(y), '▶', uiTextStyle({
           fontSize: optionFontSize + 'px',
           color: '#ffff00',
           padding: { x: 0, y: 0 },
         }));
+        this.cursor.setScrollFactor(0);
         this.container.add(this.cursor);
       }
 
       const textWidth = width - textX - innerPad * 2;
-      const text = this.scene.add.text(textX, y, opt.text, uiTextStyle({
+      const text = this.scene.add.text(toWorldX(textX), toWorldY(y), opt.text, uiTextStyle({
         fontSize: optionFontSize + 'px',
         color: i === 0 ? '#ffff00' : '#cccccc',
         padding: { x: 0, y: 0 },
-        fixedWidth: textWidth,
-        wordWrap: { width: textWidth, useAdvancedWrap: true },
+        fixedWidth: sz(textWidth),
+        wordWrap: { width: sz(textWidth), useAdvancedWrap: true },
       }));
+      text.setScrollFactor(0);
       text.setInteractive({ useHandCursor: true });
       text.on('pointerdown', () => {
         this.selectedIndex = i;
@@ -321,24 +343,30 @@ export class DialoguePanel {
   private updateOptionHighlight(): void {
     if (this.cursor) {
       const height = this.scene.cameras.main.height;
+      const camera = this.scene.cameras.main;
+      const zoom = camera.zoom;
+      const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+
       const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
       const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
       const panelY = height - panelH - panelMargin;
 
       const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
-      const bodyHeight = Math.round(panelH * 0.38);
-      const innerPad = Math.max(2, Math.round(panelH * 0.02));
-      const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
-      const gapBodyOptions = Math.max(2, Math.round(panelH * 0.02));
+      const optionFontSize = Math.max(9, Math.round(height * OPTION_FONT_RATIO));
+      const innerPad = Math.max(4, Math.round(panelH * 0.04));
+      const gapNameBody = Math.max(3, Math.round(panelH * 0.03));
+      const gapBodyOptions = Math.max(6, Math.round(panelH * 0.06));
       const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
-      const bottomPad = Math.max(2, Math.round(panelH * 0.03));
+      const bottomPad = Math.max(4, Math.round(panelH * 0.05));
 
       const nameY = panelY + innerPad;
       const bodyY = nameY + nameFontSize + gapNameBody;
-      const startY = bodyY + bodyHeight + gapBodyOptions;
+      const actualBodyHeight = this.bodyText.height / zoom;
+      const startY = bodyY + actualBodyHeight + gapBodyOptions;
       const availableHeight = panelY + panelH - startY - bottomPad;
-      const optionHeight = Math.min(optionLineHeight, Math.floor(availableHeight / Math.max(this.options.length, 1)));
-      this.cursor.setY(startY + this.selectedIndex * optionHeight);
+      const minOptionHeight = Math.round(optionFontSize * 1.5);
+      const optionHeight = Math.min(Math.max(optionLineHeight, minOptionHeight), Math.floor(availableHeight / Math.max(this.options.length, 1)));
+      this.cursor.setY(toWorldY(startY + this.selectedIndex * optionHeight));
     }
     for (let i = 0; i < this.optionTexts.length; i++) {
       this.optionTexts[i].setColor(i === this.selectedIndex ? '#ffff00' : '#cccccc');

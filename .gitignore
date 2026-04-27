@@ -68,3 +68,5 @@ tmp/
 # Temporary files
 tmp/
 temp/
+qa-temp/
+.superpowers/

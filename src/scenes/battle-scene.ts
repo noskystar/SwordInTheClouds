@@ -61,6 +61,7 @@ export class BattleScene extends Scene {
   private returnScene = 'OverworldScene';
   private audioSystem!: AudioSystem;
   private touchOverlay?: Phaser.GameObjects.Container;
+  private controlHint?: Phaser.GameObjects.Text;
 
   constructor() {
     super({ key: 'BattleScene' });
@@ -109,6 +110,29 @@ export class BattleScene extends Scene {
 
     this.battleSystem.startBattle();
     this.addLog(`遭遇：${group.name}`);
+
+    // Show control hint briefly at battle start
+    this.controlHint = this.add.text(
+      this.cameras.main.width / 2,
+      this.cameras.main.height - 14,
+      '方向键/触摸选择  ·  空格/确认键确认',
+      uiTextStyle({
+        fontSize: '11px',
+        color: '#888888',
+        align: 'center',
+      })
+    );
+    this.controlHint.setOrigin(0.5);
+    this.controlHint.setDepth(20);
+    this.controlHint.setScrollFactor(0);
+    this.time.delayedCall(4000, () => {
+      this.tweens.add({
+        targets: this.controlHint,
+        alpha: 0,
+        duration: 800,
+        onComplete: () => this.controlHint?.destroy(),
+      });
+    });
   }
 
   update(_time: number, delta: number): void {
@@ -142,30 +166,34 @@ export class BattleScene extends Scene {
     this.touchOverlay.setScrollFactor(0);
     this.touchOverlay.setVisible(false);
 
-    // Semi-transparent colored backgrounds for each zone so users can see them
-    const zoneAlpha = 0.12;
+    // More visible semi-transparent backgrounds for each zone
+    const zoneAlpha = 0.22;
 
     // Upper-left: previous / up
     const upZone = this.add.rectangle(W * 0.25, H * 0.25, W * 0.5, H * 0.5, 0x2244aa, zoneAlpha);
     upZone.setInteractive({ useHandCursor: false });
+    upZone.setScrollFactor(0);
     upZone.on('pointerdown', () => this.handleTouchUp());
     this.touchOverlay.add(upZone);
 
     // Lower-left: next / down
     const downZone = this.add.rectangle(W * 0.25, H * 0.75, W * 0.5, H * 0.5, 0x2244aa, zoneAlpha);
     downZone.setInteractive({ useHandCursor: false });
+    downZone.setScrollFactor(0);
     downZone.on('pointerdown', () => this.handleTouchDown());
     this.touchOverlay.add(downZone);
 
     // Lower-right: confirm
     const confirmZone = this.add.rectangle(W * 0.75, H * 0.75, W * 0.5, H * 0.5, 0x228844, zoneAlpha);
     confirmZone.setInteractive({ useHandCursor: false });
+    confirmZone.setScrollFactor(0);
     confirmZone.on('pointerdown', () => this.handleTouchConfirm());
     this.touchOverlay.add(confirmZone);
 
     // Upper-right: cancel (skill/target states only)
     const cancelZone = this.add.rectangle(W * 0.75, H * 0.25, W * 0.5, H * 0.5, 0xaa4444, zoneAlpha);
     cancelZone.setInteractive({ useHandCursor: false });
+    cancelZone.setScrollFactor(0);
     cancelZone.on('pointerdown', () => this.handleTouchCancel());
     this.touchOverlay.add(cancelZone);
 
@@ -178,22 +206,26 @@ export class BattleScene extends Scene {
 
     const upHint = this.add.text(W * 0.25, H * 0.25, '▲ 上', labelStyle('#88bbff'));
     upHint.setOrigin(0.5);
-    upHint.setAlpha(0.55);
+    upHint.setAlpha(0.75);
+    upHint.setScrollFactor(0);
     this.touchOverlay.add(upHint);
 
     const downHint = this.add.text(W * 0.25, H * 0.75, '▼ 下', labelStyle('#88bbff'));
     downHint.setOrigin(0.5);
-    downHint.setAlpha(0.55);
+    downHint.setAlpha(0.75);
+    downHint.setScrollFactor(0);
     this.touchOverlay.add(downHint);
 
     const confirmHint = this.add.text(W * 0.75, H * 0.75, '● 确认', labelStyle('#88ffaa'));
     confirmHint.setOrigin(0.5);
-    confirmHint.setAlpha(0.55);
+    confirmHint.setAlpha(0.75);
+    confirmHint.setScrollFactor(0);
     this.touchOverlay.add(confirmHint);
 
     const cancelHint = this.add.text(W * 0.75, H * 0.25, '✕ 取消', labelStyle('#ff8888'));
     cancelHint.setOrigin(0.5);
-    cancelHint.setAlpha(0.4);
+    cancelHint.setAlpha(0.6);
+    cancelHint.setScrollFactor(0);
     this.touchOverlay.add(cancelHint);
   }
 
@@ -282,6 +314,7 @@ export class BattleScene extends Scene {
     this.menuContainer = this.add.container(160, 148);
     this.menuContainer.setVisible(false);
     this.menuContainer.setDepth(10);
+    this.menuContainer.setScrollFactor(0);
 
     const bg = this.add.rectangle(0, 0, 140, 72, 0x000000, 0.85);
     bg.setStrokeStyle(1, 0x888888);
