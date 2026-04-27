@@ -79,6 +79,10 @@ export class NPC extends Phaser.GameObjects.Sprite {
     }
   }
 
+  getNearby(): boolean {
+    return this.isPlayerNearby;
+  }
+
   onInteract(callback: (npc: NPC) => void): void {
     this.interactionCallback = callback;
   }

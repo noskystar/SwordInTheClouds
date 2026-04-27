@@ -523,19 +523,31 @@ export class OverworldScene extends Scene {
     const justPressed = eKeyIsDown && !this.eKeyWasDown;
     this.eKeyWasDown = eKeyIsDown;
 
-    // For touch button, fire immediately without debounce
-    const touchJustPressed = !this.touchInteractWasDown;
-    this.touchInteractWasDown = true;
-
-    if (!justPressed && !touchJustPressed) return;
-
-    for (const npc of this.npcs) {
-      const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
-      if (distance < 32) {
-        npc.interact();
-        break;
+    if (justPressed) {
+      for (const npc of this.npcs) {
+        const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
+        if (distance < 32 && this.isPlayerNearby(npc)) {
+          npc.interact();
+          break;
+        }
       }
     }
+
+    // Touch button: fire immediately without debounce
+    if (this.touchInteractWasDown) {
+      this.touchInteractWasDown = false;
+      for (const npc of this.npcs) {
+        const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
+        if (distance < 32 && this.isPlayerNearby(npc)) {
+          npc.interact();
+          break;
+        }
+      }
+    }
+  }
+
+  private isPlayerNearby(npc: NPC): boolean {
+    return npc.getNearby();
   }
 
   private checkDialogueClose(): void {
@@ -684,41 +696,53 @@ export class OverworldScene extends Scene {
     if (this.isDialogueOpen) return;
     this.isDialogueOpen = true;
 
-    const halfW = this.cameras.main.width / 2;
-    const halfH = this.cameras.main.height / 2;
     const width = this.cameras.main.width;
-    const height = 56;
+    const height = this.cameras.main.height;
+    const panelH = Math.max(100, Math.round(height * 0.40));
+    const panelW = width;
+    const panelX = 0;
+    const panelY = height - panelH;
 
-    const bg = this.add.rectangle(0, halfH - height / 2, width, height, 0x000000, 0.8);
+    const bg = this.add.rectangle(width / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
+    bg.setStrokeStyle(1, 0x4a4a6a);
     bg.setName('dialogue-ui');
     bg.setScrollFactor(0);
+    bg.setDepth(100);
 
-    const nameText = this.add.text(4 - halfW, halfH - height + 2, speaker, uiTextStyle({
-      fontSize: '8px',
+    const nameFontSize = Math.max(10, Math.round(height * 0.038));
+    const bodyFontSize = Math.max(9, Math.round(height * 0.034));
+    const innerPad = Math.max(4, Math.round(panelH * 0.04));
+    const gapNameBody = Math.max(3, Math.round(panelH * 0.03));
+
+    const nameText = this.add.text(panelX + innerPad, panelY + innerPad, speaker, uiTextStyle({
+      fontSize: nameFontSize + 'px',
       color: '#ffff00',
-      padding: { y: 1 },
+      padding: { x: 0, y: 0 },
     }));
     nameText.setName('dialogue-ui');
     nameText.setScrollFactor(0);
+    nameText.setDepth(101);
 
-    const dialogueText = this.add.text(4 - halfW, halfH - height + 16, text, uiTextStyle({
-      fontSize: '8px',
-      color: '#ffffff',
-      wordWrap: { width: width - 8 },
-      lineSpacing: 4,
-      padding: { y: 2 },
+    const textBlockW = panelW - innerPad * 2;
+    const dialogueText = this.add.text(panelX + innerPad, panelY + innerPad + nameFontSize + gapNameBody, text, uiTextStyle({
+      fontSize: bodyFontSize + 'px',
+      color: '#eeeeee',
+      fixedWidth: textBlockW,
+      wordWrap: { width: textBlockW },
+      lineSpacing: Math.max(3, Math.round(bodyFontSize * 0.35)),
     }));
     dialogueText.setName('dialogue-ui');
     dialogueText.setScrollFactor(0);
+    dialogueText.setDepth(101);
 
-    const closeHint = this.add.text(halfW - 4, halfH - 2, '按 E 关闭', uiTextStyle({
-      fontSize: '6px',
+    const closeHint = this.add.text(width - innerPad, panelY + panelH - innerPad, '按 E 关闭', uiTextStyle({
+      fontSize: bodyFontSize + 'px',
       color: '#aaaaaa',
-      padding: { y: 1 },
     }));
-    closeHint.setName('dialogue-ui');
     closeHint.setOrigin(1, 1);
+    closeHint.setName('dialogue-ui');
     closeHint.setScrollFactor(0);
+    closeHint.setDepth(101);
 
     this.physics.pause();
   }
