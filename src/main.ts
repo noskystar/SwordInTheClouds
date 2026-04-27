@@ -6,4 +6,5 @@ const config: Phaser.Types.Core.GameConfig = {
   parent: 'game-container',
 };
 
-new Phaser.Game(config);
+const game = new Phaser.Game(config);
+(window as unknown as Record<string, unknown>).__game = game;

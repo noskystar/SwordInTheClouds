@@ -253,7 +253,8 @@ export class BattleScene extends Scene {
 
     // Try to use a sprite image, fall back to colored rectangle
     let sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
-    const spriteKey = entity.isPlayer ? null : this.getEnemySpriteKey(entity.id);
+    const lookupId = entity.isPlayer ? null : (entity.originalEnemyId ?? entity.id);
+    const spriteKey = lookupId ? this.getEnemySpriteKey(lookupId) : null;
     if (spriteKey && this.textures.exists(spriteKey)) {
       sprite = this.add.image(0, -12, spriteKey);
       (sprite as Phaser.GameObjects.Image).setOrigin(0.5);

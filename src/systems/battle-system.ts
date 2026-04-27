@@ -170,7 +170,7 @@ export class BattleSystem {
       }
       this.applyDefendBonus(entity);
 
-      this.emit('turn_ready', { entityId: readyEntityId } as BattleEvent);
+      this.emit('turn_ready', { type: 'turn_ready', entityId: readyEntityId } as BattleEvent);
 
       if (entity.isPlayer) {
         this.turnState = 'waiting_for_player';
@@ -187,7 +187,7 @@ export class BattleSystem {
     if (!entity || !entity.isAlive || this.turnState === 'ended') return;
 
     this.currentActionType = action.type;
-    this.emit('action_executed', { entityId, action } as BattleEvent);
+    this.emit('action_executed', { type: 'action_executed', entityId, action } as BattleEvent);
 
     switch (action.type) {
       case 'attack':
@@ -227,7 +227,7 @@ export class BattleSystem {
 
   private handleDefend(entity: BattleEntity): void {
     this.defendingEntities.add(entity.id);
-    this.emit('defend', { entityId: entity.id } as BattleEvent);
+    this.emit('defend', { type: 'defend', entityId: entity.id } as BattleEvent);
     this.recordAction(entity.id, entity.element, 'defend');
   }
 
@@ -238,12 +238,12 @@ export class BattleSystem {
     const fleeChance = Math.min(0.9, Math.max(0.1, BASE_FLEE_CHANCE + levelDiff * 0.05));
     const success = Math.random() < fleeChance;
 
-    this.emit('flee_attempted', { success } as BattleEvent);
+    this.emit('flee_attempted', { type: 'flee_attempted', success } as BattleEvent);
 
     if (success) {
       this.battleResult = 'fled';
       this.turnState = 'ended';
-      this.emit('battle_ended', { result: 'fled' } as BattleEvent);
+      this.emit('battle_ended', { type: 'battle_ended', result: 'fled' } as BattleEvent);
     }
   }
 
@@ -253,7 +253,7 @@ export class BattleSystem {
     if (source.mp < skill.mpCost) return;
 
     source.mp -= skill.mpCost;
-    this.emit('mp_changed', { entityId: source.id, delta: -skill.mpCost } as BattleEvent);
+    this.emit('mp_changed', { type: 'mp_changed', entityId: source.id, delta: -skill.mpCost } as BattleEvent);
 
     if (skill.targetType === 'self') {
       if (skill.power > 0 && skill.element === 'water') {
@@ -283,7 +283,7 @@ export class BattleSystem {
     if (source.swordIntent < SWORD_INTENT_MAX) return;
 
     source.swordIntent = 0;
-    this.emit('sword_intent_changed', { entityId: source.id, value: 0 } as BattleEvent);
+    this.emit('sword_intent_changed', { type: 'sword_intent_changed', entityId: source.id, value: 0 } as BattleEvent);
 
     const power = 80 + source.level * 5;
     const target = targetId ? this.entities.get(targetId) : null;
@@ -319,13 +319,13 @@ export class BattleSystem {
       case 'heal_hp': {
         const healAmount = Math.min(effect.value, entity.maxHp - entity.hp);
         entity.hp += healAmount;
-        this.emit('heal', { targetId: entityId, amount: healAmount } as BattleEvent);
+        this.emit('heal', { type: 'heal', targetId: entityId, amount: healAmount } as BattleEvent);
         break;
       }
       case 'heal_mp': {
         const healAmount = Math.min(effect.value, entity.maxMp - entity.mp);
         entity.mp += healAmount;
-        this.emit('mp_changed', { entityId, delta: healAmount } as BattleEvent);
+        this.emit('mp_changed', { type: 'mp_changed', entityId, delta: healAmount } as BattleEvent);
         break;
       }
       case 'buff':
@@ -373,7 +373,7 @@ export class BattleSystem {
 
   private applyDamage(sourceId: string, target: BattleEntity, damage: number): void {
     target.hp = Math.max(0, target.hp - damage);
-    this.emit('damage_dealt', { sourceId, targetId: target.id, damage } as BattleEvent);
+    this.emit('damage_dealt', { type: 'damage_dealt', sourceId, targetId: target.id, damage } as BattleEvent);
 
     if (!target.isPlayer && this.currentActionType !== 'ultimate') {
       const player = this.entities.get(this.playerId)!;
@@ -383,7 +383,7 @@ export class BattleSystem {
     if (target.hp <= 0) {
       target.isAlive = false;
       target.atbGauge = 0;
-      this.emit('entity_defeated', { entityId: target.id } as BattleEvent);
+      this.emit('entity_defeated', { type: 'entity_defeated', entityId: target.id } as BattleEvent);
       this.checkBattleEnd();
     }
   }
@@ -391,14 +391,14 @@ export class BattleSystem {
   private applyHeal(target: BattleEntity, amount: number): void {
     const actualHeal = Math.min(amount, target.maxHp - target.hp);
     target.hp += actualHeal;
-    this.emit('heal', { targetId: target.id, amount: actualHeal } as BattleEvent);
+    this.emit('heal', { type: 'heal', targetId: target.id, amount: actualHeal } as BattleEvent);
   }
 
   private addSwordIntent(entityId: string, amount: number): void {
     const entity = this.entities.get(entityId);
     if (!entity || !entity.isPlayer) return;
     entity.swordIntent = Math.min(SWORD_INTENT_MAX, entity.swordIntent + amount);
-    this.emit('sword_intent_changed', { entityId, value: entity.swordIntent } as BattleEvent);
+    this.emit('sword_intent_changed', { type: 'sword_intent_changed', entityId, value: entity.swordIntent } as BattleEvent);
   }
 
   private applyDefendBonus(entity: BattleEntity): void {
@@ -412,10 +412,10 @@ export class BattleSystem {
       if (buff.type === 'poison') {
         const damage = Math.max(1, Math.floor(buff.value));
         entity.hp = Math.max(0, entity.hp - damage);
-        this.emit('buff_tick', { targetId: entity.id, buffType: buff.type, damage } as BattleEvent);
+        this.emit('buff_tick', { type: 'buff_tick', targetId: entity.id, buffType: buff.type, damage } as BattleEvent);
         if (entity.hp <= 0) {
           entity.isAlive = false;
-          this.emit('entity_defeated', { entityId: entity.id } as BattleEvent);
+          this.emit('entity_defeated', { type: 'entity_defeated', entityId: entity.id } as BattleEvent);
           this.checkBattleEnd();
           return;
         }
@@ -423,12 +423,12 @@ export class BattleSystem {
         const healAmount = Math.floor(buff.value);
         const actualHeal = Math.min(healAmount, entity.maxHp - entity.hp);
         entity.hp += actualHeal;
-        this.emit('buff_tick', { targetId: entity.id, buffType: buff.type, heal: actualHeal } as BattleEvent);
+        this.emit('buff_tick', { type: 'buff_tick', targetId: entity.id, buffType: buff.type, heal: actualHeal } as BattleEvent);
       }
 
       if (buff.duration <= 0) {
         entity.buffs = entity.buffs.filter((b) => b !== buff);
-        this.emit('buff_removed', { targetId: entity.id, buffType: buff.type } as BattleEvent);
+        this.emit('buff_removed', { type: 'buff_removed', targetId: entity.id, buffType: buff.type } as BattleEvent);
       }
     }
   }
@@ -440,7 +440,7 @@ export class BattleSystem {
     if (!player.isAlive) {
       this.battleResult = 'defeat';
       this.turnState = 'ended';
-      this.emit('battle_ended', { result: 'defeat' } as BattleEvent);
+      this.emit('battle_ended', { type: 'battle_ended', result: 'defeat' } as BattleEvent);
       return;
     }
 
@@ -448,7 +448,7 @@ export class BattleSystem {
       this.battleResult = 'victory';
       this.turnState = 'ended';
       this.rewards = this.calculateRewards();
-      this.emit('battle_ended', { result: 'victory', rewards: this.rewards } as BattleEvent);
+      this.emit('battle_ended', { type: 'battle_ended', result: 'victory', rewards: this.rewards } as BattleEvent);
     }
   }
 
@@ -509,7 +509,7 @@ export class BattleSystem {
 
     for (const combo of this.comboData.values()) {
       if (this.checkComboCondition(combo)) {
-        this.emit('combo_triggered', { comboId: combo.id, entityIds: [entity.id] } as BattleEvent);
+        this.emit('combo_triggered', { type: 'combo_triggered', comboId: combo.id, entityIds: [entity.id] } as BattleEvent);
         break;
       }
     }
@@ -554,7 +554,7 @@ export class BattleSystem {
       target.buffs.push({ ...buff });
     }
 
-    this.emit('buff_applied', { targetId, buff } as BattleEvent);
+    this.emit('buff_applied', { type: 'buff_applied', targetId, buff } as BattleEvent);
   }
 
   private endTurn(_entityId: string): void {
