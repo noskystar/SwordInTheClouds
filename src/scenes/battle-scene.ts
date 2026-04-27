@@ -60,6 +60,7 @@ export class BattleScene extends Scene {
   private cancelKey!: Phaser.Input.Keyboard.Key;
   private returnScene = 'OverworldScene';
   private audioSystem!: AudioSystem;
+  private touchOverlay?: Phaser.GameObjects.Container;
 
   constructor() {
     super({ key: 'BattleScene' });
@@ -129,6 +130,72 @@ export class BattleScene extends Scene {
     this.cursors = this.input.keyboard!.createCursorKeys();
     this.confirmKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     this.cancelKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+    this.createTouchControls();
+  }
+
+  private createTouchControls(): void {
+    const W = this.cameras.main.width;
+    const H = this.cameras.main.height;
+
+    this.touchOverlay = this.add.container(0, 0);
+    this.touchOverlay.setDepth(50);
+    this.touchOverlay.setScrollFactor(0);
+    this.touchOverlay.setVisible(false);
+
+    // Touch zones: divide screen into 4 quadrants
+    // Upper-left: previous / up
+    // Lower-left: next / down
+    // Lower-right: confirm
+    // Upper-right: cancel (skill/target states only)
+    const zoneAlpha = 0.001; // nearly invisible but interactive
+
+    const upZone = this.add.rectangle(W * 0.25, H * 0.25, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    upZone.setInteractive({ useHandCursor: false });
+    upZone.on('pointerdown', () => this.handleTouchUp());
+    this.touchOverlay.add(upZone);
+
+    const downZone = this.add.rectangle(W * 0.25, H * 0.75, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    downZone.setInteractive({ useHandCursor: false });
+    downZone.on('pointerdown', () => this.handleTouchDown());
+    this.touchOverlay.add(downZone);
+
+    const confirmZone = this.add.rectangle(W * 0.75, H * 0.75, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    confirmZone.setInteractive({ useHandCursor: false });
+    confirmZone.on('pointerdown', () => this.handleTouchConfirm());
+    this.touchOverlay.add(confirmZone);
+
+    const cancelZone = this.add.rectangle(W * 0.75, H * 0.25, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    cancelZone.setInteractive({ useHandCursor: false });
+    cancelZone.on('pointerdown', () => this.handleTouchCancel());
+    this.touchOverlay.add(cancelZone);
+
+    // Visual hint labels for touch zones (semi-transparent, small)
+    const hintStyle = { fontSize: Math.max(10, Math.round(H * 0.03)) + 'px', color: '#ffffff' };
+    const upHint = this.add.text(W * 0.12, H * 0.12, '▲', uiTextStyle(hintStyle));
+    upHint.setAlpha(0.15);
+    this.touchOverlay.add(upHint);
+
+    const downHint = this.add.text(W * 0.12, H * 0.88, '▼', uiTextStyle(hintStyle));
+    downHint.setAlpha(0.15);
+    this.touchOverlay.add(downHint);
+
+    const confirmHint = this.add.text(W * 0.88, H * 0.88, '●', uiTextStyle(hintStyle));
+    confirmHint.setOrigin(1, 1);
+    confirmHint.setAlpha(0.15);
+    this.touchOverlay.add(confirmHint);
+
+    const cancelHint = this.add.text(W * 0.88, H * 0.12, '✕', uiTextStyle(hintStyle));
+    cancelHint.setOrigin(1, 0);
+    cancelHint.setAlpha(0.1);
+    this.touchOverlay.add(cancelHint);
+  }
+
+  private showTouchOverlay(): void {
+    this.touchOverlay?.setVisible(true);
+  }
+
+  private hideTouchOverlay(): void {
+    this.touchOverlay?.setVisible(false);
   }
 
   private createEntityDisplays(): void {
@@ -156,32 +223,32 @@ export class BattleScene extends Scene {
       sprite.setStrokeStyle(1, 0xffffff);
     }
 
-    const nameText = this.add.text(0, -27, entity.name, uiTextStyle({
-      fontSize: '8px',
+    const nameText = this.add.text(0, -29, entity.name, uiTextStyle({
+      fontSize: '11px',
       color: '#ffffff',
     }));
     nameText.setOrigin(0.5);
 
-    const elementText = this.add.text(entity.isPlayer ? -14 : 14, -27, ELEMENT_NAMES[entity.element], uiTextStyle({
-      fontSize: '8px',
+    const elementText = this.add.text(entity.isPlayer ? -16 : 16, -29, ELEMENT_NAMES[entity.element], uiTextStyle({
+      fontSize: '11px',
       color: this.getElementColor(entity.element),
     }));
     elementText.setOrigin(0.5);
 
-    const hpBarBg = this.add.rectangle(0, 8, 32, 4, 0x333333);
-    const hpBar = this.add.rectangle(-16, 8, 32, 4, 0x44aa44);
+    const hpBarBg = this.add.rectangle(0, 4, 40, 6, 0x333333);
+    const hpBar = this.add.rectangle(-20, 4, 40, 6, 0x44aa44);
     hpBar.setOrigin(0, 0.5);
 
-    const mpBarBg = this.add.rectangle(0, 14, 32, 3, 0x333333);
-    const mpBar = this.add.rectangle(-16, 14, 32, 3, 0x4444aa);
+    const mpBarBg = this.add.rectangle(0, 13, 40, 4, 0x333333);
+    const mpBar = this.add.rectangle(-20, 13, 40, 4, 0x4444aa);
     mpBar.setOrigin(0, 0.5);
 
-    const atbBarBg = this.add.rectangle(0, 20, 32, 2, 0x333333);
-    const atbBar = this.add.rectangle(-16, 20, 0, 2, 0xffff00);
+    const atbBarBg = this.add.rectangle(0, 21, 40, 3, 0x333333);
+    const atbBar = this.add.rectangle(-20, 21, 0, 3, 0xffff00);
     atbBar.setOrigin(0, 0.5);
 
-    const hpText = this.add.text(0, 8, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
-      fontSize: '8px',
+    const hpText = this.add.text(0, 4, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
+      fontSize: '9px',
       color: '#ffffff',
     }));
     hpText.setOrigin(0.5);
@@ -205,17 +272,17 @@ export class BattleScene extends Scene {
   }
 
   private createMenu(): void {
-    this.menuContainer = this.add.container(160, 155);
+    this.menuContainer = this.add.container(160, 148);
     this.menuContainer.setVisible(false);
     this.menuContainer.setDepth(10);
 
-    const bg = this.add.rectangle(0, 0, 120, 40, 0x000000, 0.85);
+    const bg = this.add.rectangle(0, 0, 140, 72, 0x000000, 0.85);
     bg.setStrokeStyle(1, 0x888888);
     this.menuContainer.add(bg);
 
     for (let i = 0; i < MENU_OPTIONS.length; i++) {
-      const text = this.add.text(-50, -14 + i * 10, MENU_OPTIONS[i], uiTextStyle({
-        fontSize: '9px',
+      const text = this.add.text(-58, -24 + i * 16, MENU_OPTIONS[i], uiTextStyle({
+        fontSize: '12px',
         color: '#aaaaaa',
       }));
       this.menuItems.push(text);
@@ -224,8 +291,8 @@ export class BattleScene extends Scene {
   }
 
   private createBattleLog(): void {
-    this.battleLog = this.add.text(160, 12, '', uiTextStyle({
-      fontSize: '9px',
+    this.battleLog = this.add.text(160, 10, '', uiTextStyle({
+      fontSize: '12px',
       color: '#ffffff',
       align: 'center',
       wordWrap: { width: 300 },
@@ -238,18 +305,18 @@ export class BattleScene extends Scene {
     const container = this.add.container(40, 155);
     container.setDepth(10);
 
-    const label = this.add.text(0, -9, '剑意', uiTextStyle({
-      fontSize: '8px',
+    const label = this.add.text(0, -11, '剑意', uiTextStyle({
+      fontSize: '11px',
       color: '#ffcc00',
     }));
     label.setOrigin(0.5);
 
-    const barBg = this.add.rectangle(0, 0, 40, 4, 0x333333);
-    this.swordIntentBar = this.add.rectangle(-20, 0, 0, 4, 0xffaa00);
+    const barBg = this.add.rectangle(0, 0, 48, 5, 0x333333);
+    this.swordIntentBar = this.add.rectangle(-24, 0, 0, 5, 0xffaa00);
     this.swordIntentBar.setOrigin(0, 0.5);
 
-    this.swordIntentText = this.add.text(0, 7, '0/100', uiTextStyle({
-      fontSize: '8px',
+    this.swordIntentText = this.add.text(0, 9, '0/100', uiTextStyle({
+      fontSize: '11px',
       color: '#ffcc00',
     }));
     this.swordIntentText.setOrigin(0.5);
@@ -397,70 +464,114 @@ export class BattleScene extends Scene {
     const justDown = Phaser.Input.Keyboard.JustDown;
 
     if (this.menuState === 'action') {
-      if (justDown(this.cursors.up)) {
-        this.selectedMenuIndex = (this.selectedMenuIndex - 1 + MENU_OPTIONS.length) % MENU_OPTIONS.length;
-        this.audioSystem.playSFX('ui_click');
-        this.updateMenuSelection();
-      }
-      if (justDown(this.cursors.down)) {
-        this.selectedMenuIndex = (this.selectedMenuIndex + 1) % MENU_OPTIONS.length;
-        this.audioSystem.playSFX('ui_click');
-        this.updateMenuSelection();
-      }
-      if (justDown(this.confirmKey)) {
-        this.audioSystem.playSFX('ui_confirm');
-        this.selectAction(this.selectedMenuIndex);
-      }
+      if (justDown(this.cursors.up)) this.menuPrev();
+      if (justDown(this.cursors.down)) this.menuNext();
+      if (justDown(this.confirmKey)) this.menuConfirm();
       return;
     }
 
     if (this.menuState === 'target') {
       const aliveEnemies = this.battleSystem.getAliveEnemies();
-      if (justDown(this.cursors.up)) {
-        this.selectedTargetIndex = (this.selectedTargetIndex - 1 + aliveEnemies.length) % aliveEnemies.length;
-        this.audioSystem.playSFX('ui_click');
-        this.updateTargetSelection();
-      }
-      if (justDown(this.cursors.down)) {
-        this.selectedTargetIndex = (this.selectedTargetIndex + 1) % aliveEnemies.length;
-        this.audioSystem.playSFX('ui_click');
-        this.updateTargetSelection();
-      }
-      if (justDown(this.confirmKey)) {
-        this.audioSystem.playSFX('ui_confirm');
-        const target = aliveEnemies[this.selectedTargetIndex];
-        this.executePlayerAction(target.id);
-      }
-      if (justDown(this.cancelKey)) {
-        this.audioSystem.playSFX('ui_cancel');
-        this.hideTargetSelection();
-        this.showActionMenu();
-      }
+      if (justDown(this.cursors.up)) this.targetPrev(aliveEnemies);
+      if (justDown(this.cursors.down)) this.targetNext(aliveEnemies);
+      if (justDown(this.confirmKey)) this.targetConfirm(aliveEnemies);
+      if (justDown(this.cancelKey)) this.menuCancel();
       return;
     }
 
     if (this.menuState === 'skill') {
-      if (justDown(this.cursors.up)) {
-        this.selectedMenuIndex = (this.selectedMenuIndex - 1 + this.skillList.length) % this.skillList.length;
-        this.audioSystem.playSFX('ui_click');
-        this.updateMenuSelection();
-      }
-      if (justDown(this.cursors.down)) {
-        this.selectedMenuIndex = (this.selectedMenuIndex + 1) % this.skillList.length;
-        this.audioSystem.playSFX('ui_click');
-        this.updateMenuSelection();
-      }
-      if (justDown(this.confirmKey)) {
-        this.audioSystem.playSFX('ui_confirm');
-        const skill = this.skillList[this.selectedMenuIndex];
-        this.selectSkill(skill);
-      }
-      if (justDown(this.cancelKey)) {
-        this.audioSystem.playSFX('ui_cancel');
-        this.showActionMenu();
-      }
+      if (justDown(this.cursors.up)) this.skillPrev();
+      if (justDown(this.cursors.down)) this.skillNext();
+      if (justDown(this.confirmKey)) this.skillConfirm();
+      if (justDown(this.cancelKey)) this.menuCancel();
       return;
     }
+  }
+
+  // ---- Touch handlers ----
+  private handleTouchUp(): void {
+    if (this.menuState === 'hidden' || this.menuState === 'executing' || this.menuState === 'ended') return;
+    if (this.menuState === 'action' || this.menuState === 'skill') this.menuPrev();
+    else if (this.menuState === 'target') this.targetPrev(this.battleSystem.getAliveEnemies());
+  }
+
+  private handleTouchDown(): void {
+    if (this.menuState === 'hidden' || this.menuState === 'executing' || this.menuState === 'ended') return;
+    if (this.menuState === 'action' || this.menuState === 'skill') this.menuNext();
+    else if (this.menuState === 'target') this.targetNext(this.battleSystem.getAliveEnemies());
+  }
+
+  private handleTouchConfirm(): void {
+    if (this.menuState === 'hidden' || this.menuState === 'executing' || this.menuState === 'ended') return;
+    if (this.menuState === 'action') this.menuConfirm();
+    else if (this.menuState === 'target') this.targetConfirm(this.battleSystem.getAliveEnemies());
+    else if (this.menuState === 'skill') this.skillConfirm();
+  }
+
+  private handleTouchCancel(): void {
+    if (this.menuState === 'skill' || this.menuState === 'target') this.menuCancel();
+  }
+
+  // ---- Shared menu actions ----
+  private menuPrev(): void {
+    const count = this.menuState === 'skill' ? this.skillList.length : MENU_OPTIONS.length;
+    this.selectedMenuIndex = (this.selectedMenuIndex - 1 + count) % count;
+    this.audioSystem.playSFX('ui_click');
+    this.updateMenuSelection();
+  }
+
+  private menuNext(): void {
+    const count = this.menuState === 'skill' ? this.skillList.length : MENU_OPTIONS.length;
+    this.selectedMenuIndex = (this.selectedMenuIndex + 1) % count;
+    this.audioSystem.playSFX('ui_click');
+    this.updateMenuSelection();
+  }
+
+  private menuConfirm(): void {
+    this.audioSystem.playSFX('ui_confirm');
+    this.selectAction(this.selectedMenuIndex);
+  }
+
+  private menuCancel(): void {
+    this.audioSystem.playSFX('ui_cancel');
+    this.hideTargetSelection();
+    this.showActionMenu();
+  }
+
+  private targetPrev(aliveEnemies: BattleEntity[]): void {
+    this.selectedTargetIndex = (this.selectedTargetIndex - 1 + aliveEnemies.length) % aliveEnemies.length;
+    this.audioSystem.playSFX('ui_click');
+    this.updateTargetSelection();
+  }
+
+  private targetNext(aliveEnemies: BattleEntity[]): void {
+    this.selectedTargetIndex = (this.selectedTargetIndex + 1) % aliveEnemies.length;
+    this.audioSystem.playSFX('ui_click');
+    this.updateTargetSelection();
+  }
+
+  private targetConfirm(aliveEnemies: BattleEntity[]): void {
+    this.audioSystem.playSFX('ui_confirm');
+    const target = aliveEnemies[this.selectedTargetIndex];
+    this.executePlayerAction(target.id);
+  }
+
+  private skillPrev(): void {
+    this.selectedMenuIndex = (this.selectedMenuIndex - 1 + this.skillList.length) % this.skillList.length;
+    this.audioSystem.playSFX('ui_click');
+    this.updateMenuSelection();
+  }
+
+  private skillNext(): void {
+    this.selectedMenuIndex = (this.selectedMenuIndex + 1) % this.skillList.length;
+    this.audioSystem.playSFX('ui_click');
+    this.updateMenuSelection();
+  }
+
+  private skillConfirm(): void {
+    this.audioSystem.playSFX('ui_confirm');
+    const skill = this.skillList[this.selectedMenuIndex];
+    this.selectSkill(skill);
   }
 
   private showActionMenu(): void {
@@ -472,6 +583,7 @@ export class BattleScene extends Scene {
       item.setColor('#aaaaaa');
     });
     this.updateMenuSelection();
+    this.showTouchOverlay();
 
     const player = this.battleSystem.getPlayer();
     const canUltimate = player.swordIntent >= 100;
@@ -481,6 +593,7 @@ export class BattleScene extends Scene {
   private hideMenu(): void {
     this.menuContainer.setVisible(false);
     this.menuItems.forEach((item) => item.setColor('#aaaaaa'));
+    this.hideTouchOverlay();
   }
 
   private updateMenuSelection(): void {
@@ -538,6 +651,7 @@ export class BattleScene extends Scene {
     this.menuState = 'skill';
     this.selectedMenuIndex = 0;
     this.menuContainer.setVisible(true);
+    this.showTouchOverlay();
 
     for (let i = 0; i < this.menuItems.length; i++) {
       if (i < this.skillList.length) {
@@ -574,6 +688,7 @@ export class BattleScene extends Scene {
     this.hideMenu();
     this.menuState = 'target';
     this.selectedTargetIndex = 0;
+    this.showTouchOverlay();
     const aliveEnemies = this.battleSystem.getAliveEnemies();
 
     for (const enemy of aliveEnemies) {
@@ -661,7 +776,7 @@ export class BattleScene extends Scene {
       const display = this.entityDisplays.get(entity.id);
       if (display) {
         const ratio = Math.min(1, entity.atbGauge / 1000);
-        display.atbBar.width = 32 * ratio;
+        display.atbBar.width = 40 * ratio;
       }
     }
   }
@@ -672,18 +787,18 @@ export class BattleScene extends Scene {
     if (!entity || !display) return;
 
     const hpRatio = entity.hp / entity.maxHp;
-    display.hpBar.width = 32 * hpRatio;
+    display.hpBar.width = 40 * hpRatio;
     display.hpBar.fillColor = hpRatio > 0.5 ? 0x44aa44 : hpRatio > 0.25 ? 0xaaaa44 : 0xaa4444;
 
     const mpRatio = entity.mp / entity.maxMp;
-    display.mpBar.width = 32 * mpRatio;
+    display.mpBar.width = 40 * mpRatio;
 
-    display.atbBar.width = 32 * Math.min(1, entity.atbGauge / 1000);
+    display.atbBar.width = 40 * Math.min(1, entity.atbGauge / 1000);
   }
 
   private updateSwordIntentDisplay(value: number): void {
     const ratio = value / 100;
-    this.swordIntentBar.width = 40 * ratio;
+    this.swordIntentBar.width = 48 * ratio;
     this.swordIntentBar.fillColor = value >= 100 ? 0xff6600 : 0xffaa00;
     this.swordIntentText.setText(`${value}/100`);
   }
@@ -701,10 +816,10 @@ export class BattleScene extends Scene {
     for (let i = 0; i < entity.buffs.length; i++) {
       const buff = entity.buffs[i];
       const icon = this.add.text(
-        display.container.x + 18,
-        display.container.y - 20 + i * 6,
+        display.container.x + 22,
+        display.container.y - 24 + i * 10,
         this.getBuffName(buff.type),
-        uiTextStyle({ fontSize: '8px', color: '#ffff00' })
+        uiTextStyle({ fontSize: '10px', color: '#ffff00' })
       );
       display.buffIcons.push(icon);
     }

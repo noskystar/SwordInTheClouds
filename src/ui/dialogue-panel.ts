@@ -5,9 +5,13 @@ import { uiTextStyle } from './text-style';
 type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
-const PANEL_MARGIN = 4;
-const PANEL_HEIGHT = 156;
-const OPTION_LINE_HEIGHT = 16;
+const PANEL_MARGIN_RATIO = 0.012;     // panel bottom margin as % of screen height
+const PANEL_HEIGHT_RATIO = 0.42;      // panel height as % of screen height
+const NAME_FONT_RATIO = 0.044;        // name text font as % of screen height
+const BODY_FONT_RATIO = 0.039;        // body text font as % of screen height
+const OPTION_FONT_RATIO = 0.039;      // option text font as % of screen height
+const HINT_FONT_RATIO = 0.033;        // hint text font as % of screen height
+const OPTION_LINE_RATIO = 0.044;      // option line height as % of screen height
 
 export class DialoguePanel {
   private scene: Scene;
@@ -98,12 +102,22 @@ export class DialoguePanel {
     this.container = this.scene.add.container(0, 0);
     this.container.setName('dialogue-panel');
 
+    // Proportional sizing based on screen dimensions
+    const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
+    const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
+    const panelW = width - panelMargin * 2;
+    const panelX = panelMargin;
+    const panelY = height - panelH - panelMargin;
+
+    const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
+    const bodyFontSize = Math.max(9, Math.round(height * BODY_FONT_RATIO));
+    const hintFontSize = Math.max(8, Math.round(height * HINT_FONT_RATIO));
+    const innerPad = Math.max(2, Math.round(panelH * 0.02));
+    const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
+    const bodyHeight = Math.round(panelH * 0.38);
+    const lineSpacing = Math.max(2, Math.round(bodyFontSize * 0.3));
+
     // Background
-    const panelW = width - PANEL_MARGIN * 2;
-    const panelH = PANEL_HEIGHT;
-    const panelX = PANEL_MARGIN;
-    const panelY = height - panelH - PANEL_MARGIN;
-    // Try to use the dialogue background image, fall back to colored rectangle
     if (this.scene.textures.exists('ui_dialogue_bg')) {
       this.bg = this.scene.add.image(panelX + panelW / 2, panelY + panelH / 2, 'ui_dialogue_bg');
       this.bg.setDisplaySize(panelW, panelH);
@@ -114,30 +128,33 @@ export class DialoguePanel {
     }
 
     // Speaker name
-    this.nameText = this.scene.add.text(panelX + 4, panelY + 4, '', uiTextStyle({
-      fontSize: '16px',
+    const nameY = panelY + innerPad;
+    this.nameText = this.scene.add.text(panelX + innerPad, nameY, '', uiTextStyle({
+      fontSize: nameFontSize + 'px',
       color: '#ffff00',
       padding: { x: 0, y: 0 },
     }));
 
     // Body text - word wrap with fixed dimensions for crisp rendering
-    this.bodyText = this.scene.add.text(panelX + 4, panelY + 18, '', uiTextStyle({
-      fontSize: '14px',
+    const bodyY = nameY + nameFontSize + gapNameBody;
+    this.bodyText = this.scene.add.text(panelX + innerPad, bodyY, '', uiTextStyle({
+      fontSize: bodyFontSize + 'px',
       color: '#eeeeee',
-      fixedWidth: panelW - 10,
-      fixedHeight: 64,
-      wordWrap: { width: panelW - 10 },
-      lineSpacing: 4,
+      fixedWidth: panelW - innerPad * 2,
+      fixedHeight: bodyHeight,
+      wordWrap: { width: panelW - innerPad * 2 },
+      lineSpacing,
       padding: { x: 0, y: 0 },
     }));
 
-    // Continue hint
-    this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 16, '▶ E/空格继续', uiTextStyle({
-      fontSize: '12px',
+    // Continue hint (positioned to stay inside panel bounds)
+    const hintY = panelY + panelH - hintFontSize - Math.round(panelH * 0.03);
+    this.continueHint = this.scene.add.text(panelX + panelW - innerPad, hintY, '▶ E/空格继续', uiTextStyle({
+      fontSize: hintFontSize + 'px',
       color: '#888888',
       padding: { y: 1 },
     }));
-    this.continueHint.setOrigin(1, 1);
+    this.continueHint.setOrigin(1, 0);
     this.continueHint.setVisible(false);
 
     this.container.add([this.bg, this.nameText, this.bodyText, this.continueHint]);
@@ -240,33 +257,47 @@ export class DialoguePanel {
   }
 
   private showOptions(): void {
+    const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
-    const panelH = PANEL_HEIGHT;
-    const panelX = PANEL_MARGIN;
-    const panelY = height - panelH - 4;
-    const startY = panelY + 86; // below bodyText (18 + 64 + 4 gap)
-    const availableHeight = panelY + panelH - startY - 4;
-    const optionHeight = Math.min(OPTION_LINE_HEIGHT, Math.floor(availableHeight / Math.max(this.options.length, 1)));
+    const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
+    const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
+    const panelX = panelMargin;
+    const panelY = height - panelH - panelMargin;
+
+    const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
+    const optionFontSize = Math.max(9, Math.round(height * OPTION_FONT_RATIO));
+    const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
+    const innerPad = Math.max(2, Math.round(panelH * 0.02));
+    const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
+    const bodyHeight = Math.round(panelH * 0.38);
+    const gapBodyOptions = Math.max(2, Math.round(panelH * 0.02));
+
+    const nameY = panelY + innerPad;
+    const bodyY = nameY + nameFontSize + gapNameBody;
+    const startY = bodyY + bodyHeight + gapBodyOptions;
+    const bottomPad = Math.max(2, Math.round(panelH * 0.03));
+    const availableHeight = panelY + panelH - startY - bottomPad;
+    const optionHeight = Math.min(optionLineHeight, Math.floor(availableHeight / Math.max(this.options.length, 1)));
 
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
 
-      const cursorX = panelX + 6;
-      const textX = cursorX + 8;
+      const cursorX = panelX + innerPad + 2;
+      const textX = cursorX + Math.round(optionFontSize * 0.6);
       const y = startY + i * optionHeight;
 
       if (i === 0) {
         this.cursor = this.scene.add.text(cursorX, y, '▶', uiTextStyle({
-          fontSize: '14px',
+          fontSize: optionFontSize + 'px',
           color: '#ffff00',
           padding: { x: 0, y: 0 },
         }));
         this.container.add(this.cursor);
       }
 
-      const textWidth = this.scene.cameras.main.width - panelX - 16;
+      const textWidth = width - textX - innerPad * 2;
       const text = this.scene.add.text(textX, y, opt.text, uiTextStyle({
-        fontSize: '14px',
+        fontSize: optionFontSize + 'px',
         color: i === 0 ? '#ffff00' : '#cccccc',
         padding: { x: 0, y: 0 },
         fixedWidth: textWidth,
@@ -290,11 +321,23 @@ export class DialoguePanel {
   private updateOptionHighlight(): void {
     if (this.cursor) {
       const height = this.scene.cameras.main.height;
-      const panelH = PANEL_HEIGHT;
-      const panelY = height - panelH - 4;
-      const startY = panelY + 86; // below bodyText (18 + 64 + 4 gap)
-      const availableHeight = panelY + panelH - startY - 4;
-      const optionHeight = Math.min(OPTION_LINE_HEIGHT, Math.floor(availableHeight / Math.max(this.options.length, 1)));
+      const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
+      const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
+      const panelY = height - panelH - panelMargin;
+
+      const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
+      const bodyHeight = Math.round(panelH * 0.38);
+      const innerPad = Math.max(2, Math.round(panelH * 0.02));
+      const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
+      const gapBodyOptions = Math.max(2, Math.round(panelH * 0.02));
+      const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
+      const bottomPad = Math.max(2, Math.round(panelH * 0.03));
+
+      const nameY = panelY + innerPad;
+      const bodyY = nameY + nameFontSize + gapNameBody;
+      const startY = bodyY + bodyHeight + gapBodyOptions;
+      const availableHeight = panelY + panelH - startY - bottomPad;
+      const optionHeight = Math.min(optionLineHeight, Math.floor(availableHeight / Math.max(this.options.length, 1)));
       this.cursor.setY(startY + this.selectedIndex * optionHeight);
     }
     for (let i = 0; i < this.optionTexts.length; i++) {
