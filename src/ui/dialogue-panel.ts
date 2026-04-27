@@ -6,7 +6,7 @@ type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
 const PANEL_MARGIN = 4;
-const PANEL_HEIGHT = 112;
+const PANEL_HEIGHT = 132;
 const OPTION_LINE_HEIGHT = 12;
 
 export class DialoguePanel {
@@ -120,12 +120,12 @@ export class DialoguePanel {
       padding: { x: 0, y: 0 },
     }));
 
-    // Body text - larger area, proper word wrap with fixed dimensions for crisp rendering
+    // Body text - word wrap with fixed dimensions for crisp rendering
     this.bodyText = this.scene.add.text(panelX + 4, panelY + 18, '', uiTextStyle({
       fontSize: '14px',
       color: '#eeeeee',
       fixedWidth: panelW - 10,
-      fixedHeight: 80,
+      fixedHeight: 64,
       wordWrap: { width: panelW - 10 },
       lineSpacing: 4,
       padding: { x: 0, y: 0 },
@@ -244,7 +244,7 @@ export class DialoguePanel {
     const panelH = PANEL_HEIGHT;
     const panelX = PANEL_MARGIN;
     const panelY = height - panelH - 4;
-    const startY = panelY + 72; // Adjusted for larger panel
+    const startY = panelY + 86; // below bodyText (18 + 64 + 4 gap)
     const availableHeight = panelY + panelH - startY - 4;
     const optionHeight = Math.min(OPTION_LINE_HEIGHT, Math.floor(availableHeight / Math.max(this.options.length, 1)));
 
@@ -292,7 +292,7 @@ export class DialoguePanel {
       const height = this.scene.cameras.main.height;
       const panelH = PANEL_HEIGHT;
       const panelY = height - panelH - 4;
-      const startY = panelY + 72;
+      const startY = panelY + 86; // below bodyText (18 + 64 + 4 gap)
       const availableHeight = panelY + panelH - startY - 4;
       const optionHeight = Math.min(OPTION_LINE_HEIGHT, Math.floor(availableHeight / Math.max(this.options.length, 1)));
       this.cursor.setY(startY + this.selectedIndex * optionHeight);
