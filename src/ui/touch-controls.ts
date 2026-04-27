@@ -1,7 +1,8 @@
 import type { Scene } from 'phaser';
 import { uiTextStyle } from './text-style';
 
-export class TouchControls extends Phaser.GameObjects.Container {
+export class TouchControls {
+  private scene: Scene;
   private joystickBase!: Phaser.GameObjects.Arc;
   private joystickKnob!: Phaser.GameObjects.Arc;
   private isDragging = false;
@@ -20,93 +21,111 @@ export class TouchControls extends Phaser.GameObjects.Container {
     desc: Phaser.GameObjects.Text;
   }> = [];
   private advZone!: Phaser.GameObjects.Rectangle;
+  private allElements: Phaser.GameObjects.GameObject[] = [];
+  private visible = true;
 
   constructor(
     scene: Scene,
     callbacks: { onInteract: () => void; onBattle: () => void; onMenu: () => void; onDialogueAdvance: () => void }
   ) {
-    super(scene, 0, 0);
+    this.scene = scene;
     this.onInteract = callbacks.onInteract;
     this.onBattle = callbacks.onBattle;
     this.onMenu = callbacks.onMenu;
     this.onDialogueAdvance = callbacks.onDialogueAdvance;
 
-    this.setScrollFactor(0);
-    scene.add.existing(this);
     this.createControls();
-    this.setDepth(80);
+
+    this.scene.scale.on('resize', this.onResize, this);
+  }
+
+  /** Convert desired screen position to scrollFactor=0 element position that works with any zoom */
+  private toScrollFactorPos(screenX: number, screenY: number): { x: number; y: number } {
+    const cam = this.scene.cameras.main;
+    const zoom = cam.zoom || 1;
+    const W = cam.width;
+    const H = cam.height;
+    // When zoom != 1, Phaser offsets scrollFactor=0 elements by (W - W/zoom)/2
+    const offsetX = (W - W / zoom) * 0.5;
+    const offsetY = (H - H / zoom) * 0.5;
+    return {
+      x: Math.round(screenX / zoom + offsetX),
+      y: Math.round(screenY / zoom + offsetY),
+    };
   }
 
   private createControls(): void {
-    // Game resolution is 640x360.
-    // With scrollFactor=0, local coords = screen coords in game units.
-    // Joystick: BOTTOM-LEFT corner
-    // Buttons: BOTTOM-RIGHT corner, HORIZONTALLY arranged (E, B, M in a row)
-    const W = this.scene.cameras.main.width;   // 640
-    const H = this.scene.cameras.main.height;  // 360
+    const W = this.scene.cameras.main.width;
+    const H = this.scene.cameras.main.height;
 
-    const jRadius = Math.round(H * 0.07);
-    // Joystick: bottom-left corner (Y=88% down screen = near bottom)
-    const jBaseX  = Math.round(W * 0.08);
-    const jBaseY  = Math.round(H * 0.88);
-    const knobR   = Math.round(jRadius * 0.45);
+    const jRadius = Math.round(H * 0.08);
+    const jBase = this.toScrollFactorPos(W * 0.12, H * 0.86);
+    const knobR = Math.round(jRadius * 0.45);
 
-    this.joystickCenter = { x: jBaseX, y: jBaseY };
-    this.knobMaxRadius  = jRadius - knobR;
+    this.joystickCenter = { x: jBase.x, y: jBase.y };
+    this.knobMaxRadius = jRadius - knobR;
 
-    // Base: semi-transparent dark circle
-    this.joystickBase = this.scene.add.circle(jBaseX, jBaseY, jRadius, 0x111122, 0.7);
-    this.joystickBase.setStrokeStyle(2.5, 0x445566);
-    this.add(this.joystickBase);
+    // Joystick base
+    this.joystickBase = this.scene.add.circle(jBase.x, jBase.y, jRadius, 0x333366, 0.65);
+    this.joystickBase.setStrokeStyle(3, 0xaaccff);
+    this.joystickBase.setScrollFactor(0);
+    this.joystickBase.setDepth(100);
+    this.allElements.push(this.joystickBase);
 
-    // Knob: BRIGHT YELLOW with dark stroke for maximum visibility
-    this.joystickKnob = this.scene.add.circle(jBaseX, jBaseY, knobR, 0xFFFF00, 1.0);
-    this.joystickKnob.setStrokeStyle(3.5, 0x996600);  // dark gold stroke
-    this.add(this.joystickKnob);
+    // Joystick knob - bright yellow
+    this.joystickKnob = this.scene.add.circle(jBase.x, jBase.y, knobR, 0xffdd00, 1.0);
+    this.joystickKnob.setStrokeStyle(3, 0xffffff);
+    this.joystickKnob.setScrollFactor(0);
+    this.joystickKnob.setDepth(101);
+    this.allElements.push(this.joystickKnob);
 
     this.joystickBase.setInteractive({ draggable: false });
     this.joystickBase.on('pointerdown', this.onJoystickDown, this);
     this.scene.input.on('pointermove', this.onPointerMove, this);
-    this.scene.input.on('pointerup',   this.onPointerUp,   this);
-    this.scene.input.on('pointerdown', this.onScreenTap,    this);
+    this.scene.input.on('pointerup', this.onPointerUp, this);
+    this.scene.input.on('pointerdown', this.onScreenTap, this);
 
-    // Buttons: BOTTOM-RIGHT corner, HORIZONTALLY arranged
-    // All buttons share the same Y (bottom area), spread horizontally to the right
-    const btnX    = Math.round(W * 0.85);   // ~85% from left = right side
-    const btnY    = Math.round(H * 0.88);   // same Y as joystick (bottom)
-    const btnGap  = Math.round(W * 0.06);   // horizontal gap between buttons
-    const btnR    = Math.round(H * 0.045); // button radius
+    // Buttons: bottom-right
+    const btnBase = this.toScrollFactorPos(W * 0.82, H * 0.86);
+    const btnGap = Math.round((W * 0.065) / (this.scene.cameras.main.zoom || 1));
+    const btnR = Math.round(H * 0.055);
 
     this.buttonElements = [
-      this.createButton(btnX - btnGap, btnY, btnR, 'E', 0x44ff44, this.onInteract, '交互'),
-      this.createButton(btnX,          btnY, btnR, 'B', 0xff4444, this.onBattle,   '战斗'),
-      this.createButton(btnX + btnGap, btnY, btnR, 'M', 0x4488ff, this.onMenu,     '菜单'),
+      this.createButton(btnBase.x - btnGap, btnBase.y, btnR, 'E', 0x44ff44, this.onInteract, '交互'),
+      this.createButton(btnBase.x, btnBase.y, btnR, 'B', 0xff4444, this.onBattle, '战斗'),
+      this.createButton(btnBase.x + btnGap, btnBase.y, btnR, 'M', 0x4488ff, this.onMenu, '菜单'),
     ];
 
-    // Dialogue advance: right 40% of canvas (worldX > 384)
-    this.advZone = this.scene.add.rectangle(W * 0.8, H * 0.5, W * 0.4, H, 0x000000, 0.001);
+    // Dialogue advance zone
+    const advPos = this.toScrollFactorPos(W * 0.7, H * 0.5);
+    const advSize = this.toScrollFactorPos(W * 0.6, H);
+    this.advZone = this.scene.add.rectangle(advPos.x, advPos.y, advSize.x, advSize.y, 0x000000, 0.001);
+    this.advZone.setScrollFactor(0);
+    this.advZone.setDepth(100);
     this.advZone.setInteractive({ useHandCursor: false });
     this.advZone.on('pointerdown', () => this.onDialogueAdvance(), this);
-    this.add(this.advZone);
+    this.allElements.push(this.advZone);
 
-    console.log(`[TouchControls] Created jBase=(${jBaseX},${jBaseY}) btnY=${btnY}`);
-
-    this.scene.scale.on('resize', this.onResize, this);
+    console.log(`[TouchControls] Created jBase=(${jBase.x},${jBase.y}) btnBase=(${btnBase.x},${btnBase.y}) zoom=${this.scene.cameras.main.zoom}`);
   }
 
   private createButton(
     x: number, y: number, r: number,
     label: string, color: number, action: () => void, desc: string
   ): { ring: Phaser.GameObjects.Arc; bg: Phaser.GameObjects.Arc; text: Phaser.GameObjects.Text; desc: Phaser.GameObjects.Text } {
-    const ring = this.scene.add.circle(x, y, r + 4, color, 0.25);
+    const ring = this.scene.add.circle(x, y, r + 4, color, 0.35);
     ring.setStrokeStyle(2.5, color);
-    this.add(ring);
+    ring.setScrollFactor(0);
+    ring.setDepth(100);
+    this.allElements.push(ring);
 
-    const bg = this.scene.add.circle(x, y, r, color, 0.88);
-    bg.setStrokeStyle(1.5, 0xffffff, 0.5);
+    const bg = this.scene.add.circle(x, y, r, color, 0.92);
+    bg.setStrokeStyle(2, 0xffffff, 0.6);
     bg.setInteractive({ useHandCursor: true });
     bg.on('pointerdown', action, this);
-    this.add(bg);
+    bg.setScrollFactor(0);
+    bg.setDepth(101);
+    this.allElements.push(bg);
 
     const fontSize = Math.max(16, Math.round(r * 1.1));
     const text = this.scene.add.text(x, y, label, uiTextStyle({
@@ -115,21 +134,25 @@ export class TouchControls extends Phaser.GameObjects.Container {
       fontStyle: 'bold',
     }));
     text.setOrigin(0.5);
-    this.add(text);
+    text.setScrollFactor(0);
+    text.setDepth(102);
+    this.allElements.push(text);
 
-    const descEl = this.scene.add.text(x, y + r + 6, desc, uiTextStyle({
+    const descEl = this.scene.add.text(x, y + r + 10, desc, uiTextStyle({
       fontSize: Math.max(12, Math.round(fontSize * 0.55)) + 'px',
-      color: '#aaaaaa',
+      color: '#cccccc',
     }));
     descEl.setOrigin(0.5);
-    this.add(descEl);
+    descEl.setScrollFactor(0);
+    descEl.setDepth(102);
+    this.allElements.push(descEl);
 
     return { ring, bg, text, desc: descEl };
   }
 
   private onJoystickDown(pointer: Phaser.Input.Pointer): void {
     this.isDragging = true;
-    this.pointerId  = pointer.id;
+    this.pointerId = pointer.id;
     this.updateKnob(pointer.x, pointer.y);
   }
 
@@ -142,7 +165,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private onPointerUp(pointer: Phaser.Input.Pointer): void {
     if (this.isDragging && pointer.id === this.pointerId) {
       this.isDragging = false;
-      this.pointerId  = null;
+      this.pointerId = null;
       this.joystickKnob.x = this.joystickCenter.x;
       this.joystickKnob.y = this.joystickCenter.y;
       this.direction = { x: 0, y: 0 };
@@ -160,30 +183,26 @@ export class TouchControls extends Phaser.GameObjects.Container {
     const W = gameSize.width;
     const H = gameSize.height;
 
-    // Recalculate joystick position
-    const newJBaseX = Math.round(W * 0.08);
-    const newJBaseY = Math.round(H * 0.88);
-    const jRadius = Math.round(H * 0.07);
+    const jBase = this.toScrollFactorPos(W * 0.12, H * 0.86);
+    const jRadius = Math.round(H * 0.08);
     const knobR = Math.round(jRadius * 0.45);
 
-    this.joystickCenter = { x: newJBaseX, y: newJBaseY };
+    this.joystickCenter = { x: jBase.x, y: jBase.y };
     this.knobMaxRadius = jRadius - knobR;
 
-    this.joystickBase.setPosition(newJBaseX, newJBaseY);
+    this.joystickBase.setPosition(jBase.x, jBase.y);
     this.joystickBase.setRadius(jRadius);
-    this.joystickKnob.setPosition(newJBaseX, newJBaseY);
+    this.joystickKnob.setPosition(jBase.x, jBase.y);
     this.joystickKnob.setRadius(knobR);
 
-    // Recalculate button positions
-    const btnX = Math.round(W * 0.85);
-    const btnY = Math.round(H * 0.88);
-    const btnGap = Math.round(W * 0.06);
-    const btnR = Math.round(H * 0.045);
+    const btnBase = this.toScrollFactorPos(W * 0.82, H * 0.86);
+    const btnGap = Math.round((W * 0.065) / (this.scene.cameras.main.zoom || 1));
+    const btnR = Math.round(H * 0.055);
 
     const buttonConfigs = [
-      { el: this.buttonElements[0], x: btnX - btnGap, y: btnY, r: btnR },
-      { el: this.buttonElements[1], x: btnX,         y: btnY, r: btnR },
-      { el: this.buttonElements[2], x: btnX + btnGap, y: btnY, r: btnR },
+      { el: this.buttonElements[0], x: btnBase.x - btnGap, y: btnBase.y, r: btnR },
+      { el: this.buttonElements[1], x: btnBase.x, y: btnBase.y, r: btnR },
+      { el: this.buttonElements[2], x: btnBase.x + btnGap, y: btnBase.y, r: btnR },
     ];
 
     for (const cfg of buttonConfigs) {
@@ -193,21 +212,22 @@ export class TouchControls extends Phaser.GameObjects.Container {
       cfg.el.bg.setPosition(cfg.x, cfg.y);
       cfg.el.bg.setRadius(cfg.r);
       cfg.el.text.setPosition(cfg.x, cfg.y);
-      cfg.el.desc.setPosition(cfg.x, cfg.y + cfg.r + 6);
+      cfg.el.desc.setPosition(cfg.x, cfg.y + cfg.r + 10);
     }
 
-    // Reposition dialogue advance zone
     if (this.advZone) {
-      this.advZone.setPosition(W * 0.8, H * 0.5);
-      this.advZone.setSize(W * 0.4, H);
+      const advPos = this.toScrollFactorPos(W * 0.7, H * 0.5);
+      const advSize = this.toScrollFactorPos(W * 0.6, H);
+      this.advZone.setPosition(advPos.x, advPos.y);
+      this.advZone.setSize(advSize.x, advSize.y);
     }
 
-    console.log(`[TouchControls] Resized to ${W}x${H}`);
+    console.log(`[TouchControls] Resized to ${W}x${H} zoom=${this.scene.cameras.main.zoom}`);
   }
 
   private updateKnob(px: number, py: number): void {
-    const dx   = px - this.joystickCenter.x;
-    const dy   = py - this.joystickCenter.y;
+    const dx = px - this.joystickCenter.x;
+    const dy = py - this.joystickCenter.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
     const maxR = this.knobMaxRadius;
 
@@ -231,14 +251,24 @@ export class TouchControls extends Phaser.GameObjects.Container {
     return this.visible;
   }
 
-  destroy(fromScene?: boolean): void {
+  setVisible(visible: boolean): void {
+    this.visible = visible;
+    for (const el of this.allElements) {
+      (el as Phaser.GameObjects.GameObject & { setVisible: (v: boolean) => void }).setVisible(visible);
+    }
+  }
+
+  destroy(): void {
     this.scene.scale.off('resize', this.onResize, this);
     this.scene.input.off('pointermove', this.onPointerMove, this);
-    this.scene.input.off('pointerup',   this.onPointerUp,   this);
-    this.scene.input.off('pointerdown', this.onScreenTap,   this);
+    this.scene.input.off('pointerup', this.onPointerUp, this);
+    this.scene.input.off('pointerdown', this.onScreenTap, this);
     if (this.joystickBase) {
       this.joystickBase.off('pointerdown', this.onJoystickDown, this);
     }
-    super.destroy(fromScene);
+    for (const el of this.allElements) {
+      el.destroy();
+    }
+    this.allElements = [];
   }
 }
