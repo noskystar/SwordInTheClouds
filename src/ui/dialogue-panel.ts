@@ -6,8 +6,8 @@ type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
 const PANEL_MARGIN = 4;
-const PANEL_HEIGHT = 132;
-const OPTION_LINE_HEIGHT = 12;
+const PANEL_HEIGHT = 156;
+const OPTION_LINE_HEIGHT = 16;
 
 export class DialoguePanel {
   private scene: Scene;
@@ -132,7 +132,7 @@ export class DialoguePanel {
     }));
 
     // Continue hint
-    this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 4, '▶ E/空格继续', uiTextStyle({
+    this.continueHint = this.scene.add.text(panelX + panelW - 4, panelY + panelH - 16, '▶ E/空格继续', uiTextStyle({
       fontSize: '12px',
       color: '#888888',
       padding: { y: 1 },
