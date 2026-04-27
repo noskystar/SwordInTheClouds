@@ -157,13 +157,13 @@ export class BattleScene extends Scene {
     }
 
     const nameText = this.add.text(0, -27, entity.name, uiTextStyle({
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#ffffff',
     }));
     nameText.setOrigin(0.5);
 
     const elementText = this.add.text(entity.isPlayer ? -14 : 14, -27, ELEMENT_NAMES[entity.element], uiTextStyle({
-      fontSize: '7px',
+      fontSize: '8px',
       color: this.getElementColor(entity.element),
     }));
     elementText.setOrigin(0.5);
@@ -181,7 +181,7 @@ export class BattleScene extends Scene {
     atbBar.setOrigin(0, 0.5);
 
     const hpText = this.add.text(0, 8, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
-      fontSize: '6px',
+      fontSize: '8px',
       color: '#ffffff',
     }));
     hpText.setOrigin(0.5);
@@ -215,7 +215,7 @@ export class BattleScene extends Scene {
 
     for (let i = 0; i < MENU_OPTIONS.length; i++) {
       const text = this.add.text(-50, -14 + i * 10, MENU_OPTIONS[i], uiTextStyle({
-        fontSize: '8px',
+        fontSize: '9px',
         color: '#aaaaaa',
       }));
       this.menuItems.push(text);
@@ -225,7 +225,7 @@ export class BattleScene extends Scene {
 
   private createBattleLog(): void {
     this.battleLog = this.add.text(160, 12, '', uiTextStyle({
-      fontSize: '8px',
+      fontSize: '9px',
       color: '#ffffff',
       align: 'center',
       wordWrap: { width: 300 },
@@ -239,7 +239,7 @@ export class BattleScene extends Scene {
     container.setDepth(10);
 
     const label = this.add.text(0, -9, '剑意', uiTextStyle({
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#ffcc00',
     }));
     label.setOrigin(0.5);
@@ -249,7 +249,7 @@ export class BattleScene extends Scene {
     this.swordIntentBar.setOrigin(0, 0.5);
 
     this.swordIntentText = this.add.text(0, 7, '0/100', uiTextStyle({
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#ffcc00',
     }));
     this.swordIntentText.setOrigin(0.5);
@@ -704,7 +704,7 @@ export class BattleScene extends Scene {
         display.container.x + 18,
         display.container.y - 20 + i * 6,
         this.getBuffName(buff.type),
-        uiTextStyle({ fontSize: '6px', color: '#ffff00' })
+        uiTextStyle({ fontSize: '8px', color: '#ffff00' })
       );
       display.buffIcons.push(icon);
     }
