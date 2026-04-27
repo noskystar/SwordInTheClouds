@@ -68,13 +68,22 @@ export class MapLoader {
 
     const groundKey = `ground_${mapData.layers.ground.fill}`;
     if (!this.scene.textures.exists(groundKey)) {
-      const gfx = this.scene.make.graphics({ x: 0, y: 0 });
-      gfx.fillStyle(groundColor, 1);
-      gfx.fillRect(0, 0, tw, th);
-      gfx.fillStyle(0xffffff, 0.05);
-      gfx.fillRect(0, 0, tw / 2, th / 2);
-      gfx.fillRect(tw / 2, th / 2, tw / 2, th / 2);
-      gfx.generateTexture(groundKey, tw, th);
+      const canvas = document.createElement('canvas');
+      canvas.width = tw;
+      canvas.height = th;
+      const ctx = canvas.getContext('2d')!;
+
+      const r = (groundColor >> 16) & 0xff;
+      const g = (groundColor >> 8) & 0xff;
+      const b = groundColor & 0xff;
+      ctx.fillStyle = `rgb(${r},${g},${b})`;
+      ctx.fillRect(0, 0, tw, th);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.05)';
+      ctx.fillRect(0, 0, Math.floor(tw / 2), Math.floor(th / 2));
+      ctx.fillRect(Math.floor(tw / 2), Math.floor(th / 2), Math.ceil(tw / 2), Math.ceil(th / 2));
+
+      this.scene.textures.addCanvas(groundKey, canvas);
     }
 
     const groundSprites: Phaser.GameObjects.Image[] = [];
@@ -121,11 +130,12 @@ export class MapLoader {
 
       const rect = this.scene.add.rectangle(obj.x + obj.w / 2, obj.y + obj.h / 2, obj.w, obj.h, color, 0.3);
       rect.setDepth(0.5);
+      rect.setName('map-object');
 
       this.scene.add.text(obj.x + obj.w / 2, obj.y - 4, obj.id, uiTextStyle({
         fontSize: '5px',
         color: '#ffffff',
-      })).setOrigin(0.5).setDepth(1);
+      })).setOrigin(0.5).setDepth(1).setName('map-object');
 
       visuals.push(rect);
     }

@@ -78,7 +78,7 @@ export class OverworldScene extends Scene {
       },
       {
         id: 'main_hall', name: '大殿', description: '长老议事之处',
-        unlockCondition: { type: 'flag', value: 'reported_to_guard' },
+        unlockCondition: { type: 'flag', value: 'always_unlocked' },
         fogRegion: { x: 0, y: 0, width: 640, height: 352 }, mapFile: 'main_hall.json',
       },
       {
