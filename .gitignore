@@ -49,6 +49,7 @@ __tests__/
 playwright-report/
 test-results/
 tmp/
+qa-scripts/
 
 # Claude / agent local settings
 .claude/settings.local.json
