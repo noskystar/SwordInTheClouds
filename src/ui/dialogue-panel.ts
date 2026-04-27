@@ -5,13 +5,13 @@ import { uiTextStyle } from './text-style';
 type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
-const PANEL_MARGIN_RATIO = 0.012;     // panel bottom margin as % of screen height
-const PANEL_HEIGHT_RATIO = 0.42;      // panel height as % of screen height
-const NAME_FONT_RATIO = 0.044;        // name text font as % of screen height
-const BODY_FONT_RATIO = 0.039;        // body text font as % of screen height
-const OPTION_FONT_RATIO = 0.039;      // option text font as % of screen height
-const HINT_FONT_RATIO = 0.033;        // hint text font as % of screen height
-const OPTION_LINE_RATIO = 0.044;      // option line height as % of screen height
+const PANEL_MARGIN_RATIO = 0.015;     // panel bottom margin as % of screen height
+const PANEL_HEIGHT_RATIO = 0.50;      // panel height as % of screen height (taller for more text)
+const NAME_FONT_RATIO = 0.048;        // name text font as % of screen height (~17px @ 360h)
+const BODY_FONT_RATIO = 0.042;        // body text font as % of screen height (~15px @ 360h)
+const OPTION_FONT_RATIO = 0.042;      // option text font as % of screen height (~15px @ 360h)
+const HINT_FONT_RATIO = 0.036;        // hint text font as % of screen height (~13px @ 360h)
+const OPTION_LINE_RATIO = 0.045;      // option line height as % of screen height (~16px @ 360h)
 
 export class DialoguePanel {
   private scene: Scene;
@@ -114,8 +114,8 @@ export class DialoguePanel {
     const hintFontSize = Math.max(8, Math.round(height * HINT_FONT_RATIO));
     const innerPad = Math.max(2, Math.round(panelH * 0.02));
     const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
-    const bodyHeight = Math.round(panelH * 0.38);
-    const lineSpacing = Math.max(2, Math.round(bodyFontSize * 0.3));
+    const bodyHeight = Math.round(panelH * 0.45);
+    const lineSpacing = Math.max(3, Math.round(bodyFontSize * 0.35));
 
     // Background
     if (this.scene.textures.exists('ui_dialogue_bg')) {
@@ -142,7 +142,7 @@ export class DialoguePanel {
       color: '#eeeeee',
       fixedWidth: panelW - innerPad * 2,
       fixedHeight: bodyHeight,
-      wordWrap: { width: panelW - innerPad * 2 },
+      wordWrap: { width: panelW - innerPad * 2, useAdvancedWrap: true },
       lineSpacing,
       padding: { x: 0, y: 0 },
     }));
@@ -269,8 +269,8 @@ export class DialoguePanel {
     const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
     const innerPad = Math.max(2, Math.round(panelH * 0.02));
     const gapNameBody = Math.max(1, Math.round(panelH * 0.015));
-    const bodyHeight = Math.round(panelH * 0.38);
-    const gapBodyOptions = Math.max(2, Math.round(panelH * 0.02));
+    const bodyHeight = Math.round(panelH * 0.45);
+    const gapBodyOptions = Math.max(2, Math.round(panelH * 0.018));
 
     const nameY = panelY + innerPad;
     const bodyY = nameY + nameFontSize + gapNameBody;
@@ -301,7 +301,7 @@ export class DialoguePanel {
         color: i === 0 ? '#ffff00' : '#cccccc',
         padding: { x: 0, y: 0 },
         fixedWidth: textWidth,
-        wordWrap: { width: textWidth },
+        wordWrap: { width: textWidth, useAdvancedWrap: true },
       }));
       text.setInteractive({ useHandCursor: true });
       text.on('pointerdown', () => {

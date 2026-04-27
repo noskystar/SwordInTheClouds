@@ -142,51 +142,58 @@ export class BattleScene extends Scene {
     this.touchOverlay.setScrollFactor(0);
     this.touchOverlay.setVisible(false);
 
-    // Touch zones: divide screen into 4 quadrants
-    // Upper-left: previous / up
-    // Lower-left: next / down
-    // Lower-right: confirm
-    // Upper-right: cancel (skill/target states only)
-    const zoneAlpha = 0.001; // nearly invisible but interactive
+    // Semi-transparent colored backgrounds for each zone so users can see them
+    const zoneAlpha = 0.12;
 
-    const upZone = this.add.rectangle(W * 0.25, H * 0.25, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    // Upper-left: previous / up
+    const upZone = this.add.rectangle(W * 0.25, H * 0.25, W * 0.5, H * 0.5, 0x2244aa, zoneAlpha);
     upZone.setInteractive({ useHandCursor: false });
     upZone.on('pointerdown', () => this.handleTouchUp());
     this.touchOverlay.add(upZone);
 
-    const downZone = this.add.rectangle(W * 0.25, H * 0.75, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    // Lower-left: next / down
+    const downZone = this.add.rectangle(W * 0.25, H * 0.75, W * 0.5, H * 0.5, 0x2244aa, zoneAlpha);
     downZone.setInteractive({ useHandCursor: false });
     downZone.on('pointerdown', () => this.handleTouchDown());
     this.touchOverlay.add(downZone);
 
-    const confirmZone = this.add.rectangle(W * 0.75, H * 0.75, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    // Lower-right: confirm
+    const confirmZone = this.add.rectangle(W * 0.75, H * 0.75, W * 0.5, H * 0.5, 0x228844, zoneAlpha);
     confirmZone.setInteractive({ useHandCursor: false });
     confirmZone.on('pointerdown', () => this.handleTouchConfirm());
     this.touchOverlay.add(confirmZone);
 
-    const cancelZone = this.add.rectangle(W * 0.75, H * 0.25, W * 0.5, H * 0.5, 0x000000, zoneAlpha);
+    // Upper-right: cancel (skill/target states only)
+    const cancelZone = this.add.rectangle(W * 0.75, H * 0.25, W * 0.5, H * 0.5, 0xaa4444, zoneAlpha);
     cancelZone.setInteractive({ useHandCursor: false });
     cancelZone.on('pointerdown', () => this.handleTouchCancel());
     this.touchOverlay.add(cancelZone);
 
-    // Visual hint labels for touch zones (semi-transparent, small)
-    const hintStyle = { fontSize: Math.max(10, Math.round(H * 0.03)) + 'px', color: '#ffffff' };
-    const upHint = this.add.text(W * 0.12, H * 0.12, '▲', uiTextStyle(hintStyle));
-    upHint.setAlpha(0.15);
+    // Visible hint labels with Chinese text
+    const labelStyle = (color: string) => uiTextStyle({
+      fontSize: Math.max(11, Math.round(H * 0.032)) + 'px',
+      color,
+      fontStyle: 'bold',
+    });
+
+    const upHint = this.add.text(W * 0.25, H * 0.25, '▲ 上', labelStyle('#88bbff'));
+    upHint.setOrigin(0.5);
+    upHint.setAlpha(0.55);
     this.touchOverlay.add(upHint);
 
-    const downHint = this.add.text(W * 0.12, H * 0.88, '▼', uiTextStyle(hintStyle));
-    downHint.setAlpha(0.15);
+    const downHint = this.add.text(W * 0.25, H * 0.75, '▼ 下', labelStyle('#88bbff'));
+    downHint.setOrigin(0.5);
+    downHint.setAlpha(0.55);
     this.touchOverlay.add(downHint);
 
-    const confirmHint = this.add.text(W * 0.88, H * 0.88, '●', uiTextStyle(hintStyle));
-    confirmHint.setOrigin(1, 1);
-    confirmHint.setAlpha(0.15);
+    const confirmHint = this.add.text(W * 0.75, H * 0.75, '● 确认', labelStyle('#88ffaa'));
+    confirmHint.setOrigin(0.5);
+    confirmHint.setAlpha(0.55);
     this.touchOverlay.add(confirmHint);
 
-    const cancelHint = this.add.text(W * 0.88, H * 0.12, '✕', uiTextStyle(hintStyle));
-    cancelHint.setOrigin(1, 0);
-    cancelHint.setAlpha(0.1);
+    const cancelHint = this.add.text(W * 0.75, H * 0.25, '✕ 取消', labelStyle('#ff8888'));
+    cancelHint.setOrigin(0.5);
+    cancelHint.setAlpha(0.4);
     this.touchOverlay.add(cancelHint);
   }
 
