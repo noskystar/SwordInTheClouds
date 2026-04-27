@@ -13,6 +13,13 @@ export class TouchControls extends Phaser.GameObjects.Container {
   private onBattle!: () => void;
   private onMenu!: () => void;
   private onDialogueAdvance!: () => void;
+  private buttonElements: Array<{
+    ring: Phaser.GameObjects.Arc;
+    bg: Phaser.GameObjects.Arc;
+    text: Phaser.GameObjects.Text;
+    desc: Phaser.GameObjects.Text;
+  }> = [];
+  private advZone!: Phaser.GameObjects.Rectangle;
 
   constructor(
     scene: Scene,
@@ -40,7 +47,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
     const jRadius = Math.round(H * 0.07);
     // Joystick: bottom-left corner (Y=88% down screen = near bottom)
-    const jBaseX  = 25;
+    const jBaseX  = Math.round(W * 0.08);
     const jBaseY  = Math.round(H * 0.88);
     const knobR   = Math.round(jRadius * 0.45);
 
@@ -65,28 +72,32 @@ export class TouchControls extends Phaser.GameObjects.Container {
 
     // Buttons: BOTTOM-RIGHT corner, HORIZONTALLY arranged
     // All buttons share the same Y (bottom area), spread horizontally to the right
-    const btnX    = Math.round(W * 0.78);   // ~78% from left = right side
+    const btnX    = Math.round(W * 0.85);   // ~85% from left = right side
     const btnY    = Math.round(H * 0.88);   // same Y as joystick (bottom)
-    const btnGap  = Math.round(H * 0.11);   // horizontal gap between buttons
+    const btnGap  = Math.round(W * 0.06);   // horizontal gap between buttons
     const btnR    = Math.round(H * 0.045); // button radius
 
-    this.createButton(btnX - btnGap, btnY, btnR, 'E', 0x44ff44, this.onInteract, '交互');
-    this.createButton(btnX,          btnY, btnR, 'B', 0xff4444, this.onBattle,   '战斗');
-    this.createButton(btnX + btnGap, btnY, btnR, 'M', 0x4488ff, this.onMenu,     '菜单');
+    this.buttonElements = [
+      this.createButton(btnX - btnGap, btnY, btnR, 'E', 0x44ff44, this.onInteract, '交互'),
+      this.createButton(btnX,          btnY, btnR, 'B', 0xff4444, this.onBattle,   '战斗'),
+      this.createButton(btnX + btnGap, btnY, btnR, 'M', 0x4488ff, this.onMenu,     '菜单'),
+    ];
 
     // Dialogue advance: right 40% of canvas (worldX > 384)
-    const advZone = this.scene.add.rectangle(W * 0.8, H * 0.5, W * 0.4, H, 0x000000, 0.001);
-    advZone.setInteractive({ useHandCursor: false });
-    advZone.on('pointerdown', () => this.onDialogueAdvance(), this);
-    this.add(advZone);
+    this.advZone = this.scene.add.rectangle(W * 0.8, H * 0.5, W * 0.4, H, 0x000000, 0.001);
+    this.advZone.setInteractive({ useHandCursor: false });
+    this.advZone.on('pointerdown', () => this.onDialogueAdvance(), this);
+    this.add(this.advZone);
 
     console.log(`[TouchControls] Created jBase=(${jBaseX},${jBaseY}) btnY=${btnY}`);
+
+    this.scene.scale.on('resize', this.onResize, this);
   }
 
   private createButton(
     x: number, y: number, r: number,
     label: string, color: number, action: () => void, desc: string
-  ): void {
+  ): { ring: Phaser.GameObjects.Arc; bg: Phaser.GameObjects.Arc; text: Phaser.GameObjects.Text; desc: Phaser.GameObjects.Text } {
     const ring = this.scene.add.circle(x, y, r + 4, color, 0.25);
     ring.setStrokeStyle(2.5, color);
     this.add(ring);
@@ -112,6 +123,8 @@ export class TouchControls extends Phaser.GameObjects.Container {
     }));
     descEl.setOrigin(0.5);
     this.add(descEl);
+
+    return { ring, bg, text, desc: descEl };
   }
 
   private onJoystickDown(pointer: Phaser.Input.Pointer): void {
@@ -143,6 +156,55 @@ export class TouchControls extends Phaser.GameObjects.Container {
     }
   }
 
+  private onResize(gameSize: Phaser.Structs.Size): void {
+    const W = gameSize.width;
+    const H = gameSize.height;
+
+    // Recalculate joystick position
+    const newJBaseX = Math.round(W * 0.08);
+    const newJBaseY = Math.round(H * 0.88);
+    const jRadius = Math.round(H * 0.07);
+    const knobR = Math.round(jRadius * 0.45);
+
+    this.joystickCenter = { x: newJBaseX, y: newJBaseY };
+    this.knobMaxRadius = jRadius - knobR;
+
+    this.joystickBase.setPosition(newJBaseX, newJBaseY);
+    this.joystickBase.setRadius(jRadius);
+    this.joystickKnob.setPosition(newJBaseX, newJBaseY);
+    this.joystickKnob.setRadius(knobR);
+
+    // Recalculate button positions
+    const btnX = Math.round(W * 0.85);
+    const btnY = Math.round(H * 0.88);
+    const btnGap = Math.round(W * 0.06);
+    const btnR = Math.round(H * 0.045);
+
+    const buttonConfigs = [
+      { el: this.buttonElements[0], x: btnX - btnGap, y: btnY, r: btnR },
+      { el: this.buttonElements[1], x: btnX,         y: btnY, r: btnR },
+      { el: this.buttonElements[2], x: btnX + btnGap, y: btnY, r: btnR },
+    ];
+
+    for (const cfg of buttonConfigs) {
+      if (!cfg.el) continue;
+      cfg.el.ring.setPosition(cfg.x, cfg.y);
+      cfg.el.ring.setRadius(cfg.r + 4);
+      cfg.el.bg.setPosition(cfg.x, cfg.y);
+      cfg.el.bg.setRadius(cfg.r);
+      cfg.el.text.setPosition(cfg.x, cfg.y);
+      cfg.el.desc.setPosition(cfg.x, cfg.y + cfg.r + 6);
+    }
+
+    // Reposition dialogue advance zone
+    if (this.advZone) {
+      this.advZone.setPosition(W * 0.8, H * 0.5);
+      this.advZone.setSize(W * 0.4, H);
+    }
+
+    console.log(`[TouchControls] Resized to ${W}x${H}`);
+  }
+
   private updateKnob(px: number, py: number): void {
     const dx   = px - this.joystickCenter.x;
     const dy   = py - this.joystickCenter.y;
@@ -170,6 +232,7 @@ export class TouchControls extends Phaser.GameObjects.Container {
   }
 
   destroy(fromScene?: boolean): void {
+    this.scene.scale.off('resize', this.onResize, this);
     this.scene.input.off('pointermove', this.onPointerMove, this);
     this.scene.input.off('pointerup',   this.onPointerUp,   this);
     this.scene.input.off('pointerdown', this.onScreenTap,   this);
