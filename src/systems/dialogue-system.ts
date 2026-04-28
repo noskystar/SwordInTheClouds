@@ -183,31 +183,37 @@ export class DialogueSystem {
     switch (effect.type) {
       case 'set_flag':
         this.context.flags[effect.flag] = effect.value;
+        this.emit('effect:set_flag', { effect, currentFlags: { ...this.context.flags } });
         break;
 
       case 'change_affinity': {
         const current = this.context.affinity[effect.npcId] ?? 0;
         this.context.affinity[effect.npcId] = current + effect.delta;
+        this.emit('effect:change_affinity', { effect, currentAffinity: { ...this.context.affinity } });
         break;
       }
 
       case 'change_morality':
         this.context.morality += effect.delta;
+        this.emit('effect:change_morality', { effect, currentMorality: this.context.morality });
         break;
 
       case 'change_sword_heart':
         this.context.swordHeart += effect.delta;
+        this.emit('effect:change_sword_heart', { effect, currentSwordHeart: this.context.swordHeart });
         break;
 
       case 'add_item': {
         const current = this.context.inventory[effect.itemId] ?? 0;
         this.context.inventory[effect.itemId] = current + effect.quantity;
+        this.emit('effect:add_item', { effect, currentInventory: { ...this.context.inventory } });
         break;
       }
 
       case 'remove_item': {
         const current = this.context.inventory[effect.itemId] ?? 0;
         this.context.inventory[effect.itemId] = Math.max(0, current - effect.quantity);
+        this.emit('effect:remove_item', { effect, currentInventory: { ...this.context.inventory } });
         break;
       }
 
@@ -227,10 +233,11 @@ export class DialogueSystem {
         this.emit('teleport', { scene: effect.scene, x: effect.x, y: effect.y });
         break;
       case 'unlock_skill':
+        this.emit('effect:unlock_skill', { effect });
+        break;
       case 'play_sound':
       case 'show_animation':
       case 'delay':
-        // These effects are handled by the scene/scene manager
         break;
     }
   }

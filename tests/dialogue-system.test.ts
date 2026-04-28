@@ -358,4 +358,26 @@ describe('DialogueSystem', () => {
     const nodeOrFail = systemOrFail.getCurrentNode()!;
     expect(systemOrFail.getVisibleOptions(nodeOrFail).map((o) => o.id)).not.toContain('opt_or');
   });
+
+  it('effect 执行后 emit 事件携带新值', () => {
+    const system = new DialogueSystem();
+    const onFlag = vi.fn();
+    const onAffinity = vi.fn();
+    const onMorality = vi.fn();
+    system.on('effect:set_flag', onFlag);
+    system.on('effect:change_affinity', onAffinity);
+    system.on('effect:change_morality', onMorality);
+
+    system.loadDialogue(mockDialogue);
+    system.start();
+    system.selectOption(0); // set_flag seeking_sword=true
+
+    expect(onFlag).toHaveBeenCalledWith({ effect: { type: 'set_flag', flag: 'seeking_sword', value: true }, currentFlags: { seeking_sword: true } });
+
+    system.selectOption(0); // change_affinity elder +10
+    expect(onAffinity).toHaveBeenCalledWith({ effect: { type: 'change_affinity', npcId: 'elder', delta: 10 }, currentAffinity: { elder: 10 } });
+
+    system.selectOption(0); // change_morality +5
+    expect(onMorality).toHaveBeenCalledWith({ effect: { type: 'change_morality', delta: 5 }, currentMorality: 5 });
+  });
 });
