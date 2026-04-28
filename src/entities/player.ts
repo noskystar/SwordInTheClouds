@@ -130,11 +130,13 @@ export class Player extends Phaser.GameObjects.Sprite {
 
       if (this.anims.currentAnim?.key !== 'player-walk') {
         this.play('player-walk', true);
+        this.setDisplaySize(16, 24);
       }
     } else {
       this.isMoving = false;
       if (this.anims.currentAnim?.key !== 'player-idle') {
         this.play('player-idle', true);
+        this.setDisplaySize(16, 24);
       }
     }
   }
