@@ -6,190 +6,140 @@
     "arrival": {
       "id": "arrival",
       "speaker": "旁白",
-      "text": "天剑宗，修仙界赫赫有名的名门正派。今日，你踏入了宗门山门。",
+      "text": "雷雨交加之夜，你被一道闪电击中。意识模糊间，仿佛穿越了无尽的虚空……",
       "options": [
-        { "id": "continue", "text": "继续", "effects": [], "nextNodeId": "gate_guard" }
+        { "id": "continue", "text": "……", "effects": [], "nextNodeId": "reincarnation" }
       ]
     },
-    "gate_guard": {
-      "id": "gate_guard",
-      "speaker": "守门弟子",
-      "text": "站住！报上名来，可是今日新收的弟子？",
-      "options": [
-        { "id": "yes", "text": "正是，弟子前来报到。", "effects": [{ "type": "set_flag", "flag": "reported_to_guard", "value": true }], "nextNodeId": "guard_direct" },
-        { "id": "hesitate", "text": "……是。", "effects": [], "nextNodeId": "guard_suspicious" }
-      ]
-    },
-    "guard_direct": {
-      "id": "guard_direct",
-      "speaker": "守门弟子",
-      "text": "嗯，长老在大殿等候。沿着这条路直走便是。",
-      "options": [
-        { "id": "thanks", "text": "多谢师兄。", "effects": [{ "type": "change_affinity", "npcId": "gate_guard", "delta": 3 }], "nextNodeId": "enter_gate" }
-      ]
-    },
-    "guard_suspicious": {
-      "id": "guard_suspicious",
-      "speaker": "守门弟子",
-      "text": "哼，新弟子都这么没精神吗？快去大殿，别让长老等。",
-      "options": [
-        { "id": "nod", "text": "……是。", "effects": [], "nextNodeId": "enter_gate" }
-      ]
-    },
-    "enter_gate": {
-      "id": "enter_gate",
+    "reincarnation": {
+      "id": "reincarnation",
       "speaker": "旁白",
-      "text": "你穿过山门，进入了天剑宗的外门区域。前方大殿气势恢宏，两侧弟子居所整齐排列。",
+      "text": "你缓缓睁开眼，发现自己躺在青石板上。一位白发老者正俯视着你，目光深邃如海。",
       "options": [
-        { "id": "to_hall", "text": "前往大殿", "effects": [], "nextNodeId": "hall_entrance" },
-        { "id": "explore", "text": "四处看看", "effects": [], "nextNodeId": "courtyard" }
+        { "id": "wake", "text": "……这是哪里？", "effects": [], "nextNodeId": "yunshen_greeting" }
       ]
     },
-    "courtyard": {
-      "id": "courtyard",
+    "yunshen_greeting": {
+      "id": "yunshen_greeting",
+      "speaker": "云深子",
+      "text": "醒了？你从山门外跌进来，昏迷了三天三夜。既然醒了，便是有缘。可愿拜入我天剑宗门下？",
+      "options": [
+        { "id": "accept", "text": "弟子愿意。", "effects": [{ "type": "set_flag", "flag": "accepted_disciple", "value": true }], "nextNodeId": "accept_disciple" },
+        { "id": "hesitate", "text": "……弟子不知道发生了什么。", "effects": [], "nextNodeId": "yunshen_explain" }
+      ]
+    },
+    "yunshen_explain": {
+      "id": "yunshen_explain",
+      "speaker": "云深子",
+      "text": "无妨。这里是天剑宗，修仙界正道魁首。你命数奇异，与我有师徒之缘。",
+      "options": [
+        { "id": "accept2", "text": "弟子愿意拜师。", "effects": [{ "type": "set_flag", "flag": "accepted_disciple", "value": true }], "nextNodeId": "accept_disciple" }
+      ]
+    },
+    "accept_disciple": {
+      "id": "accept_disciple",
+      "speaker": "云深子",
+      "text": "从今日起，你便是我天剑宗弟子。这枚天剑令牌你收好，凭此可入宗门各处。",
+      "options": [
+        { "id": "receive", "text": "谢师父。", "effects": [{ "type": "set_flag", "flag": "has_token", "value": true }, { "type": "set_flag", "flag": "triggered_c1_gate_opening", "value": true }], "nextNodeId": "get_token" }
+      ]
+    },
+    "get_token": {
+      "id": "get_token",
       "speaker": "旁白",
-      "text": "庭院中弟子们正在晨练，剑气纵横。一位少女正在独自练剑。",
+      "text": "你接过了一枚温润如玉的令牌，上面刻着「天剑」二字。云深子转身向大殿方向走去。",
       "options": [
-        { "id": "watch", "text": "在一旁观看", "effects": [], "nextNodeId": "meet_lingyao" },
-        { "id": "leave", "text": "不去打扰", "effects": [], "nextNodeId": "hall_entrance" }
+        { "id": "to_hall", "text": "前往大殿", "effects": [{ "type": "teleport", "scene": "OverworldScene", "x": 32, "y": 160 }], "nextNodeId": "" }
       ]
     },
-    "meet_lingyao": {
-      "id": "meet_lingyao",
-      "speaker": "凌瑶",
-      "text": "咦？新面孔。你是今天入门的弟子吧？",
-      "options": [
-        { "id": "introduce", "text": "是的，师姐好。", "effects": [{ "type": "change_affinity", "npcId": "lingyao", "delta": 5 }], "nextNodeId": "lingyao_talk" },
-        { "id": "ask_name", "text": "师姐怎么知道？", "effects": [], "nextNodeId": "lingyao_talk" }
-      ]
-    },
-    "lingyao_talk": {
-      "id": "lingyao_talk",
-      "speaker": "凌瑶",
-      "text": "我叫凌瑶，比你早入门两年。有什么问题可以来弟子居所找我。",
-      "options": [
-        { "id": "thanks", "text": "多谢师姐。", "effects": [{ "type": "set_flag", "flag": "met_lingyao", "value": true }], "nextNodeId": "hall_entrance" }
-      ]
-    },
-    "hall_entrance": {
-      "id": "hall_entrance",
+    "main_hall_entry": {
+      "id": "main_hall_entry",
       "speaker": "旁白",
-      "text": "大殿门前，一位白发老者正负手而立。",
+      "text": "天剑殿气势恢宏，殿内已有数名弟子列队等候。云深子端坐于主位之上。",
       "options": [
-        { "id": "approach", "text": "上前拜见", "effects": [], "nextNodeId": "meet_elder" }
+        { "id": "approach", "text": "上前", "effects": [{ "type": "set_flag", "flag": "main_hall_entered", "value": true }], "nextNodeId": "ceremony" }
       ]
     },
-    "meet_elder": {
-      "id": "meet_elder",
-      "speaker": "长老",
-      "text": "嗯，资质尚可。既然入了天剑宗，就要守规矩。",
+    "ceremony": {
+      "id": "ceremony",
+      "speaker": "云深子",
+      "text": "今日起，林疏影正式入我天剑宗，为我关门弟子。各位师兄师姐，好生照拂。",
       "options": [
-        { "id": "polite", "text": "弟子谨记。", "effects": [{ "type": "change_affinity", "npcId": "elder", "delta": 5 }], "nextNodeId": "elder_rules" },
-        { "id": "curious", "text": "请问长老，宗门有什么需要注意的吗？", "effects": [], "nextNodeId": "elder_rules" }
+        { "id": "greet", "text": "弟子拜见各位师兄师姐。", "effects": [], "nextNodeId": "meet_xiaohan_cold" }
       ]
     },
-    "elder_rules": {
-      "id": "elder_rules",
-      "speaker": "长老",
-      "text": "子时后不得出居所，禁地不可擅入，同门之间不可私斗。",
+    "meet_xiaohan_cold": {
+      "id": "meet_xiaohan_cold",
+      "speaker": "萧寒",
+      "text": "……（他看了你一眼，目光冷淡）关门弟子？希望你不要拖后腿。",
       "options": [
-        { "id": "accept", "text": "弟子明白。", "effects": [{ "type": "set_flag", "flag": "knows_rules", "value": true }], "nextNodeId": "elder_quest" },
-        { "id": "ask_forbidden", "text": "禁地是何处？", "effects": [], "nextNodeId": "elder_forbidden" }
+        { "id": "polite", "text": "大师兄好，弟子会努力修炼。", "effects": [{ "type": "change_affinity", "npcId": "xiaohan", "delta": 3 }, { "type": "set_flag", "flag": "met_xiaohan", "value": true }], "nextNodeId": "meet_hongxiao_warm" },
+        { "id": "silent", "text": "……", "effects": [{ "type": "set_flag", "flag": "met_xiaohan", "value": true }], "nextNodeId": "meet_hongxiao_warm" }
       ]
     },
-    "elder_forbidden": {
-      "id": "elder_forbidden",
-      "speaker": "长老",
-      "text": "后山深处，封印着上古妖魔。没有掌门手令，任何人不得进入。",
+    "meet_hongxiao_warm": {
+      "id": "meet_hongxiao_warm",
+      "speaker": "红绡",
+      "text": "哎呀，好可爱的小师妹！我是你二师姐红绡，以后有什么需要尽管来找师姐~",
       "options": [
-        { "id": "noted", "text": "弟子记下了。", "effects": [{ "type": "set_flag", "flag": "knows_forbidden_zone", "value": true }], "nextNodeId": "elder_quest" }
+        { "id": "thanks", "text": "谢谢师姐。", "effects": [{ "type": "change_affinity", "npcId": "hongxiao", "delta": 5 }, { "type": "set_flag", "flag": "met_hongxiao", "value": true }], "nextNodeId": "hongxiao_causality_visible" }
       ]
     },
-    "elder_quest": {
-      "id": "elder_quest",
-      "speaker": "长老",
-      "text": "后山最近有灵兽骚扰，你去处理一下，也算入门试炼。",
+    "hongxiao_causality_visible": {
+      "id": "hongxiao_causality_visible",
+      "speaker": "旁白",
+      "text": "你突然注意到，红绡师姐头顶隐约浮现出一条丝线——那是血红色的。作为转生者，你能看到他人的「因果线」。红色……代表大恶。",
       "options": [
-        { "id": "accept_quest", "text": "弟子遵命。", "effects": [{ "type": "start_quest", "questId": "main_chapter1" }], "nextNodeId": "elder_advice" },
-        { "id": "hesitate_quest", "text": "弟子初入宗门，恐怕……", "effects": [], "nextNodeId": "elder_encourage" }
-      ]
-    },
-    "elder_encourage": {
-      "id": "elder_encourage",
-      "speaker": "长老",
-      "text": "无妨，只是几只木灵妖罢了。去吧，这是每个弟子都要经历的。",
-      "options": [
-        { "id": "accept2", "text": "……弟子明白了。", "effects": [{ "type": "start_quest", "questId": "main_chapter1" }], "nextNodeId": "elder_advice" }
-      ]
-    },
-    "elder_advice": {
-      "id": "elder_advice",
-      "speaker": "长老",
-      "text": "对了，大师兄萧寒最近在后山修炼，你可以向他请教。",
-      "options": [
-        { "id": "ask_brother", "text": "大师兄是个怎样的人？", "effects": [], "nextNodeId": "about_brother" },
-        { "id": "leave_hall", "text": "弟子告退。", "effects": [{ "type": "set_flag", "flag": "met_elder", "value": true }], "nextNodeId": "hall_exit" }
-      ]
-    },
-    "about_brother": {
-      "id": "about_brother",
-      "speaker": "长老",
-      "text": "萧寒那孩子……天赋极高，但性子冷淡。他自有他的苦衷。",
-      "options": [
-        { "id": "sympathy", "text": "大师兄他……", "effects": [], "nextNodeId": "brother_hint" },
-        { "id": "leave2", "text": "弟子告退。", "effects": [{ "type": "set_flag", "flag": "met_elder", "value": true }], "nextNodeId": "hall_exit" }
-      ]
-    },
-    "brother_hint": {
-      "id": "brother_hint",
-      "speaker": "长老",
-      "text": "好了，不要多打听。去修炼吧。",
-      "options": [
-        { "id": "leave3", "text": "是。", "effects": [{ "type": "set_flag", "flag": "met_elder", "value": true }, { "type": "set_flag", "flag": "curious_about_brother", "value": true }], "nextNodeId": "hall_exit" }
+        { "id": "shock", "text": "（掩饰惊讶）师姐的丹药一定很厉害吧。", "effects": [{ "type": "set_flag", "flag": "triggered_c1_hall_ceremony", "value": true }], "nextNodeId": "hall_exit" }
       ]
     },
     "hall_exit": {
       "id": "hall_exit",
       "speaker": "旁白",
-      "text": "你离开大殿，接下来该去哪里？",
+      "text": "拜师仪式结束。云深子吩咐你去弟子居所安顿，随后可自行熟悉宗门。",
       "options": [
-        { "id": "to_housing", "text": "去弟子居所看看", "effects": [], "nextNodeId": "housing_area" },
-        { "id": "to_back_mountain", "text": "前往后山", "effects": [], "nextNodeId": "back_mountain_entrance" }
+        { "id": "to_housing", "text": "前往弟子居所", "effects": [{ "type": "teleport", "scene": "OverworldScene", "x": 120, "y": 120 }], "nextNodeId": "" }
       ]
     },
-    "housing_area": {
-      "id": "housing_area",
+    "housing_entry": {
+      "id": "housing_entry",
       "speaker": "旁白",
-      "text": "弟子居所中，几位新弟子正在闲聊。一位少女焦急地四处张望。",
+      "text": "弟子居所比想象中宽敞，几位师兄师姐各自忙碌着。一位书生模样的青年正在翻阅阵法书。",
       "options": [
-        { "id": "ask_trouble", "text": "请问有什么麻烦吗？", "effects": [], "nextNodeId": "meet_xiaomei" },
-        { "id": "ignore", "text": "不去打扰", "effects": [], "nextNodeId": "housing_rest" }
+        { "id": "look_around", "text": "四处看看", "effects": [{ "type": "set_flag", "flag": "triggered_c1_housing_seniors", "value": true }], "nextNodeId": "meet_moyan_hint" }
       ]
     },
-    "meet_xiaomei": {
-      "id": "meet_xiaomei",
-      "speaker": "小师妹",
-      "text": "我的灵猫不见了！它平时不会乱跑的……",
+    "meet_moyan_hint": {
+      "id": "meet_moyan_hint",
+      "speaker": "墨言",
+      "text": "……（他合上书，看了你一眼）新来的？天剑宗这个地方，多看，少说。",
       "options": [
-        { "id": "help", "text": "我帮你找找。", "effects": [{ "type": "change_affinity", "npcId": "xiaomei", "delta": 10 }, { "type": "start_quest", "questId": "side_missing_cat" }], "nextNodeId": "xiaomei_grateful" },
-        { "id": "sorry", "text": "抱歉，我还有事。", "effects": [{ "type": "change_affinity", "npcId": "xiaomei", "delta": -5 }], "nextNodeId": "housing_rest" }
+        { "id": "ask_why", "text": "三师兄何出此言？", "effects": [{ "type": "change_affinity", "npcId": "moyan", "delta": 2 }, { "type": "set_flag", "flag": "met_moyan", "value": true }], "nextNodeId": "meet_baizhi_clingy" },
+        { "id": "nod", "text": "弟子记住了。", "effects": [{ "type": "change_affinity", "npcId": "moyan", "delta": 5 }, { "type": "set_flag", "flag": "met_moyan", "value": true }], "nextNodeId": "meet_baizhi_clingy" }
       ]
     },
-    "xiaomei_grateful": {
-      "id": "xiaomei_grateful",
-      "speaker": "小师妹",
-      "text": "真的吗？太谢谢了！它可能跑去大殿那边了……",
+    "meet_baizhi_clingy": {
+      "id": "meet_baizhi_clingy",
+      "speaker": "白芷",
+      "text": "小师妹！你可算来了，我等你好久了！我是你四师姐白芷，走，我带你逛宗门！",
       "options": [
-        { "id": "go_find", "text": "我这就去找。", "effects": [{ "type": "set_flag", "flag": "helped_xiaomei", "value": true }], "nextNodeId": "housing_rest" }
+        { "id": "friendly", "text": "谢谢四师姐。", "effects": [{ "type": "change_affinity", "npcId": "baizhi", "delta": 5 }, { "type": "set_flag", "flag": "met_baizhi", "value": true }], "nextNodeId": "baizhi_thought" }
       ]
     },
-    "housing_rest": {
-      "id": "housing_rest",
+    "baizhi_thought": {
+      "id": "baizhi_thought",
       "speaker": "旁白",
-      "text": "你休整了一番，感觉精神了许多。",
+      "text": "白芷热情得有些过分。你隐约注意到，她眼中闪过一丝审视——像是在评估什么。或许只是错觉？",
       "options": [
-        { "id": "to_mountain", "text": "前往后山", "effects": [], "nextNodeId": "back_mountain_entrance" },
-        { "id": "to_meditation", "text": "去修炼静室", "effects": [], "nextNodeId": "meditation_first" }
+        { "id": "leave", "text": "弟子想去后山看看。", "effects": [{ "type": "set_flag", "flag": "knows_rules", "value": true }], "nextNodeId": "housing_exit" }
+      ]
+    },
+    "housing_exit": {
+      "id": "housing_exit",
+      "speaker": "旁白",
+      "text": "你离开弟子居所。后山的方向传来阵阵灵兽低吼……",
+      "options": [
+        { "id": "to_mountain", "text": "前往后山", "effects": [{ "type": "teleport", "scene": "OverworldScene", "x": 48, "y": 240 }], "nextNodeId": "" }
       ]
     },
     "meditation_first": {
@@ -197,8 +147,8 @@
       "speaker": "旁白",
       "text": "修炼静室空无一人，只有蒲团和一本落灰的心法。",
       "options": [
-        { "id": "read", "text": "翻阅心法", "effects": [{ "type": "set_flag", "flag": "read_basic_manual", "value": true }], "nextNodeId": "manual_text" },
-        { "id": "leave_room", "text": "离开", "effects": [], "nextNodeId": "housing_rest" }
+        { "id": "read", "text": "翻阅心法", "effects": [{ "type": "set_flag", "flag": "read_basic_manual", "value": true }, { "type": "set_flag", "flag": "triggered_c1_meditation_first", "value": true }], "nextNodeId": "manual_text" },
+        { "id": "leave_room", "text": "离开", "effects": [{ "type": "set_flag", "flag": "triggered_c1_meditation_first", "value": true }], "nextNodeId": "" }
       ]
     },
     "manual_text": {
@@ -207,7 +157,7 @@
       "text": "「剑心通明，万法归一。修剑先修心，心正则剑正。」",
       "options": [
         { "id": "meditate", "text": "坐下冥想", "effects": [{ "type": "change_sword_heart", "delta": 5 }], "nextNodeId": "meditation_benefit" },
-        { "id": "close_book", "text": "合上书本", "effects": [], "nextNodeId": "housing_rest" }
+        { "id": "close_book", "text": "合上书本", "effects": [], "nextNodeId": "" }
       ]
     },
     "meditation_benefit": {
@@ -215,74 +165,205 @@
       "speaker": "旁白",
       "text": "你感觉体内的灵力更加凝实了。",
       "options": [
-        { "id": "done", "text": "继续", "effects": [], "nextNodeId": "housing_rest" }
+        { "id": "done", "text": "继续", "effects": [], "nextNodeId": "" }
       ]
     },
-    "back_mountain_entrance": {
-      "id": "back_mountain_entrance",
+    "mountain_entry": {
+      "id": "mountain_entry",
       "speaker": "旁白",
-      "text": "后山林木幽深，偶尔传来灵兽的低吼。",
+      "text": "后山林木幽深，灵气比宗门内浓郁数倍。忽然，一只白狐从树丛中探出头来，口吐人言。",
       "options": [
-        { "id": "proceed", "text": "深入", "effects": [], "nextNodeId": "woods_combat" },
-        { "id": "retreat", "text": "先回去准备", "effects": [], "nextNodeId": "housing_rest" }
+        { "id": "surprised", "text": "……狐狸会说话？", "effects": [{ "type": "set_flag", "flag": "triggered_c1_mountain_xuetuan", "value": true }], "nextNodeId": "meet_xuetuan_talk" }
       ]
     },
-    "woods_combat": {
-      "id": "woods_combat",
+    "meet_xuetuan_talk": {
+      "id": "meet_xuetuan_talk",
+      "speaker": "雪团",
+      "text": "凡人自然听不见我说话。但你不一样——你是「转生者」，对吗？",
+      "options": [
+        { "id": "deny", "text": "你在说什么？", "effects": [{ "type": "change_affinity", "npcId": "xuetuan", "delta": 2 }, { "type": "set_flag", "flag": "met_xuetuan", "value": true }], "nextNodeId": "xuetuan_identity_hint" },
+        { "id": "admit", "text": "……你怎么知道？", "effects": [{ "type": "change_affinity", "npcId": "xuetuan", "delta": 5 }, { "type": "set_flag", "flag": "met_xuetuan", "value": true }], "nextNodeId": "xuetuan_identity_hint" }
+      ]
+    },
+    "xuetuan_identity_hint": {
+      "id": "xuetuan_identity_hint",
+      "speaker": "雪团",
+      "text": "千年前，我曾与你的前世有过一面之缘。去后山深处看看吧，有些东西在等你发现。",
+      "options": [
+        { "id": "ask_more", "text": "我的前世是什么人？", "effects": [], "nextNodeId": "xuetuan_vague" }
+      ]
+    },
+    "xuetuan_vague": {
+      "id": "xuetuan_vague",
+      "speaker": "雪团",
+      "text": "时机到了，你自然会知道。记住——在天剑宗，不要相信任何人，包括你的师父。",
+      "options": [
+        { "id": "to_deep", "text": "（继续深入后山）", "effects": [], "nextNodeId": "" }
+      ]
+    },
+    "disciple_missing": {
+      "id": "disciple_missing",
+      "speaker": "李师兄",
+      "text": "小师妹？你来得正好。外门弟子周铁柱已经三天没有出现了，你可见过他？",
+      "options": [
+        { "id": "no", "text": "弟子没有见过。", "effects": [{ "type": "set_flag", "flag": "checked_missing_disciple", "value": true }], "nextNodeId": "li_worried" }
+      ]
+    },
+    "li_worried": {
+      "id": "li_worried",
+      "speaker": "李师兄",
+      "text": "奇怪……他临走前说要去丹堂附近采药。丹堂那种地方，外门弟子怎么能随便靠近？",
+      "options": [
+        { "id": "ask_dantang", "text": "丹堂有什么问题吗？", "effects": [], "nextNodeId": "li_hint" }
+      ]
+    },
+    "li_hint": {
+      "id": "li_hint",
+      "speaker": "李师兄",
+      "text": "（压低声音）我听说丹堂偶尔有异味飘出来，像是……血腥味。你最好不要多管闲事。",
+      "options": [
+        { "id": "investigate", "text": "弟子想去看看。", "effects": [{ "type": "set_flag", "flag": "missing_disciple_investigate", "value": true }], "nextNodeId": "" },
+        { "id": "ignore", "text": "弟子明白了。", "effects": [{ "type": "set_flag", "flag": "missing_disciple_ignored", "value": true }], "nextNodeId": "" }
+      ]
+    },
+    "dantang_residue": {
+      "id": "dantang_residue",
       "speaker": "旁白",
-      "text": "几只木灵妖从树丛中窜出！",
+      "text": "后山深处的一块岩石旁，你发现了一些可疑的残渣。闻起来像是某种丹药的残留，但带着一股令人作呕的血腥味。",
       "options": [
-        { "id": "fight", "text": "迎战", "effects": [{ "type": "start_battle", "enemyGroupId": "ch1_woods" }], "nextNodeId": "post_combat1" }
+        { "id": "report", "text": "报告师父", "effects": [{ "type": "set_flag", "flag": "reported_dantang", "value": true }, { "type": "change_morality", "delta": 5 }], "nextNodeId": "dantang_report" },
+        { "id": "investigate", "text": "暗中调查", "effects": [{ "type": "set_flag", "flag": "investigating_hongxiao", "value": true }], "nextNodeId": "dantang_investigate" },
+        { "id": "trade", "text": "与红绡交易", "effects": [{ "type": "change_affinity", "npcId": "hongxiao", "delta": 10 }, { "type": "change_morality", "delta": -5 }, { "type": "set_flag", "flag": "traded_with_hongxiao", "value": true }], "nextNodeId": "dantang_trade" }
       ]
     },
-    "post_combat1": {
-      "id": "post_combat1",
+    "dantang_report": {
+      "id": "dantang_report",
       "speaker": "旁白",
-      "text": "木灵妖四散逃窜。你继续深入后山。",
+      "text": "你将发现禀报了云深子。师父沉吟片刻，说会派人调查。但第二天，那块岩石旁的残渣消失得一干二净。",
       "options": [
-        { "id": "continue", "text": "继续深入", "effects": [], "nextNodeId": "meet_brother" }
+        { "id": "leave", "text": "继续", "effects": [], "nextNodeId": "" }
       ]
     },
-    "meet_brother": {
-      "id": "meet_brother",
+    "dantang_investigate": {
+      "id": "dantang_investigate",
+      "speaker": "旁白",
+      "text": "你暗中收集了一些残渣样本。这是人血的味道——你确定。二师姐红绡的丹堂，到底在炼制什么？",
+      "options": [
+        { "id": "continue", "text": "继续深入后山", "effects": [], "nextNodeId": "" }
+      ]
+    },
+    "dantang_trade": {
+      "id": "dantang_trade",
+      "speaker": "旁白",
+      "text": "你带着残渣去找红绡。她看到残渣的瞬间，眼中闪过一丝寒意，但随即笑靥如花。",
+      "options": [
+        { "id": "next", "text": "继续", "effects": [], "nextNodeId": "hongxiao_trade_dialogue" }
+      ]
+    },
+    "hongxiao_trade_dialogue": {
+      "id": "hongxiao_trade_dialogue",
+      "speaker": "红绡",
+      "text": "师妹好眼力。这是炼制「生灵丹」的副产品，可提升修为。想要的话，师姐可以给你一颗——但你要答应师姐，不要告诉任何人。",
+      "options": [
+        { "id": "accept", "text": "弟子答应。", "effects": [{ "type": "add_item", "itemId": "suspect_pill", "quantity": 1 }], "nextNodeId": "" }
+      ]
+    },
+    "xiaohan_practicing": {
+      "id": "xiaohan_practicing",
+      "speaker": "旁白",
+      "text": "后山最深处，你看到了一个不可能忘记的画面——大师兄萧寒站在血红色的阵法中央，周身缠绕着漆黑的剑气。",
+      "options": [
+        { "id": "watch", "text": "（躲在一旁观察）", "effects": [{ "type": "set_flag", "flag": "triggered_c1_xiaohan_forbidden", "value": true }], "nextNodeId": "xiaohan_dialogue" }
+      ]
+    },
+    "xiaohan_dialogue": {
+      "id": "xiaohan_dialogue",
       "speaker": "萧寒",
-      "text": "……新来的？这里不是你该来的地方。",
+      "text": "……谁？！（剑气骤然收敛，他转身看向你，眼神如刀）你看到了多少？",
       "options": [
-        { "id": "elder_sent", "text": "长老让我来清除灵兽。", "effects": [], "nextNodeId": "brother_cold" },
-        { "id": "curious_b", "text": "大师兄为何独自在此？", "effects": [], "nextNodeId": "brother_cold" }
+        { "id": "threaten", "text": "我要报告师父！", "effects": [{ "type": "change_affinity", "npcId": "xiaohan", "delta": -20 }, { "type": "change_morality", "delta": 5 }, { "type": "set_flag", "flag": "xiaohan_hostile", "value": true }, { "type": "set_flag", "flag": "xiaohan_choice_made", "value": true }], "nextNodeId": "xiaohan_hostile_reaction" },
+        { "id": "ignore", "text": "弟子什么都没看见。", "effects": [{ "type": "set_flag", "flag": "xiaohan_ignored", "value": true }, { "type": "set_flag", "flag": "xiaohan_choice_made", "value": true }], "nextNodeId": "xiaohan_ignore_reaction" },
+        { "id": "understand", "text": "大师兄……一定有您的苦衷。", "effects": [{ "type": "change_affinity", "npcId": "xiaohan", "delta": 10 }, { "type": "set_flag", "flag": "xiaohan_trust", "value": true }, { "type": "set_flag", "flag": "xiaohan_choice_made", "value": true }], "nextNodeId": "xiaohan_trust_reaction" }
       ]
     },
-    "brother_cold": {
-      "id": "brother_cold",
+    "xiaohan_hostile_reaction": {
+      "id": "xiaohan_hostile_reaction",
       "speaker": "萧寒",
-      "text": "回去吧。后山深处有危险，以你现在的修为应付不了。",
+      "text": "报告？哼，你以为师父不知道吗？（他冷笑）既然你找死，我就让你见识一下真正的力量。",
       "options": [
-        { "id": "persist", "text": "我不怕。", "effects": [{ "type": "change_affinity", "npcId": "brother", "delta": 3 }], "nextNodeId": "brother_warn" },
-        { "id": "obey", "text": "……弟子明白了。", "effects": [{ "type": "change_affinity", "npcId": "brother", "delta": 1 }], "nextNodeId": "bm_exit" }
+        { "id": "fight", "text": "（迎战）", "effects": [{ "type": "start_battle", "enemyGroupId": "ch1_boss_xiaohan_clone" }], "nextNodeId": "boss_wait" }
       ]
     },
-    "brother_warn": {
-      "id": "brother_warn",
+    "xiaohan_ignore_reaction": {
+      "id": "xiaohan_ignore_reaction",
       "speaker": "萧寒",
-      "text": "哼，不知天高地厚。罢了，若遇到危险，捏碎这个。",
+      "text": "……（他盯着你看了一会儿）走吧。但记住，今天的事如果你说出去一个字，我不会手软。",
       "options": [
-        { "id": "receive", "text": "接过传音符", "effects": [{ "type": "add_item", "itemId": "escape_talisman", "quantity": 1 }, { "type": "set_flag", "flag": "met_brother", "value": true }], "nextNodeId": "bm_exit" }
+        { "id": "leave", "text": "弟子告退。", "effects": [], "nextNodeId": "" }
       ]
     },
-    "bm_exit": {
-      "id": "bm_exit",
-      "speaker": "旁白",
-      "text": "你离开了后山。天色渐暗，该回去了。",
+    "xiaohan_trust_reaction": {
+      "id": "xiaohan_trust_reaction",
+      "speaker": "萧寒",
+      "text": "……（他沉默良久）你是第一个这么说的人。来，让我看看你有没有资格说这种话。",
       "options": [
-        { "id": "return", "text": "返回弟子居所", "effects": [], "nextNodeId": "day_end" }
+        { "id": "accept_test", "text": "弟子接受试炼。", "effects": [{ "type": "start_battle", "enemyGroupId": "ch1_boss_xiaohan_clone" }], "nextNodeId": "boss_wait" }
       ]
     },
-    "day_end": {
-      "id": "day_end",
+    "boss_wait": {
+      "id": "boss_wait",
       "speaker": "旁白",
-      "text": "第一天的修炼结束了。你躺在榻上，回想起今天发生的一切……",
+      "text": "（战斗结束后返回）",
       "options": [
-        { "id": "sleep", "text": "入睡", "effects": [{ "type": "set_flag", "flag": "chapter1_day1_complete", "value": true }], "nextNodeId": "chapter1_end" }
+        { "id": "continue", "text": "继续", "effects": [], "nextNodeId": "" }
+      ]
+    },
+    "post_boss_win": {
+      "id": "post_boss_win",
+      "speaker": "萧寒",
+      "text": "……不错。能接下我的剑意分身，你有资格知道更多。这本《噬灵剑诀》入门式你收好，不要让别人看到。",
+      "options": [
+        { "id": "receive", "text": "谢大师兄。", "effects": [{ "type": "add_item", "itemId": "basic_sword_manual", "quantity": 1 }], "nextNodeId": "boss_exit" }
+      ]
+    },
+    "post_boss_lose": {
+      "id": "post_boss_lose",
+      "speaker": "萧寒",
+      "text": "……就这点本事？（他摇摇头）罢了，你还太弱。回去修炼吧，等你变强了再来找我。",
+      "options": [
+        { "id": "leave", "text": "……弟子明白了。", "effects": [], "nextNodeId": "boss_exit" }
+      ]
+    },
+    "boss_exit": {
+      "id": "boss_exit",
+      "speaker": "旁白",
+      "text": "天色渐暗，你拖着疲惫的身体返回弟子居所。今天发生的一切，像是一场梦。",
+      "options": [
+        { "id": "return", "text": "返回居所", "effects": [{ "type": "teleport", "scene": "OverworldScene", "x": 120, "y": 120 }], "nextNodeId": "" }
+      ]
+    },
+    "return_housing": {
+      "id": "return_housing",
+      "speaker": "旁白",
+      "text": "你回到弟子居所，发现桌上多了一封信。信封上没有署名，只画着一把断剑。",
+      "options": [
+        { "id": "open", "text": "打开信件", "effects": [{ "type": "set_flag", "flag": "triggered_c1_housing_ending", "value": true }], "nextNodeId": "mysterious_letter" }
+      ]
+    },
+    "mysterious_letter": {
+      "id": "mysterious_letter",
+      "speaker": "神秘信件",
+      "text": "「天剑宗的历史，远比你想象的复杂。云深子不是他表面那样。去后山禁地看看吧，真相在那里等你。」",
+      "options": [
+        { "id": "read_more", "text": "继续阅读", "effects": [], "nextNodeId": "get_torn_map" }
+      ]
+    },
+    "get_torn_map": {
+      "id": "get_torn_map",
+      "speaker": "旁白",
+      "text": "信中夹着一张残缺的地图碎片，指向一个叫做「封印之地」的地方。",
+      "options": [
+        { "id": "take", "text": "收起地图", "effects": [{ "type": "add_item", "itemId": "torn_map", "quantity": 1 }, { "type": "set_flag", "flag": "chapter1_complete", "value": true }], "nextNodeId": "chapter1_end" }
       ]
     },
     "chapter1_end": {
@@ -290,7 +371,7 @@
       "speaker": "旁白",
       "text": "第一章：初入宗门 — 完。更多的秘密，等待着你去揭开。",
       "options": [
-        { "id": "continue", "text": "继续", "effects": [{ "type": "set_flag", "flag": "chapter1_complete", "value": true }], "nextNodeId": "" }
+        { "id": "continue", "text": "继续", "effects": [], "nextNodeId": "" }
       ]
     }
   }
