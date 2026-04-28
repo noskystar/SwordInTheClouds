@@ -351,6 +351,14 @@ export class OverworldScene extends Scene {
         { id: 'chen_meimei', name: '陈师妹', x: 400, y: 140, texture: 'npc_junior_sister' },
         { id: 'li_shixiong', name: '李师兄', x: 80, y: 160, texture: 'npc_disciple' },
       ],
+      yunlai_town: [
+        { id: 'merchant', name: '行商', x: 200, y: 120, texture: 'npc_town_merchant_sprite' },
+        { id: 'townsfolk_1', name: '镇民', x: 120, y: 144, texture: 'npc_disciple' },
+        { id: 'townsfolk_2', name: '镇民', x: 48, y: 96, texture: 'npc_disciple' },
+      ],
+      library: [
+        { id: 'moyan_library', name: '墨言', x: 144, y: 64, texture: 'npc_moyan' },
+      ],
       back_mountain: [
         { id: 'xuetuan', name: '雪团', x: 120, y: 200, texture: 'npc_xuetuan' },
         { id: 'xiaohan_deep', name: '萧寒', x: 560, y: 120, texture: 'npc_xiaohan' },
@@ -405,6 +413,8 @@ export class OverworldScene extends Scene {
       disciples_housing: disciplesHousingMap as MapData,
       meditation_room: meditationRoomMap as MapData,
       back_mountain: backMountainMap as MapData,
+      yunlai_town: { width: 480, height: 320, spawnPoint: { x: 144, y: 160 }, bg: 'bg_yunlai_town' } as MapData,
+      library: { width: 320, height: 256, spawnPoint: { x: 144, y: 112 }, bg: 'bg_library' } as MapData,
     };
 
     const mapData = mapModules[mapId];
@@ -743,6 +753,7 @@ export class OverworldScene extends Scene {
     { id: 'c1_dantang_residue', sceneId: 'back_mountain', objectId: 'story_dantang_residue', requiredFlags: { met_xuetuan: true }, blockedFlags: ['triggered_c1_dantang_residue', 'chapter1_complete'], dialogueNodeId: 'dantang_residue' },
     { id: 'c1_xiaohan_forbidden', sceneId: 'back_mountain', objectId: 'story_xiaohan_forbidden', requiredFlags: { investigating_hongxiao: true }, blockedFlags: ['triggered_c1_xiaohan_forbidden', 'chapter1_complete'], dialogueNodeId: 'xiaohan_practicing' },
     { id: 'c1_housing_ending', sceneId: 'disciples_housing', requiredFlags: { boss_done: true }, blockedFlags: ['triggered_c1_housing_ending', 'chapter1_complete'], dialogueNodeId: 'return_housing' },
+    { id: 'ch2_yunlai_arrival', sceneId: 'yunlai_town', requiredFlags: { chapter1_complete: true }, blockedFlags: ['triggered_ch2_yunlai'], dialogueNodeId: 'ch2_yunlai_arrival' },
   ];
 
   private checkStoryTriggers(objectId?: string): void {
@@ -785,6 +796,12 @@ export class OverworldScene extends Scene {
       case 'xuetuan':
         if (flags.get('met_baizhi') === true && flags.get('met_xuetuan') !== true) return 'meet_xuetuan_talk';
         break;
+      case 'merchant':
+        if (this.storyFlags.get('chapter1_complete') === true) return 'ch2_yunlai_merchant';
+        break;
+      case 'moyan_library':
+        if (this.storyFlags.get('chapter1_complete') === true) return 'ch2_library_arrival';
+        break;
       case 'li_shixiong':
         if (flags.get('met_xuetuan') === true && flags.get('checked_missing_disciple') !== true) return 'disciple_missing';
         break;
@@ -811,6 +828,10 @@ export class OverworldScene extends Scene {
         li_shixiong: '外门弟子的事，少打听为妙。',
         xuetuan: '凡人看不见我，你能看见，很有趣。',
         xiaohan_deep: '……',
+        merchant: '这里来来往往的人可多了，什么消息都有。',
+        townsfolk_1: '听说了吗？最近山里不太平。',
+        townsfolk_2: '镇上来了个奇怪的人，老往那万卷楼跑。',
+        moyan_library: '……这里的典籍，或许能找到一些线索。',
       };
       const nameMap: Record<string, string> = {
         yunshen: '云深子',
@@ -818,11 +839,15 @@ export class OverworldScene extends Scene {
         xiaohan: '萧寒',
         hongxiao: '红绡',
         moyan: '墨言',
+        moyan_library: '墨言',
         baizhi: '白芷',
         chen_meimei: '陈师妹',
         li_shixiong: '李师兄',
         xuetuan: '雪团',
         xiaohan_deep: '萧寒',
+        merchant: '行商',
+        townsfolk_1: '镇民',
+        townsfolk_2: '镇民',
       };
       const text = dailyLines[npcId] ?? '……';
       this.showDialogue(nameMap[npcId] ?? 'NPC', text);

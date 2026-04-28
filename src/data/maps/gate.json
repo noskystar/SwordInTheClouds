@@ -76,6 +76,17 @@
           "y": 120,
           "w": 16,
           "h": 16
+        },
+        {
+          "id": "gate_to_yunlai",
+          "type": "teleport",
+          "x": 320,
+          "y": 48,
+          "w": 16,
+          "h": 48,
+          "target": "yunlai_town",
+          "targetX": 144,
+          "targetY": 160
         }
       ]
     }

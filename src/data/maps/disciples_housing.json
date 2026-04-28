@@ -96,6 +96,17 @@
           "targetY": 240
         },
         {
+          "id": "dh_to_yunlai",
+          "type": "teleport",
+          "x": 80,
+          "y": 0,
+          "w": 48,
+          "h": 16,
+          "target": "yunlai_town",
+          "targetX": 232,
+          "targetY": 64
+        },
+        {
           "id": "npc_moyan",
           "type": "interactable",
           "x": 120,

@@ -19,6 +19,8 @@ export class BootScene extends Scene {
     this.load.image('bg_disciples_housing', 'assets/images/backgrounds/bg_disciples_housing.png');
     this.load.image('bg_back_mountain', 'assets/images/backgrounds/bg_back_mountain.png');
     this.load.image('bg_meditation_room', 'assets/images/backgrounds/bg_meditation_room.png');
+    this.load.image('bg_yunlai_town', 'assets/images/backgrounds/bg_yunlai_town.png');
+    this.load.image('bg_library', 'assets/images/backgrounds/bg_library.png');
 
     // === Player ===
     this.load.image('player_idle', 'assets/images/characters/player/player_idle.png');
@@ -40,6 +42,7 @@ export class BootScene extends Scene {
     this.load.image('npc_baizhi', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
     this.load.image('npc_xuetuan', 'assets/images/characters/npcs/npc_spirit_pet_sprite.png');
     this.load.image('npc_disciple', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
+    this.load.image('npc_town_merchant_sprite', 'assets/images/characters/npcs/npc_town_merchant_sprite.png');
     // Walk cycle spritesheets
     this.load.spritesheet('npc_master_walk', 'assets/images/characters/npcs/walk/npc_master_walk.png', { frameWidth: 512, frameHeight: 512 });
     this.load.spritesheet('npc_junior_sister_walk', 'assets/images/characters/npcs/walk/npc_junior_sister_walk.png', { frameWidth: 512, frameHeight: 512 });

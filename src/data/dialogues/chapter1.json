@@ -373,6 +373,31 @@
       "options": [
         { "id": "continue", "text": "继续", "effects": [], "nextNodeId": "" }
       ]
+    },
+    "ch2_yunlai_arrival": {
+      "id": "ch2_yunlai_arrival",
+      "speaker": "旁白",
+      "text": "师父命你下山历练。你走出山门，沿着石阶来到云来镇。这是宗门与外界交汇之地，商贾行人络绎不绝。镇口立着一块石碑，上书「云来镇」三字。",
+      "options": [
+        { "id": "continue", "text": "四处看看", "effects": [{ "type": "set_flag", "flag": "triggered_ch2_yunlai", "value": true }], "nextNodeId": "" }
+      ]
+    },
+    "ch2_yunlai_merchant": {
+      "id": "ch2_yunlai_merchant",
+      "speaker": "行商",
+      "text": "哟，是天剑宗的小师父吧？来来来，我这里有些从五湖四海带来的稀罕物件，看看有没有需要的？最近山里可不太平，小师父下山要多加小心啊。",
+      "options": [
+        { "id": "close", "text": "多谢提醒。", "effects": [], "nextNodeId": "" }
+      ]
+    },
+    "ch2_library_arrival": {
+      "id": "ch2_library_arrival",
+      "speaker": "墨言",
+      "text": "你……？为何会来此处？我正在查找一些关于「封印之地」的资料。这里的典籍或许藏着线索。你若有兴趣，不妨一同查阅。",
+      "options": [
+        { "id": "accept", "text": "愿意帮忙", "effects": [{ "type": "set_flag", "flag": "met_moyan_library", "value": true }], "nextNodeId": "" },
+        { "id": "decline", "text": "我还有事。", "effects": [], "nextNodeId": "" }
+      ]
     }
   }
 }
