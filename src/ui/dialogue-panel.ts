@@ -169,10 +169,16 @@ export class DialoguePanel {
       hintScreenY: hintY,
     };
 
+    // Position helpers: zoom compensation anchored at camera center
+    const toWorldX = (screenX: number) =>
+      this.scene.cameras.main.centerX + (screenX - this.scene.cameras.main.centerX) / zoom;
+    const toWorldY = (screenY: number) =>
+      this.scene.cameras.main.centerY + (screenY - this.scene.cameras.main.centerY) / zoom;
+
     // Update background
     this.bg.setPosition(
-      sz(panelX + panelW / 2),
-      sz(panelY + panelH / 2),
+      toWorldX(panelX + panelW / 2),
+      toWorldY(panelY + panelH / 2),
     );
     if (this.bg instanceof Phaser.GameObjects.Rectangle) {
       this.bg.setSize(sz(panelW), sz(panelH));
@@ -181,9 +187,9 @@ export class DialoguePanel {
     }
 
     // Update text positions
-    this.nameText.setPosition(sz(panelX + innerPad), sz(nameY));
-    this.bodyText.setPosition(sz(panelX + innerPad), sz(bodyY));
-    this.continueHint.setPosition(sz(panelX + panelW - innerPad), sz(hintY));
+    this.nameText.setPosition(toWorldX(panelX + innerPad), toWorldY(nameY));
+    this.bodyText.setPosition(toWorldX(panelX + innerPad), toWorldY(bodyY));
+    this.continueHint.setPosition(toWorldX(panelX + panelW - innerPad), toWorldY(hintY));
   }
 
   isVisible(): boolean {
@@ -214,10 +220,12 @@ export class DialoguePanel {
     const panelY = height - panelH - panelMargin;
 
     // Camera zoom compensation for fixed UI elements
+    // zoom is anchored at camera center, so screen→world mapping is:
+    //   world = center + (screen - center) / zoom
     const camera = this.scene.cameras.main;
     const zoom = camera.zoom;
-    const toWorldX = (screenX: number) => screenX / zoom;
-    const toWorldY = (screenY: number) => screenY / zoom;
+    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
+    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
     const sz = (v: number) => v / zoom;
 
     const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
@@ -388,9 +396,10 @@ export class DialoguePanel {
   private showOptions(): void {
     const width = this.scene.cameras.main.width;
     const height = this.scene.cameras.main.height;
-    const zoom = this.scene.cameras.main.zoom;
-    const toWorldX = (screenX: number) => screenX / zoom;
-    const toWorldY = (screenY: number) => screenY / zoom;
+    const camera = this.scene.cameras.main;
+    const zoom = camera.zoom;
+    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
+    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
     const sz = (v: number) => v / zoom;
 
     const optionFontSize = Math.max(9, Math.round(height * OPTION_FONT_RATIO));
@@ -448,8 +457,9 @@ export class DialoguePanel {
 
   private updateOptionHighlight(): void {
     if (this.cursor) {
-      const zoom = this.scene.cameras.main.zoom;
-      const toWorldY = (screenY: number) => screenY / zoom;
+      const camera = this.scene.cameras.main;
+      const zoom = camera.zoom;
+      const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
       const optionLineHeight = Math.max(12, Math.round(this.scene.cameras.main.height * OPTION_LINE_RATIO));
       const startY = this.layout.optionStartScreenY;
       const bottomPad = Math.max(4, Math.round(this.layout.panelScreenH * 0.05));
