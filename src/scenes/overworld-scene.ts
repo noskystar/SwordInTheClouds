@@ -573,6 +573,9 @@ export class OverworldScene extends Scene {
   private advanceDialogueFromKey(): void {
     if (this.dialoguePanel?.isVisible()) {
       this.dialoguePanel.handleInput();
+    } else if (this.isDialogueOpen) {
+      // Simple dialogue (showDialogue) — close on E press
+      this.closeDialogue();
     }
   }
 
