@@ -20,12 +20,12 @@ interface EntityDisplay {
   backplate: Phaser.GameObjects.Rectangle;
   sprite: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
   nameText: Phaser.GameObjects.Text;
-  hpBar: Phaser.GameObjects.Rectangle;
-  hpBarBg: Phaser.GameObjects.Rectangle;
-  mpBar: Phaser.GameObjects.Rectangle;
-  mpBarBg: Phaser.GameObjects.Rectangle;
-  atbBar: Phaser.GameObjects.Rectangle;
-  atbBarBg: Phaser.GameObjects.Rectangle;
+  hpBar: Phaser.GameObjects.Graphics;
+  hpBarBg: Phaser.GameObjects.Graphics;
+  mpBar: Phaser.GameObjects.Graphics;
+  mpBarBg: Phaser.GameObjects.Graphics;
+  atbBar: Phaser.GameObjects.Graphics;
+  atbBarBg: Phaser.GameObjects.Graphics;
   buffIcons: Phaser.GameObjects.Text[];
 }
 
@@ -44,6 +44,21 @@ export class BattleScene extends Scene {
   private battleSystem!: BattleSystem;
   private entityDisplays = new Map<string, EntityDisplay>();
   private menuContainer!: Phaser.GameObjects.Container;
+
+  private createRoundedBar(x: number, y: number, width: number, height: number, color: number, alpha = 1): Phaser.GameObjects.Graphics {
+    const gfx = this.add.graphics();
+    gfx.fillStyle(color, alpha);
+    const r = height / 2;
+    gfx.fillRoundedRect(x - width / 2, y - height / 2, width, height, r);
+    return gfx;
+  }
+
+  private updateRoundedBar(bar: Phaser.GameObjects.Graphics, x: number, y: number, width: number, height: number, color: number, alpha = 1): void {
+    bar.clear();
+    bar.fillStyle(color, alpha);
+    const r = height / 2;
+    bar.fillRoundedRect(x - width / 2, y - height / 2, width, height, r);
+  }
   private menuItems: Phaser.GameObjects.Text[] = [];
   private menuState: MenuState = 'hidden';
   private selectedMenuIndex = 0;
@@ -282,17 +297,14 @@ export class BattleScene extends Scene {
     }));
     elementText.setOrigin(0.5);
 
-    const hpBarBg = this.add.rectangle(0, 4, 40, 6, 0x333333);
-    const hpBar = this.add.rectangle(-20, 4, 40, 6, 0x44aa44);
-    hpBar.setOrigin(0, 0.5);
+    const hpBarBg = this.createRoundedBar(0, 4, 40, 6, 0x333333);
+    const hpBar = this.createRoundedBar(0, 4, 40, 6, 0x44aa44);
 
-    const mpBarBg = this.add.rectangle(0, 13, 40, 4, 0x333333);
-    const mpBar = this.add.rectangle(-20, 13, 40, 4, 0x4444aa);
-    mpBar.setOrigin(0, 0.5);
+    const mpBarBg = this.createRoundedBar(0, 13, 40, 4, 0x333333);
+    const mpBar = this.createRoundedBar(0, 13, 40, 4, 0x4488cc);
 
-    const atbBarBg = this.add.rectangle(0, 21, 40, 3, 0x333333);
-    const atbBar = this.add.rectangle(-20, 21, 0, 3, 0xffff00);
-    atbBar.setOrigin(0, 0.5);
+    const atbBarBg = this.createRoundedBar(0, 21, 40, 3, 0x333333);
+    const atbBar = this.createRoundedBar(0, 21, 0, 3, 0xffff00);
 
     const hpText = this.add.text(0, 4, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
       fontSize: '9px',
@@ -851,7 +863,7 @@ export class BattleScene extends Scene {
       const display = this.entityDisplays.get(entity.id);
       if (display) {
         const ratio = Math.min(1, entity.atbGauge / 1000);
-        display.atbBar.width = 40 * ratio;
+        this.updateRoundedBar(display.atbBar, 0, 21, 40 * ratio, 3, 0xffff00);
       }
     }
   }
@@ -862,13 +874,13 @@ export class BattleScene extends Scene {
     if (!entity || !display) return;
 
     const hpRatio = entity.hp / entity.maxHp;
-    display.hpBar.width = 40 * hpRatio;
-    display.hpBar.fillColor = hpRatio > 0.5 ? 0x44aa44 : hpRatio > 0.25 ? 0xaaaa44 : 0xaa4444;
+    const hpColor = hpRatio > 0.5 ? 0x44aa44 : hpRatio > 0.25 ? 0xaaaa44 : 0xaa4444;
+    this.updateRoundedBar(display.hpBar, 0, 4, 40 * hpRatio, 6, hpColor);
 
     const mpRatio = entity.mp / entity.maxMp;
-    display.mpBar.width = 40 * mpRatio;
+    this.updateRoundedBar(display.mpBar, 0, 13, 40 * mpRatio, 4, 0x4488cc);
 
-    display.atbBar.width = 40 * Math.min(1, entity.atbGauge / 1000);
+    this.updateRoundedBar(display.atbBar, 0, 21, 40 * Math.min(1, entity.atbGauge / 1000), 3, 0xffff00);
   }
 
   private updateSwordIntentDisplay(value: number): void {
