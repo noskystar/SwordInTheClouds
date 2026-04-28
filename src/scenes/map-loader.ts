@@ -1,5 +1,4 @@
 import { Scene } from 'phaser';
-import { uiTextStyle } from '../ui/text-style';
 
 export interface MapObject {
   id: string;
@@ -68,7 +67,9 @@ export class MapLoader {
     const groundColor = GROUND_COLORS[mapData.layers.ground.fill] ?? 0x444444;
 
     const groundKey = `ground_${mapData.layers.ground.fill}`;
-    if (!this.scene.textures.exists(groundKey)) {
+    const groundSprites: Phaser.GameObjects.Image[] = [];
+
+    if (!mapData.bg) {
       const canvas = document.createElement('canvas');
       canvas.width = tw;
       canvas.height = th;
