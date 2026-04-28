@@ -3,7 +3,10 @@
   "height": 20,
   "tileWidth": 16,
   "tileHeight": 16,
-  "spawnPoint": { "x": 32, "y": 80 },
+  "spawnPoint": {
+    "x": 32,
+    "y": 80
+  },
   "layers": {
     "ground": {
       "type": "ground",
@@ -12,26 +15,120 @@
     "collision": {
       "type": "collision",
       "rects": [
-        { "x": 0, "y": 0, "w": 30, "h": 2 },
-        { "x": 0, "y": 18, "w": 30, "h": 2 },
-        { "x": 0, "y": 0, "w": 2, "h": 20 },
-        { "x": 28, "y": 0, "w": 2, "h": 20 },
-        { "x": 5, "y": 5, "w": 4, "h": 3 },
-        { "x": 12, "y": 5, "w": 4, "h": 3 },
-        { "x": 19, "y": 5, "w": 4, "h": 3 }
+        {
+          "x": 0,
+          "y": 0,
+          "w": 30,
+          "h": 2
+        },
+        {
+          "x": 0,
+          "y": 18,
+          "w": 30,
+          "h": 2
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 2,
+          "h": 20
+        },
+        {
+          "x": 28,
+          "y": 0,
+          "w": 2,
+          "h": 20
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "w": 4,
+          "h": 3
+        },
+        {
+          "x": 12,
+          "y": 5,
+          "w": 4,
+          "h": 3
+        },
+        {
+          "x": 19,
+          "y": 5,
+          "w": 4,
+          "h": 3
+        }
       ]
     },
     "objects": {
       "type": "objects",
       "items": [
-        { "id": "dh_to_main_hall", "type": "teleport", "x": 0, "y": 80, "w": 16, "h": 80, "target": "main_hall", "targetX": 280, "targetY": 120 },
-        { "id": "dh_to_meditation", "type": "teleport", "x": 304, "y": 80, "w": 16, "h": 80, "target": "meditation_room", "targetX": 80, "targetY": 120 },
-        { "id": "dh_to_back_mountain", "type": "teleport", "x": 160, "y": 0, "w": 80, "h": 16, "target": "back_mountain", "targetX": 48, "targetY": 240 },
-        { "id": "npc_moyan", "type": "interactable", "x": 120, "y": 100, "w": 16, "h": 16 },
-        { "id": "npc_baizhi", "type": "interactable", "x": 280, "y": 120, "w": 16, "h": 16 },
-        { "id": "npc_chen_meimei", "type": "interactable", "x": 400, "y": 140, "w": 16, "h": 16 },
-        { "id": "npc_li_shixiong", "type": "interactable", "x": 80, "y": 160, "w": 16, "h": 16 }
+        {
+          "id": "dh_to_main_hall",
+          "type": "teleport",
+          "x": 0,
+          "y": 80,
+          "w": 16,
+          "h": 80,
+          "target": "main_hall",
+          "targetX": 280,
+          "targetY": 120
+        },
+        {
+          "id": "dh_to_meditation",
+          "type": "teleport",
+          "x": 304,
+          "y": 80,
+          "w": 16,
+          "h": 80,
+          "target": "meditation_room",
+          "targetX": 80,
+          "targetY": 120
+        },
+        {
+          "id": "dh_to_back_mountain",
+          "type": "teleport",
+          "x": 160,
+          "y": 0,
+          "w": 80,
+          "h": 16,
+          "target": "back_mountain",
+          "targetX": 48,
+          "targetY": 240
+        },
+        {
+          "id": "npc_moyan",
+          "type": "interactable",
+          "x": 120,
+          "y": 100,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "id": "npc_baizhi",
+          "type": "interactable",
+          "x": 280,
+          "y": 120,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "id": "npc_chen_meimei",
+          "type": "interactable",
+          "x": 400,
+          "y": 140,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "id": "npc_li_shixiong",
+          "type": "interactable",
+          "x": 80,
+          "y": 160,
+          "w": 16,
+          "h": 16
+        }
       ]
     }
-  }
+  },
+  "bg": "bg_disciples_housing"
 }

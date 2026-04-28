@@ -3,7 +3,10 @@
   "height": 22,
   "tileWidth": 16,
   "tileHeight": 16,
-  "spawnPoint": { "x": 32, "y": 160 },
+  "spawnPoint": {
+    "x": 32,
+    "y": 160
+  },
   "layers": {
     "ground": {
       "type": "ground",
@@ -12,21 +15,81 @@
     "collision": {
       "type": "collision",
       "rects": [
-        { "x": 0, "y": 0, "w": 40, "h": 3 },
-        { "x": 0, "y": 19, "w": 40, "h": 3 },
-        { "x": 0, "y": 0, "w": 3, "h": 22 },
-        { "x": 37, "y": 0, "w": 3, "h": 22 },
-        { "x": 15, "y": 8, "w": 10, "h": 4 }
+        {
+          "x": 0,
+          "y": 0,
+          "w": 40,
+          "h": 3
+        },
+        {
+          "x": 0,
+          "y": 19,
+          "w": 40,
+          "h": 3
+        },
+        {
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 22
+        },
+        {
+          "x": 37,
+          "y": 0,
+          "w": 3,
+          "h": 22
+        },
+        {
+          "x": 15,
+          "y": 8,
+          "w": 10,
+          "h": 4
+        }
       ]
     },
     "objects": {
       "type": "objects",
       "items": [
-        { "id": "mh_to_gate", "type": "teleport", "x": 0, "y": 80, "w": 16, "h": 80, "target": "gate", "targetX": 280, "targetY": 120 },
-        { "id": "mh_to_housing", "type": "teleport", "x": 304, "y": 80, "w": 16, "h": 80, "target": "disciples_housing", "targetX": 32, "targetY": 160 },
-        { "id": "npc_xiaohan", "type": "interactable", "x": 200, "y": 110, "w": 16, "h": 16 },
-        { "id": "npc_hongxiao", "type": "interactable", "x": 360, "y": 110, "w": 16, "h": 16 }
+        {
+          "id": "mh_to_gate",
+          "type": "teleport",
+          "x": 0,
+          "y": 80,
+          "w": 16,
+          "h": 80,
+          "target": "gate",
+          "targetX": 280,
+          "targetY": 120
+        },
+        {
+          "id": "mh_to_housing",
+          "type": "teleport",
+          "x": 304,
+          "y": 80,
+          "w": 16,
+          "h": 80,
+          "target": "disciples_housing",
+          "targetX": 32,
+          "targetY": 160
+        },
+        {
+          "id": "npc_xiaohan",
+          "type": "interactable",
+          "x": 200,
+          "y": 110,
+          "w": 16,
+          "h": 16
+        },
+        {
+          "id": "npc_hongxiao",
+          "type": "interactable",
+          "x": 360,
+          "y": 110,
+          "w": 16,
+          "h": 16
+        }
       ]
     }
-  }
+  },
+  "bg": "bg_main_hall"
 }

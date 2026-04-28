@@ -16,13 +16,11 @@ export class Player extends Phaser.GameObjects.Sprite {
   private virtualDirection = { x: 0, y: 0 };
 
   constructor(scene: Scene, x: number, y: number) {
-    super(scene, x, y, 'player_idle');
+    super(scene, x, y, 'player_sprite');
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    // Scale down the high-res pixel-art sprite to game size
-    this.setDisplaySize(16, 24);
-
+    // Native 16x24 pixel art sprite - no display size scaling needed
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.setSize(10, 10);
     body.setOffset(3, 10);
@@ -50,11 +48,11 @@ export class Player extends Phaser.GameObjects.Sprite {
   private setupAnimations(): void {
     const anims = this.scene.anims;
 
-    if (this.scene.textures.exists('player_idle')) {
+    if (this.scene.textures.exists('player_sprite')) {
       if (!anims.exists('player-idle')) {
         anims.create({
           key: 'player-idle',
-          frames: [{ key: 'player_idle', frame: 0 }],
+          frames: [{ key: 'player_sprite', frame: 0 }],
           frameRate: 1,
           repeat: -1,
         });
@@ -62,11 +60,11 @@ export class Player extends Phaser.GameObjects.Sprite {
       this.play('player-idle');
     }
 
-    if (this.scene.textures.exists('player_walk')) {
+    if (this.scene.textures.exists('player_walk_spritesheet')) {
       if (!anims.exists('player-walk')) {
         anims.create({
           key: 'player-walk',
-          frames: this.anims.generateFrameNumbers('player_walk', { start: 0, end: 3 }),
+          frames: this.anims.generateFrameNumbers('player_walk_spritesheet', { start: 0, end: 3 }),
           frameRate: 8,
           repeat: -1,
         });
@@ -133,13 +131,11 @@ export class Player extends Phaser.GameObjects.Sprite {
 
       if (this.anims.currentAnim?.key !== 'player-walk') {
         this.play('player-walk', true);
-        this.setDisplaySize(16, 24);
       }
     } else {
       this.isMoving = false;
       if (this.anims.currentAnim?.key !== 'player-idle') {
         this.play('player-idle', true);
-        this.setDisplaySize(16, 24);
       }
     }
   }

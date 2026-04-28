@@ -13,19 +13,33 @@ export class BootScene extends Scene {
     this.load.image('bg_battle_forest', 'assets/images/backgrounds/bg_battle_forest.png');
     this.load.image('bg_battle_hall', 'assets/images/backgrounds/bg_battle_hall.png');
     this.load.image('bg_battle_cave', 'assets/images/backgrounds/bg_battle_cave.png');
+    // Pixel art map backgrounds (replacing solid color tiles)
+    this.load.image('bg_gate', 'assets/images/backgrounds/bg_gate.png');
+    this.load.image('bg_main_hall', 'assets/images/backgrounds/bg_main_hall.png');
+    this.load.image('bg_disciples_housing', 'assets/images/backgrounds/bg_disciples_housing.png');
+    this.load.image('bg_back_mountain', 'assets/images/backgrounds/bg_back_mountain.png');
+    this.load.image('bg_meditation_room', 'assets/images/backgrounds/bg_meditation_room.png');
 
     // === Player ===
     this.load.image('player_idle', 'assets/images/characters/player/player_idle.png');
     this.load.image('player_portrait', 'assets/images/characters/player/player_portrait.png');
-    this.load.spritesheet('player_walk', 'assets/images/characters/player/player_walk.png', { frameWidth: 512, frameHeight: 512 });
+    // Pixel art sprites (16x24 overworld sprites, 4-frame walk cycle 64x24)
+    this.load.image('player_sprite', 'assets/images/characters/player/player_sprite.png');
+    this.load.spritesheet('player_walk_spritesheet', 'assets/images/characters/player/player_walk_spritesheet.png', { frameWidth: 16, frameHeight: 24 });
 
-    // === NPCs (overworld sprites reuse portraits, scaled in-game) ===
-    this.load.image('npc_master', 'assets/images/characters/npcs/npc_master_portrait.png');
-    this.load.image('npc_senior_brother', 'assets/images/characters/npcs/npc_senior_brother_portrait.png');
-    this.load.image('npc_second_sister', 'assets/images/characters/npcs/npc_second_sister_portrait.png');
-    this.load.image('npc_third_brother', 'assets/images/characters/npcs/npc_third_brother_portrait.png');
-    this.load.image('npc_junior_sister', 'assets/images/characters/npcs/npc_junior_sister_portrait.png');
-    this.load.image('npc_spirit_pet', 'assets/images/characters/npcs/npc_spirit_pet_portrait.png');
+    // === NPC overworld sprites (16x24 pixel art) ===
+    this.load.image('npc_master', 'assets/images/characters/npcs/npc_master_sprite.png');
+    this.load.image('npc_senior_brother', 'assets/images/characters/npcs/npc_senior_brother_sprite.png');
+    this.load.image('npc_second_sister', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
+    this.load.image('npc_third_brother', 'assets/images/characters/npcs/npc_senior_brother_sprite.png');
+    this.load.image('npc_junior_sister', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
+    this.load.image('npc_spirit_pet', 'assets/images/characters/npcs/npc_spirit_pet_sprite.png');
+    this.load.image('npc_xiaohan', 'assets/images/characters/npcs/npc_xiaohan_sprite.png');
+    this.load.image('npc_hongxiao', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
+    this.load.image('npc_moyan', 'assets/images/characters/npcs/npc_senior_brother_sprite.png');
+    this.load.image('npc_baizhi', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
+    this.load.image('npc_xuetuan', 'assets/images/characters/npcs/npc_spirit_pet_sprite.png');
+    this.load.image('npc_disciple', 'assets/images/characters/npcs/npc_junior_sister_sprite.png');
     // Walk cycle spritesheets
     this.load.spritesheet('npc_master_walk', 'assets/images/characters/npcs/walk/npc_master_walk.png', { frameWidth: 512, frameHeight: 512 });
     this.load.spritesheet('npc_junior_sister_walk', 'assets/images/characters/npcs/walk/npc_junior_sister_walk.png', { frameWidth: 512, frameHeight: 512 });
@@ -54,8 +68,12 @@ export class BootScene extends Scene {
     this.load.image('ui_frame_9patch', 'assets/images/ui/ui_frame_9patch.png');
     this.load.image('ui_bars_and_icons', 'assets/images/ui/ui_bars_and_icons.png');
     this.load.image('ui_dialogue_bg', 'assets/images/ui/ui_dialogue_bg.png');
+    this.load.image('ui_dialogue_box', 'assets/images/ui/dialogue_box.png');
     this.load.image('ui_panel_inventory', 'assets/images/ui/ui_panel_inventory.png');
     this.load.image('ui_element_icons_grid', 'assets/images/ui/ui_element_icons_grid.png');
+
+    // === Objects ===
+    this.load.image('teleport_marker', 'assets/images/objects/teleport_marker.png');
 
     // === Tilesets ===
     this.load.image('tileset_ground', 'assets/images/tilesets/tileset_ground.png');

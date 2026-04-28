@@ -29,6 +29,7 @@ export interface MapData {
   tileWidth: number;
   tileHeight: number;
   spawnPoint: { x: number; y: number };
+  bg?: string; // background image key, e.g. 'bg_gate'
   layers: {
     ground: { type: string; fill: string };
     collision: { type: string; rects: MapCollisionRect[] };
@@ -86,13 +87,27 @@ export class MapLoader {
       this.scene.textures.addCanvas(groundKey, canvas);
     }
 
-    const groundSprites: Phaser.GameObjects.Image[] = [];
-    for (let y = 0; y < rows; y++) {
-      for (let x = 0; x < cols; x++) {
-        const img = this.scene.add.image(x * tw + tw / 2, y * th + th / 2, groundKey);
-        img.setDepth(0);
-        img.setName('ground-tile');
-        groundSprites.push(img);
+    // Background image (pixel art replaces solid color tiles)
+    if (mapData.bg && this.scene.textures.exists(mapData.bg)) {
+      const cam = this.scene.cameras.main;
+      const bgImg = this.scene.add.image(cam.centerX, cam.centerY, mapData.bg);
+      bgImg.setOrigin(0.5);
+      bgImg.setDisplaySize(cam.width, cam.height);
+      bgImg.setScrollFactor(0);
+      bgImg.setDepth(-1);
+      bgImg.setName('map-bg');
+      groundSprites.push(bgImg);
+    }
+
+    // Tiled ground sprites (only if no background image)
+    if (!mapData.bg) {
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          const img = this.scene.add.image(x * tw + tw / 2, y * th + th / 2, groundKey);
+          img.setDepth(0);
+          img.setName('ground-tile');
+          groundSprites.push(img);
+        }
       }
     }
 
@@ -120,24 +135,39 @@ export class MapLoader {
     };
   }
 
-  createVisualObjects(objects: MapObject[]): Phaser.GameObjects.Rectangle[] {
-    const visuals: Phaser.GameObjects.Rectangle[] = [];
+  createVisualObjects(objects: MapObject[]): (Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image)[] {
+    const visuals: (Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image)[] = [];
     for (const obj of objects) {
-      let color = 0xffff00;
-      if (obj.type === 'teleport') color = 0x00ff00;
-      if (obj.type === 'encounter') color = 0xff0000;
-      if (obj.type === 'interactable') color = 0x00aaff;
+      if (obj.type === 'teleport' && this.scene.textures.exists('teleport_marker')) {
+        // Use pixel art teleport marker sprite
+        const marker = this.scene.add.image(obj.x + obj.w / 2, obj.y + obj.h / 2, 'teleport_marker');
+        marker.setDisplaySize(obj.w, obj.h);
+        marker.setDepth(0.5);
+        marker.setName('map-object');
+        visuals.push(marker);
+      } else if (obj.type === 'interactable') {
+        // NPC interaction zones - use subtle indicator sprite if available
+        const rect = this.scene.add.rectangle(
+          obj.x + obj.w / 2,
+          obj.y + obj.h / 2,
+          obj.w,
+          obj.h,
+          0x00aaff,
+          0.15
+        );
+        rect.setDepth(0.5);
+        rect.setName('map-object');
+        visuals.push(rect);
+      } else {
+        let color = 0xffff00;
+        if (obj.type === 'teleport') color = 0x00ff00;
+        if (obj.type === 'encounter') color = 0xff0000;
 
-      const rect = this.scene.add.rectangle(obj.x + obj.w / 2, obj.y + obj.h / 2, obj.w, obj.h, color, 0.3);
-      rect.setDepth(0.5);
-      rect.setName('map-object');
-
-      this.scene.add.text(obj.x + obj.w / 2, obj.y - 4, obj.id, uiTextStyle({
-        fontSize: '5px',
-        color: '#ffffff',
-      })).setOrigin(0.5).setDepth(1).setName('map-object');
-
-      visuals.push(rect);
+        const rect = this.scene.add.rectangle(obj.x + obj.w / 2, obj.y + obj.h / 2, obj.w, obj.h, color, 0.3);
+        rect.setDepth(0.5);
+        rect.setName('map-object');
+        visuals.push(rect);
+      }
     }
     return visuals;
   }
