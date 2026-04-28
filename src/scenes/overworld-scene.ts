@@ -61,6 +61,10 @@ export class OverworldScene extends Scene {
   private pauseMenu!: PauseMenu;
   private escKey!: Phaser.Input.Keyboard.Key;
   private touchControls?: TouchControls;
+  private storyFlags = new Map<string, boolean | number | string>();
+  private storyAffinity = new Map<string, number>();
+  private storyMorality = 0;
+  private storySwordHeart = 0;
 
   constructor() {
     super({ key: 'OverworldScene' });
@@ -74,6 +78,13 @@ export class OverworldScene extends Scene {
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
     this.saveSystem = new SaveSystem();
+    const saved = this.saveSystem.load();
+    if (saved?.story) {
+      this.storyFlags = new Map(Object.entries(saved.story.flags ?? {}));
+      this.storyAffinity = new Map(Object.entries(saved.story.affinity ?? {}));
+      this.storyMorality = saved.story.morality ?? 0;
+      this.storySwordHeart = saved.story.swordHeart ?? 0;
+    }
     this.dayNightSystem = new DayNightSystem(360);
     this.questSystem = new QuestSystem(questsData as import('../types/quest').QuestData[]);
     this.worldSystem = new WorldSystem([
@@ -106,7 +117,6 @@ export class OverworldScene extends Scene {
     this.worldSystem.unlockArea('gate');
 
     this.mapLoader = new MapLoader(this);
-    const saved = this.saveSystem.load();
     const targetMapId = data?.mapId ?? saved?.player?.position?.scene ?? this.currentMapId;
     this.currentMapId = targetMapId;
     this.loadMap(this.currentMapId, data?.playerX, data?.playerY);
@@ -484,7 +494,7 @@ export class OverworldScene extends Scene {
         stats: { hp: 100, maxHp: 100, mp: 50, maxMp: 50, attack: 10, defense: 5, speed: 10, critRate: 0.05, critDamage: 1.5, element: 'metal' },
         position: { scene: this.currentMapId, x: this.player.x, y: this.player.y },
       },
-      inventory: { slots: [], equipped: {} },
+      inventory: { slots: this.inventorySystem.getSlots(), equipped: {} },
       quests: this.questSystem.getState(),
       world: {
         unlockedAreas: this.worldSystem.getUnlockedAreas(),
@@ -492,13 +502,13 @@ export class OverworldScene extends Scene {
         currentPhase: this.dayNightSystem.getCurrentPhase(),
       },
       story: {
-        flags: {},
+        flags: Object.fromEntries(this.storyFlags),
+        affinity: Object.fromEntries(this.storyAffinity),
+        morality: this.storyMorality,
+        swordHeart: this.storySwordHeart,
         choices: [],
         charactersHelped: [],
         itemsCollected: [],
-        morality: 0,
-        swordHeart: 0,
-        affection: {},
       },
     };
     this.saveSystem.save(saveData);
@@ -578,19 +588,30 @@ export class OverworldScene extends Scene {
     this.isDialogueOpen = false;
   }
 
-  private startDialogue(data: DialogueData): void {
+  private startDialogue(data: DialogueData, startNodeId?: string): void {
     if (this.isDialogueOpen) return;
     this.isDialogueOpen = true;
     this.physics.pause();
 
-    this.dialogueSystem = new DialogueSystem();
-    this.dialogueSystem.loadDialogue(data);
+    this.dialogueSystem = new DialogueSystem({
+      flags: Object.fromEntries(this.storyFlags),
+      affinity: Object.fromEntries(this.storyAffinity),
+      morality: this.storyMorality,
+      swordHeart: this.storySwordHeart,
+    });
+    this.dialogueSystem.loadDialogue(data, startNodeId);
 
     this.dialogueSystem.on('start_quest', this.onStartQuest);
     this.dialogueSystem.on('advance_quest', this.onAdvanceQuest);
     this.dialogueSystem.on('complete_quest', this.onCompleteQuest);
     this.dialogueSystem.on('start_battle', this.onStartBattle);
     this.dialogueSystem.on('teleport', this.onTeleport);
+    this.dialogueSystem.on('effect:set_flag', this.applyDialogueEffect);
+    this.dialogueSystem.on('effect:change_affinity', this.applyDialogueEffect);
+    this.dialogueSystem.on('effect:change_morality', this.applyDialogueEffect);
+    this.dialogueSystem.on('effect:change_sword_heart', this.applyDialogueEffect);
+    this.dialogueSystem.on('effect:add_item', this.applyDialogueEffect);
+    this.dialogueSystem.on('effect:remove_item', this.applyDialogueEffect);
 
     this.dialoguePanel = new DialoguePanel(this);
     this.dialoguePanel.setCallbacks(
@@ -621,6 +642,12 @@ export class OverworldScene extends Scene {
     this.dialogueSystem?.off('complete_quest', this.onCompleteQuest);
     this.dialogueSystem?.off('start_battle', this.onStartBattle);
     this.dialogueSystem?.off('teleport', this.onTeleport);
+    this.dialogueSystem?.off('effect:set_flag', this.applyDialogueEffect);
+    this.dialogueSystem?.off('effect:change_affinity', this.applyDialogueEffect);
+    this.dialogueSystem?.off('effect:change_morality', this.applyDialogueEffect);
+    this.dialogueSystem?.off('effect:change_sword_heart', this.applyDialogueEffect);
+    this.dialogueSystem?.off('effect:add_item', this.applyDialogueEffect);
+    this.dialogueSystem?.off('effect:remove_item', this.applyDialogueEffect);
     this.dialoguePanel?.destroy();
     this.dialoguePanel = undefined;
     this.dialogueSystem = undefined;
@@ -658,6 +685,41 @@ export class OverworldScene extends Scene {
   private onTeleport = (e: unknown): void => {
     const evt = e as { scene: string; x: number; y: number };
     this.transitionToScene(evt.scene, evt.x, evt.y);
+  };
+
+  private applyDialogueEffect = (evt: unknown): void => {
+    const e = evt as { effect: { type: string; [k: string]: unknown }; [k: string]: unknown };
+    const eff = e.effect;
+    switch (eff.type) {
+      case 'set_flag': {
+        const flagEff = eff as unknown as { flag: string; value: boolean | number | string };
+        this.storyFlags.set(flagEff.flag, flagEff.value);
+        break;
+      }
+      case 'change_affinity': {
+        const affEff = eff as unknown as { npcId: string; delta: number };
+        const current = this.storyAffinity.get(affEff.npcId) ?? 0;
+        this.storyAffinity.set(affEff.npcId, current + affEff.delta);
+        break;
+      }
+      case 'change_morality':
+        this.storyMorality += (eff as unknown as { delta: number }).delta;
+        break;
+      case 'change_sword_heart':
+        this.storySwordHeart += (eff as unknown as { delta: number }).delta;
+        break;
+      case 'add_item': {
+        const addEff = eff as unknown as { itemId: string; quantity: number };
+        this.inventorySystem.addItem(addEff.itemId, addEff.quantity);
+        break;
+      }
+      case 'remove_item': {
+        const remEff = eff as unknown as { itemId: string; quantity: number };
+        this.inventorySystem.removeItem(remEff.itemId, remEff.quantity);
+        break;
+      }
+    }
+    this.autoSave();
   };
 
   private bKeyWasDown = false;

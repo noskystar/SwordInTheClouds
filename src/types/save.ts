@@ -49,7 +49,8 @@ export interface StorySaveData {
   itemsCollected: string[];
   morality: number;
   swordHeart: number;
-  affection: Record<string, number>;
+  affinity: Record<string, number>;
+  affection?: Record<string, number>;
 }
 
 export interface GameSaveData {

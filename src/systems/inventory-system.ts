@@ -255,6 +255,13 @@ export class InventorySystem {
     return this.getItemQuantity(itemId);
   }
 
+  getState(): { slots: InventorySlot[]; equipped: Record<string, string | null> } {
+    return {
+      slots: this.getSlots(),
+      equipped: {},
+    };
+  }
+
   clear(): void {
     for (let i = 0; i < INVENTORY_SIZE; i++) {
       this.slots[i] = { itemId: null, quantity: 0 };
