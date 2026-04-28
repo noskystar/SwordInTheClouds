@@ -202,22 +202,16 @@ export class TitleScene extends Scene {
   }
 
   private startNewGame(): void {
-    this.cameras.main.fadeOut(300, 0, 0, 0);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start('OverworldScene');
-    });
+    this.scene.start('OverworldScene');
   }
 
   private continueGame(): void {
     const saveData = this.saveSystem.load();
     if (!saveData) return;
 
-    this.cameras.main.fadeOut(300, 0, 0, 0);
-    this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start('OverworldScene', {
-        playerX: saveData.player.position.x,
-        playerY: saveData.player.position.y,
-      });
+    this.scene.start('OverworldScene', {
+      playerX: saveData.player.position.x,
+      playerY: saveData.player.position.y,
     });
   }
 

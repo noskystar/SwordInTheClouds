@@ -261,6 +261,26 @@ export class OverworldScene extends Scene {
     treeGfx.fillRect(5, 8, 2, 2);
     treeGfx.fillRect(7, 8, 3, 2);
     treeGfx.generateTexture('tree', 16, 16);
+
+    // --- NPC fallback textures (procedural portraits for missing assets) ---
+    const npcColors: Record<string, number> = {
+      npc_disciple: 0x888888,
+      npc_xiaohan: 0x4a90d9,
+      npc_hongxiao: 0xd94a90,
+      npc_moyan: 0x4a4a4a,
+      npc_baizhi: 0x90d94a,
+      npc_xuetuan: 0xffffff,
+    };
+    for (const [key, color] of Object.entries(npcColors)) {
+      if (!this.textures.exists(key)) {
+        const gfx = this.make.graphics({ x: 0, y: 0 });
+        gfx.fillStyle(color, 1);
+        gfx.fillRect(0, 0, 16, 16);
+        gfx.lineStyle(1, 0xffffff, 0.3);
+        gfx.strokeRect(0, 0, 16, 16);
+        gfx.generateTexture(key, 16, 16);
+      }
+    }
   }
 
   private createMap(): void {
@@ -507,14 +527,18 @@ export class OverworldScene extends Scene {
         level: 1,
         exp: 0,
         stats: { hp: 100, maxHp: 100, mp: 50, maxMp: 50, attack: 10, defense: 5, speed: 10, critRate: 0.05, critDamage: 1.5, element: 'metal' },
-        position: { scene: this.currentMapId, x: this.player.x, y: this.player.y },
+        position: {
+          scene: this.currentMapId,
+          x: this.player?.x ?? this.playerSpawnX,
+          y: this.player?.y ?? this.playerSpawnY,
+        },
       },
-      inventory: { slots: this.inventorySystem.getSlots(), equipped: {} },
-      quests: this.questSystem.getState(),
+      inventory: this.inventorySystem ? { slots: this.inventorySystem.getSlots(), equipped: {} } : { slots: [], equipped: {} },
+      quests: this.questSystem?.getState() ?? { active: [], completed: [] },
       world: {
-        unlockedAreas: this.worldSystem.getUnlockedAreas(),
-        currentTime: this.dayNightSystem.getTime(),
-        currentPhase: this.dayNightSystem.getCurrentPhase(),
+        unlockedAreas: this.worldSystem?.getUnlockedAreas() ?? [],
+        currentTime: this.dayNightSystem?.getTime() ?? 360,
+        currentPhase: this.dayNightSystem?.getCurrentPhase() ?? 'dawn',
       },
       story: {
         flags: Object.fromEntries(this.storyFlags),

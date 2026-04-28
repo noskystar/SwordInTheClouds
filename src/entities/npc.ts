@@ -39,6 +39,10 @@ export class NPC extends Phaser.GameObjects.Sprite {
     const anims = this.scene.anims;
     const animKey = `npc-${this.config.id}-idle`;
 
+    if (!this.scene.textures.exists(this.config.texture)) {
+      return;
+    }
+
     if (!anims.exists(animKey)) {
       anims.create({
         key: animKey,

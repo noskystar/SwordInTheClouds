@@ -50,25 +50,28 @@ export class Player extends Phaser.GameObjects.Sprite {
   private setupAnimations(): void {
     const anims = this.scene.anims;
 
-    if (!anims.exists('player-idle')) {
-      anims.create({
-        key: 'player-idle',
-        frames: [{ key: 'player_idle', frame: 0 }],
-        frameRate: 1,
-        repeat: -1,
-      });
+    if (this.scene.textures.exists('player_idle')) {
+      if (!anims.exists('player-idle')) {
+        anims.create({
+          key: 'player-idle',
+          frames: [{ key: 'player_idle', frame: 0 }],
+          frameRate: 1,
+          repeat: -1,
+        });
+      }
+      this.play('player-idle');
     }
 
-    if (!anims.exists('player-walk')) {
-      anims.create({
-        key: 'player-walk',
-        frames: this.anims.generateFrameNumbers('player_walk', { start: 0, end: 3 }),
-        frameRate: 8,
-        repeat: -1,
-      });
+    if (this.scene.textures.exists('player_walk')) {
+      if (!anims.exists('player-walk')) {
+        anims.create({
+          key: 'player-walk',
+          frames: this.anims.generateFrameNumbers('player_walk', { start: 0, end: 3 }),
+          frameRate: 8,
+          repeat: -1,
+        });
+      }
     }
-
-    this.play('player-idle');
   }
 
   preUpdate(time: number, delta: number): void {
