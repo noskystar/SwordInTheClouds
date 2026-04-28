@@ -927,13 +927,27 @@ export class OverworldScene extends Scene {
 
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
-    const panelH = Math.max(100, Math.round(height * 0.40));
-    const panelW = width;
-    const panelX = 0;
-    const panelY = height - panelH;
+    const zoom = this.cameras.main.zoom;
+    const toWorld = (sx: number) => this.cameras.main.centerX + (sx - this.cameras.main.centerX) / zoom;
+    const toWorldY = (sy: number) => this.cameras.main.centerY + (sy - this.cameras.main.centerY) / zoom;
+    const sz = (v: number) => v / zoom;
 
-    const bg = this.add.rectangle(width / 2, panelY + panelH / 2, panelW, panelH, 0x1a1a2e, 0.95);
-    bg.setStrokeStyle(1, 0x4a4a6a);
+    const panelMargin = Math.max(2, Math.round(height * 0.015));
+    const panelH = Math.max(80, Math.round(height * 0.40));
+    const panelW = width - panelMargin * 2;
+    const panelX = panelMargin;
+    const panelY = height - panelH - panelMargin; // always at bottom of screen
+
+    // Background with border — always visible
+    const bg = this.add.rectangle(
+      toWorld(panelX + panelW / 2),
+      toWorldY(panelY + panelH / 2),
+      sz(panelW),
+      sz(panelH),
+      0x1a1a2e,
+      0.95
+    );
+    bg.setStrokeStyle(sz(1), 0x4a4a6a);
     bg.setName('dialogue-ui');
     bg.setScrollFactor(0);
     bg.setDepth(100);
@@ -943,7 +957,31 @@ export class OverworldScene extends Scene {
     const innerPad = Math.max(4, Math.round(panelH * 0.04));
     const gapNameBody = Math.max(3, Math.round(panelH * 0.03));
 
-    const nameText = this.add.text(panelX + innerPad, panelY + innerPad, speaker, uiTextStyle({
+    const nameY = panelY + innerPad;
+    const bodyY = nameY + nameFontSize + gapNameBody;
+    const textBlockW = sz(panelW - innerPad * 2);
+
+    // Adaptive font sizing: shrink until all text fits in available height
+    const availableTextH = panelY + panelH - bodyY - innerPad;
+    let bestFont = bodyFontSize;
+    for (let trySize = bodyFontSize; trySize >= 7; trySize--) {
+      const tmp = this.add.text(0, 0, text, uiTextStyle({
+        fontSize: trySize + 'px',
+        color: '#eeeeee',
+        fixedWidth: textBlockW,
+        wordWrap: { width: textBlockW, useAdvancedWrap: true },
+        lineSpacing: Math.max(2, Math.round(trySize * 0.3)),
+        padding: { x: 0, y: 0 },
+      }));
+      const neededH = tmp.height * zoom;
+      tmp.destroy();
+      if (neededH <= availableTextH || trySize === 7) {
+        bestFont = trySize;
+        break;
+      }
+    }
+
+    const nameText = this.add.text(toWorld(panelX + innerPad), toWorldY(nameY), speaker, uiTextStyle({
       fontSize: nameFontSize + 'px',
       color: '#ffff00',
       padding: { x: 0, y: 0 },
@@ -952,20 +990,20 @@ export class OverworldScene extends Scene {
     nameText.setScrollFactor(0);
     nameText.setDepth(101);
 
-    const textBlockW = panelW - innerPad * 2;
-    const dialogueText = this.add.text(panelX + innerPad, panelY + innerPad + nameFontSize + gapNameBody, text, uiTextStyle({
-      fontSize: bodyFontSize + 'px',
+    const dialogueText = this.add.text(toWorld(panelX + innerPad), toWorldY(bodyY), text, uiTextStyle({
+      fontSize: bestFont + 'px',
       color: '#eeeeee',
       fixedWidth: textBlockW,
-      wordWrap: { width: textBlockW },
-      lineSpacing: Math.max(3, Math.round(bodyFontSize * 0.35)),
+      wordWrap: { width: textBlockW, useAdvancedWrap: true },
+      lineSpacing: Math.max(2, Math.round(bestFont * 0.3)),
+      padding: { x: 0, y: 0 },
     }));
     dialogueText.setName('dialogue-ui');
     dialogueText.setScrollFactor(0);
     dialogueText.setDepth(101);
 
-    const closeHint = this.add.text(width - innerPad, panelY + panelH - innerPad, '按 E 关闭', uiTextStyle({
-      fontSize: bodyFontSize + 'px',
+    const closeHint = this.add.text(toWorld(width - innerPad), toWorldY(panelY + panelH - innerPad), '按 E 关闭', uiTextStyle({
+      fontSize: Math.max(8, Math.round(height * 0.030)) + 'px',
       color: '#aaaaaa',
     }));
     closeHint.setOrigin(1, 1);
