@@ -1,7 +1,15 @@
 import type { Scene } from 'phaser';
 import { uiTextStyle } from './text-style';
+import { isTouchDevice } from '../utils/device';
 
 export class TouchControls {
+  static createIfTouch(
+    scene: Scene,
+    callbacks: { onInteract: () => void; onBattle: () => void; onMenu: () => void; onDialogueAdvance: () => void }
+  ): TouchControls | undefined {
+    if (!isTouchDevice()) return undefined;
+    return new TouchControls(scene, callbacks);
+  }
   private scene: Scene;
   private joystickBase!: Phaser.GameObjects.Arc;
   private joystickKnob!: Phaser.GameObjects.Arc;
@@ -87,8 +95,8 @@ export class TouchControls {
 
     // Buttons: bottom-right
     const btnBase = this.toScrollFactorPos(W * 0.82, H * 0.86);
-    const btnGap = Math.round((W * 0.065) / (this.scene.cameras.main.zoom || 1));
-    const btnR = Math.round(H * 0.055);
+    const btnGap = Math.round(W * 0.065);
+    const btnR = Math.round(H * 0.04);
 
     this.buttonElements = [
       this.createButton(btnBase.x - btnGap, btnBase.y, btnR, 'E', 0x44ff44, this.onInteract, '交互'),
@@ -196,8 +204,8 @@ export class TouchControls {
     this.joystickKnob.setRadius(knobR);
 
     const btnBase = this.toScrollFactorPos(W * 0.82, H * 0.86);
-    const btnGap = Math.round((W * 0.065) / (this.scene.cameras.main.zoom || 1));
-    const btnR = Math.round(H * 0.055);
+    const btnGap = Math.round(W * 0.065);
+    const btnR = Math.round(H * 0.04);
 
     const buttonConfigs = [
       { el: this.buttonElements[0], x: btnBase.x - btnGap, y: btnBase.y, r: btnR },
