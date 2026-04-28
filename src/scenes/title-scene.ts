@@ -29,15 +29,38 @@ export class TitleScene extends Scene {
     this.settingsSystem = new SettingsSystem();
     this.saveSystem = new SaveSystem();
 
-    // Title background
-    const bg = this.add.image(
-      this.cameras.main.width / 2,
-      this.cameras.main.height / 2,
-      'bg_title'
-    );
-    bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
-    bg.setOrigin(0.5);
-    bg.setDepth(0);
+    // Title background with fallback
+    const hasBgTexture = this.textures.exists('bg_title');
+    if (hasBgTexture) {
+      const bg = this.add.image(
+        this.cameras.main.width / 2,
+        this.cameras.main.height / 2,
+        'bg_title'
+      );
+      bg.setDisplaySize(this.cameras.main.width, this.cameras.main.height);
+      bg.setOrigin(0.5);
+      bg.setDepth(0);
+    } else {
+      // Procedural fallback: dark gradient with subtle grid
+      const gfx = this.add.graphics();
+      gfx.fillGradientStyle(0x0a0a1a, 0x0a0a1a, 0x1a1a3e, 0x1a1a3e, 1);
+      gfx.fillRect(0, 0, this.cameras.main.width, this.cameras.main.height);
+
+      // Subtle grid lines
+      gfx.lineStyle(1, 0x2a2a4a, 0.15);
+      for (let x = 0; x < this.cameras.main.width; x += 20) {
+        gfx.moveTo(x, 0);
+        gfx.lineTo(x, this.cameras.main.height);
+      }
+      for (let y = 0; y < this.cameras.main.height; y += 20) {
+        gfx.moveTo(0, y);
+        gfx.lineTo(this.cameras.main.width, y);
+      }
+      gfx.strokePath();
+      gfx.setDepth(0);
+
+      console.warn('[TitleScene] bg_title texture missing, using procedural fallback');
+    }
 
     // Title
     const titleText = this.add.text(
