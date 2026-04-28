@@ -303,19 +303,17 @@ export class OverworldScene extends Scene {
       },
     ];
 
-    const scene = this;
-
     for (const config of npcConfigs) {
       const npc = new NPC(this, config);
       npc.setDepth(2);
 
       npc.onInteract(() => {
         if (config.id === 'elder') {
-          scene.startDialogue(chapter1Dialogue as DialogueData);
+          this.startDialogue(chapter1Dialogue as DialogueData);
         } else if (config.dialogueId) {
-          scene.startDialogue(demoDialogueData as DialogueData);
+          this.startDialogue(demoDialogueData as DialogueData);
         } else if (config.dialogues && config.dialogues.length > 0) {
-          scene.showDialogue(npc.getNPCName(), config.dialogues[0]);
+          this.showDialogue(npc.getNPCName(), config.dialogues[0]);
         }
       });
 
