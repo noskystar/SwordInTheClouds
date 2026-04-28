@@ -78,6 +78,9 @@ export class BattleScene extends Scene {
   private audioSystem!: AudioSystem;
   private touchOverlay?: Phaser.GameObjects.Container;
   private controlHint?: Phaser.GameObjects.Text;
+  private swordIntentGlow?: Phaser.GameObjects.Graphics;
+  private turnArrows = new Map<string, Phaser.GameObjects.Triangle>();
+  private playerTurnTint?: Phaser.GameObjects.Rectangle;
 
   constructor() {
     super({ key: 'BattleScene' });
@@ -157,6 +160,7 @@ export class BattleScene extends Scene {
     if (this.menuState === 'hidden') {
       const readyId = this.battleSystem.tick(delta);
       this.updateATBBars();
+      this.updateTurnIndicator();
 
       if (readyId && !this.battleSystem.getPlayer().isAlive) {
         this.battleSystem.executeAction(readyId, this.battleSystem.getEnemyAction(readyId));
@@ -389,14 +393,22 @@ export class BattleScene extends Scene {
   }
 
   private createBattleLog(): void {
+    const logPanel = this.add.graphics();
+    logPanel.fillStyle(0x000000, 0.5);
+    logPanel.fillRoundedRect(10, 4, 300, 52, 4);
+    logPanel.setDepth(10);
+    logPanel.setScrollFactor(0);
+
     this.battleLog = this.add.text(160, 10, '', uiTextStyle({
-      fontSize: '12px',
-      color: '#ffffff',
-      align: 'center',
-      wordWrap: { width: 300 },
+      fontSize: '11px',
+      color: '#cccccc',
+      align: 'left',
+      wordWrap: { width: 288 },
+      lineSpacing: 2,
     }));
     this.battleLog.setOrigin(0.5, 0);
-    this.battleLog.setDepth(10);
+    this.battleLog.setDepth(11);
+    this.battleLog.setScrollFactor(0);
   }
 
   private createSwordIntentDisplay(): void {
@@ -443,7 +455,8 @@ export class BattleScene extends Scene {
       if (event.type === 'damage_dealt') {
         const target = this.battleSystem.getEntity(event.targetId);
         const isCrit = event.isCritical ?? false;
-        this.addLog(`${target?.name} 受到 ${event.damage} 点伤害${isCrit ? '（暴击！）' : ''}`);
+        const msg = `${target?.name} 受到 ${event.damage} 点伤害${isCrit ? '（暴击！）' : ''}`;
+        this.addLog(msg, isCrit ? '#ffcc00' : '#ff6666');
         this.flashEntity(event.targetId, 0xff0000);
         this.updateEntityDisplay(event.targetId);
         if (isCrit) {
@@ -461,7 +474,7 @@ export class BattleScene extends Scene {
     this.battleSystem.on('heal', (event: BattleEvent) => {
       if (event.type === 'heal') {
         const target = this.battleSystem.getEntity(event.targetId);
-        this.addLog(`${target?.name} 恢复 ${event.amount} 点生命`);
+        this.addLog(`${target?.name} 恢复 ${event.amount} 点生命`, '#66ff66');
         this.flashEntity(event.targetId, 0x00ff00);
         this.updateEntityDisplay(event.targetId);
         this.audioSystem.playSFX('heal');
@@ -677,6 +690,22 @@ export class BattleScene extends Scene {
     this.selectedMenuIndex = 0;
     this.menuContainer.setVisible(true);
 
+    // Player turn screen tint
+    if (!this.playerTurnTint) {
+      this.playerTurnTint = this.add.rectangle(
+        this.cameras.main.width / 2,
+        this.cameras.main.height / 2,
+        this.cameras.main.width,
+        this.cameras.main.height,
+        0x4488ff,
+        0.08
+      );
+      this.playerTurnTint.setScrollFactor(0);
+      this.playerTurnTint.setDepth(1);
+      this.playerTurnTint.setVisible(false);
+    }
+    this.playerTurnTint.setVisible(true);
+
     const hintText = this.menuContainer.getByName('menu-hint') as Phaser.GameObjects.Text;
     if (hintText) hintText.setVisible(true);
 
@@ -696,6 +725,9 @@ export class BattleScene extends Scene {
     this.menuContainer.setVisible(false);
     this.menuItems.forEach((item) => item.setColor('#aaaaaa'));
     this.hideTouchOverlay();
+    if (this.playerTurnTint) {
+      this.playerTurnTint.setVisible(false);
+    }
   }
 
   private updateMenuSelection(): void {
@@ -898,6 +930,46 @@ export class BattleScene extends Scene {
     });
   }
 
+  private updateTurnIndicator(): void {
+    // Clear old arrows
+    for (const arrow of this.turnArrows.values()) {
+      arrow.destroy();
+    }
+    this.turnArrows.clear();
+
+    const readyId = this.battleSystem.getPendingTurnEntityId?.();
+    if (!readyId) return;
+
+    const entity = this.battleSystem.getEntity(readyId);
+    if (!entity) return;
+
+    const display = this.entityDisplays.get(readyId);
+    if (!display) return;
+
+    const arrow = this.add.triangle(
+      display.container.x,
+      display.container.y - 42,
+      0, 0,
+      6, 8,
+      -6, 8,
+      0xffff00
+    );
+    arrow.setOrigin(0.5);
+    arrow.setDepth(12);
+
+    // Float animation
+    this.tweens.add({
+      targets: arrow,
+      y: display.container.y - 45,
+      duration: 600,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+
+    this.turnArrows.set(readyId, arrow);
+  }
+
   private updateATBBars(): void {
     for (const entity of this.battleSystem.getAllEntities()) {
       const display = this.entityDisplays.get(entity.id);
@@ -928,6 +1000,19 @@ export class BattleScene extends Scene {
     this.swordIntentBar.width = 48 * ratio;
     this.swordIntentBar.fillColor = value >= 100 ? 0xff6600 : 0xffaa00;
     this.swordIntentText.setText(`${value}/100`);
+
+    if (value >= 100) {
+      if (!this.swordIntentGlow) {
+        this.swordIntentGlow = this.add.graphics();
+        this.swordIntentGlow.setDepth(9);
+      }
+      this.swordIntentGlow.clear();
+      const pulse = 0.5 + Math.sin(this.time.now / 200) * 0.3;
+      this.swordIntentGlow.lineStyle(2, 0xff6600, pulse);
+      this.swordIntentGlow.strokeRoundedRect(-28, -4, 56, 10, 3);
+    } else if (this.swordIntentGlow) {
+      this.swordIntentGlow.clear();
+    }
   }
 
   private updateBuffDisplay(entityId: string): void {
@@ -1027,12 +1112,21 @@ export class BattleScene extends Scene {
     });
   }
 
-  private addLog(message: string): void {
+  private addLog(message: string, _color = '#cccccc'): void {
     this.logEntries.push(message);
     if (this.logEntries.length > 3) {
       this.logEntries.shift();
     }
     this.battleLog.setText(this.logEntries.join('\n'));
+
+    // Slide-in effect on new message
+    this.battleLog.setAlpha(0);
+    this.tweens.add({
+      targets: this.battleLog,
+      alpha: 1,
+      duration: 200,
+      ease: 'Power1',
+    });
   }
 
   private getBackgroundKey(battleGroupId: string): string {
