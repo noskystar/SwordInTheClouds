@@ -89,13 +89,17 @@ return_housing → mysterious_letter → get_torn_map → chapter1_end
 
 | 选择点 | 选项 | 效果 |
 |--------|------|------|
+| 发现丹药残渣 | A. 报告师父 | 道德+5，设置 flag `reported_dantang=true` |
+| | B. 暗中调查 | 设置 flag `investigating_hongxiao=true`，解锁红绡支线前置 |
+| | C. 与红绡交易 | 红绡好感+10，道德-5，获得 `suspect_pill`，设置 flag `traded_with_hongxiao=true` |
 | 撞见萧寒修炼 | A. 威胁举报 | 萧寒好感-20，道德+5，设置 flag `xiaohan_hostile=true` + `xiaohan_choice_made=true`，后续萧寒线锁死 |
 | | B. 装作不知 | 安全，设置 flag `xiaohan_ignored=true` + `xiaohan_choice_made=true`，错过深入了解 |
 | | C. 表示理解 | 萧寒好感+10，设置 flag `xiaohan_trust=true` + `xiaohan_choice_made=true`，直接触发 `start_battle(ch1_boss_xiaohan_clone)` |
-| 发现丹药残渣 | A. 报告师父 | 道德+5，设置 flag `reported_dantang=true` |
-| | B. 暗中调查 | 设置 flag `investigating_hongxiao=true`，解锁红绡支线前置 |
-| Boss战结果 | 胜利 | 设置 flag `boss_won=true`，萧寒刮目相看，奖励 `basic_sword_manual` |
-| | 失败 | 设置 flag `boss_lost=true`，被击晕，获得少量经验 |
+| 外门弟子失踪 | A. 调查到底 | 设置 flag `missing_disciple_investigate=true`，解锁支线任务「无声之死」前置 |
+| | B. 听从官方说法 | 获得少量经验，设置 flag `missing_disciple_ignored=true` |
+| | C. 向白芷打听 | 白芷好感+5，设置 flag `asked_baizhi_missing=true` + `baizhi_reported_player=true` |
+
+> Boss 战胜负是战斗结果分支，不计入 NARRATIVE.md 的 3 个玩家关键选择点。战斗结果仍写入 `boss_won` / `boss_lost`，用于战后对话分支。
 
 #### 未实装内容的处理妥协
 
@@ -115,6 +119,8 @@ return_housing → mysterious_letter → get_torn_map → chapter1_end
 interface StoryTrigger {
   id: string;                    // 触发器唯一ID
   sceneId: string;               // 所在场景
+  objectId?: string;             // 可选：地图对象触发器ID，用于区域/深处剧情
+  zone?: { x: number; y: number; w: number; h: number }; // 可选：无对象时的矩形触发区
   requiredFlags: Record<string, boolean>;  // 必须满足的flag
   blockedFlags?: string[];       // 禁止存在的flag（防重复触发）
   dialogueNodeId: string;        // chapter1.json 中对应的起始节点
@@ -130,11 +136,44 @@ interface StoryTrigger {
 | `c1_housing_seniors` | disciples_housing | `met_hongxiao=true` | `housing_entry` |
 | `c1_meditation_first` | meditation_room | `knows_rules=true` | `meditation_first` |
 | `c1_mountain_xuetuan` | back_mountain | `met_moyan=true` | `mountain_entry` |
+| `c1_dantang_residue` | back_mountain / `story_dantang_residue` | `met_xuetuan=true` | `dantang_residue` |
+| `c1_xiaohan_forbidden` | back_mountain / `story_xiaohan_forbidden` | `investigating_hongxiao=true` | `xiaohan_practicing` |
 | `c1_housing_ending` | disciples_housing | `boss_done=true` | `return_housing` |
 
 #### 触发流程
 
-场景加载完成（`loadMap` 后） → 调用 `checkStoryTriggers()` → 遍历触发器 → 条件匹配且未被阻塞 → 自动调用 `startDialogue(chapter1Dialogue, targetNodeId)` → 对话中设置 `triggered_<id>` flag 防止重复触发。
+场景加载完成（`loadMap` 后） → 调用 `checkStoryTriggers()` 检查场景级触发器 → 玩家进入地图对象或 `zone` 时再次调用 `checkStoryTriggers(objectId?)` → 条件匹配且未被阻塞 → 写入 `triggered_<id>=true` → 自动调用 `startDialogue(chapter1Dialogue, targetNodeId)`。
+
+触发器默认在 `blockedFlags` 中包含 `chapter1_complete` 和自身的 `triggered_<id>`，防止章节完成后或同一触发器重复弹出。
+
+#### 地图切换数据合同
+
+当前 `OverworldScene` 重启时只传 `playerX/playerY`，会导致 `currentMapId` 回到默认 `gate`。本方案必须同步修复场景切换数据：
+
+```typescript
+interface SceneTransitionData {
+  mapId?: string;
+  playerX?: number;
+  playerY?: number;
+  battleResult?: {
+    battleGroupId: string;
+    result: 'victory' | 'defeat';
+    rewards?: { exp: number; drops: { itemId: string; quantity: number }[] };
+  };
+}
+```
+
+`transitionToScene()` 传送到地图时传入目标 `mapId`，`create()` 使用 `data.mapId ?? savedMapId ?? 'gate'` 决定加载地图。否则自动触发器和按地图创建 NPC 都无法稳定工作。
+
+#### Story flag 同步与持久化
+
+`storyFlags` 是第一章推进的唯一事实来源，不能只存在于单次 `DialogueSystem` 实例内部。实现时采用以下合同：
+
+- `OverworldScene` 持有 `private storyFlags = new Map<string, boolean | number | string>()`
+- `DialogueSystem` 构造时接收当前 `storyFlags`、好感、道德、背包等上下文快照，用于条件判断
+- `set_flag`、`change_affinity`、`change_morality`、`change_sword_heart`、`add_item`、`remove_item` 等 effect 通过事件通知 `OverworldScene`
+- `OverworldScene` 在 effect 事件中更新共享状态，并在 `autoSave()` 中保存到 `story.flags`、`story.affection`、`story.morality`、`story.swordHeart`、`inventory`
+- 读档或场景重启时先恢复共享状态，再执行 `checkStoryTriggers()`
 
 #### 防断链兜底
 
@@ -149,6 +188,7 @@ interface StoryTrigger {
 当前 `createNPCs()` 只在 `create()` 调用一次，且 NPC 不会被地图切换清除。修复方式：
 - `loadMap()` 中清除当前场景所有 NPC
 - 根据新地图 ID 创建对应 NPC 列表
+- 若采用重启 `OverworldScene` 的切图方式，必须在 `SceneTransitionData.mapId` 中保存目标地图；若改为同 Scene 内切图，则 `loadMap()` 需要同步重建 NPC、碰撞、镜头 bounds 和 fog overlay
 
 #### 第一章各场景 NPC 分布
 
@@ -210,6 +250,26 @@ private onNPCInteract(npcId: string): void {
 
 对话节点 `boss_trigger` 使用 `start_battle` effect 启动战斗。战斗结束后通过 `BattleScene → OverworldScene` 的返回数据区分胜负。
 
+Boss 战属于剧情战，失败不进入 `GameOverScene`。`start_battle` effect 需要支持剧情战参数，或由 `battle-groups.json` 标记：
+
+```json
+{
+  "id": "ch1_boss_xiaohan_clone",
+  "type": "story",
+  "returnOnDefeat": true,
+  "returnMapId": "back_mountain"
+}
+```
+
+`BattleScene` 结束时返回：
+
+```typescript
+this.scene.start(this.returnScene, {
+  mapId: returnMapId,
+  battleResult: { battleGroupId, result, rewards }
+});
+```
+
 #### 战后分支
 
 `OverworldScene.create()` 接收返回数据，设置对应 flag：
@@ -251,14 +311,15 @@ mysterious_letter（旁白：回到居所，发现桌上多了一封信）
 | `src/data/maps/gate.json` | 修改 | 增加云深子、守门弟子站立点 |
 | `src/data/maps/main_hall.json` | 修改 | 增加萧寒、红绡站立点 |
 | `src/data/maps/disciples_housing.json` | 修改 | 增加墨言、白芷、陈师妹、李师兄站立点 |
-| `src/data/maps/back_mountain.json` | 修改 | 增加雪团、萧寒(深处)站立点 |
+| `src/data/maps/back_mountain.json` | 修改 | 增加雪团、萧寒(深处)站立点，以及 `story_dantang_residue`、`story_xiaohan_forbidden` 剧情触发区 |
 
 ### 新增/修改的 TypeScript 文件
 
 | 文件 | 变更类型 | 说明 |
 |------|----------|------|
-| `src/scenes/overworld-scene.ts` | 修改 | 新增 storyTriggers 配置、checkStoryTriggers()、按地图创建 NPC、接收战斗返回数据 |
-| `src/systems/dialogue-system.ts` | 修改 | 支持从指定节点开始对话（而非仅 startNodeId） |
+| `src/scenes/overworld-scene.ts` | 修改 | 新增 storyTriggers 配置、checkStoryTriggers()、按地图创建 NPC、接收战斗返回数据、持久化 story flags |
+| `src/systems/dialogue-system.ts` | 修改 | 支持从指定节点开始对话；将 effect 事件抛给场景同步共享状态 |
+| `src/scenes/battle-scene.ts` | 修改 | 支持剧情战失败返回 Overworld，并返回 battle result data |
 | `src/entities/npc.ts` | 确认 | 确保支持动态创建和销毁 |
 
 ---
@@ -269,27 +330,54 @@ mysterious_letter（旁白：回到居所，发现桌上多了一封信）
 
 1. **新增属性**：
    - `private storyTriggers: StoryTrigger[]`
-   - `private storyFlags: Map<string, boolean>`（或使用现有 saveSystem 存储 flag）
+   - `private storyFlags: Map<string, boolean | number | string>`
+   - `private storyAffinity: Map<string, number>`
+   - `private storyMorality: number`
+   - `private storySwordHeart: number`
 
-2. **修改 `loadMap()`**：
+2. **修改 `SceneTransitionData` / `transitionToScene()` / `create()`**：
+   - `SceneTransitionData` 新增 `mapId` 和 `battleResult`
+   - 普通传送传 `{ mapId: target, playerX: targetX, playerY: targetY }`
+   - `create()` 根据 `data.mapId` 加载目标地图，避免重启场景后回到 `gate`
+   - `create()` 在 `loadMap()` 前恢复存档中的 story/world/inventory 状态
+
+3. **修改 `loadMap()`**：
    - 清除当前场景 NPC：`this.npcs.forEach(npc => npc.destroy()); this.npcs = [];`
    - 加载完成后调用 `this.createNPCsForMap(mapId)`
    - 调用 `this.checkStoryTriggers()`
 
-3. **新增方法**：
+4. **新增方法**：
    - `createNPCsForMap(mapId: string)`：根据地图 ID 创建对应 NPC
-   - `checkStoryTriggers()`：遍历触发器，条件匹配则自动启动对话
+   - `checkStoryTriggers(objectId?: string)`：遍历触发器，条件匹配则自动启动对话
    - `resolveNPCDialogueNode(npcId: string): string | null`：根据 flag 返回 NPC 对应节点
    - `onBattleReturn(data)`：接收战斗结果，设置 flag，触发战后对话
+   - `applyDialogueEffect(effect)`：接收 `DialogueSystem` effect 事件并同步到共享状态
 
-4. **修改 `startDialogue()`**：
+5. **修改 `startDialogue()`**：
    - 支持传入起始节点 ID：`startDialogue(data: DialogueData, startNodeId?: string)`
+   - 创建 `DialogueSystem` 时传入共享 story context
+   - 监听 dialogue effect 事件并更新 `storyFlags` / 好感 / 背包 / 道德 / 剑心
 
 ### DialogueSystem
 
 1. **修改 `loadDialogue()`**：
    - 支持可选的起始节点：`loadDialogue(data: DialogueData, startNodeId?: string)`
    - 若传入 `startNodeId`，从该节点开始而非 `data.startNodeId`
+
+2. **修改 effect 派发**：
+   - `set_flag` 等会改变剧情状态的 effect 必须 emit 给 `OverworldScene`
+   - `DialogueSystem` 内部 context 仍可即时更新，用于同一段对话后续条件判断
+
+### BattleScene
+
+1. **新增剧情战返回逻辑**：
+   - 读取 battle group 的 `returnOnDefeat` / `returnMapId`
+   - 普通战斗失败仍进入 `GameOverScene`
+   - 剧情战失败返回 `OverworldScene`，并传递 `battleResult.result='defeat'`
+
+2. **胜利返回携带结果**：
+   - 胜利时传递 `battleGroupId`、`result='victory'`、`rewards`
+   - `OverworldScene.onBattleReturn()` 根据结果设置 `boss_won/boss_lost/boss_done`
 
 ---
 
@@ -302,6 +390,9 @@ mysterious_letter（旁白：回到居所，发现桌上多了一封信）
 | NPC 动态创建引入新 bug | 切换场景时 NPC 状态异常 | 在 `loadMap()` 中彻底清理旧 NPC，新场景重新创建 |
 | 自动触发器与玩家操作冲突 | 玩家正在移动时突然弹出对话 | 触发器在场景加载完成后、玩家获得控制前执行 |
 | 战斗结果影响后续对话 | 需要区分胜负分支 | 通过 battle return data + flag 实现，逻辑清晰 |
+| 地图切换重启后丢失地图 ID | 自动触发器/NPC 加载到错误场景 | `SceneTransitionData.mapId` 必传，`create()` 优先加载该地图 |
+| DialogueSystem 内部 flag 不持久 | 后续触发条件永远不满足 | effect 事件同步到 `OverworldScene` 共享 story state，并写入存档 |
+| 后山深处剧情没有位置触发 | 丹药残渣和禁术事件无法自然发生 | `StoryTrigger` 支持 `objectId`/`zone`，地图 JSON 增加 story trigger 区域 |
 
 ---
 
@@ -312,9 +403,14 @@ mysterious_letter（旁白：回到居所，发现桌上多了一封信）
 - [ ] 进入弟子居所自动触发认识墨言和白芷
 - [ ] 进入后山自动触发雪团初遇
 - [ ] 与李师兄对话触发外门弟子失踪线索
+- [ ] 外门弟子失踪事件出现 3 个选择，并写入对应 flag
+- [ ] 后山深处剧情触发区能触发丹药残渣选择，包含报告、暗查、交易 3 个选项
 - [ ] 在后山深处触发大师兄禁术事件，出现选择点
 - [ ] 选择后触发 Boss 战（萧寒剑意分身）
 - [ ] 战斗胜利/失败进入不同战后对话，最终汇合
+- [ ] 剧情 Boss 失败不会进入 GameOver，而是返回 Overworld 并触发失败分支
 - [ ] 回到居所触发神秘来信，获得残缺地图，章节结束
 - [ ] 章节结束后不再重复触发第一章剧情
+- [ ] 切换到任意地图后 `currentMapId`、NPC 列表、自动触发器都与目标地图一致
+- [ ] `set_flag` 等对话效果能跨场景和读档保留
 - [ ] 所有关键角色都有登场和至少一句日常对话
