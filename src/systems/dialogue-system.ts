@@ -57,11 +57,11 @@ export class DialogueSystem {
     this.eventEmitter.emit(event, data);
   }
 
-  loadDialogue(data: DialogueData): void {
+  loadDialogue(data: DialogueData, startNodeId?: string): void {
     this.dialogueData = data;
     this.state = {
       dialogueId: data.id,
-      currentNodeId: data.startNodeId,
+      currentNodeId: startNodeId ?? data.startNodeId,
       history: [],
     };
   }
