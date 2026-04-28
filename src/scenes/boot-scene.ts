@@ -17,7 +17,7 @@ export class BootScene extends Scene {
     // === Player ===
     this.load.image('player_idle', 'assets/images/characters/player/player_idle.png');
     this.load.image('player_portrait', 'assets/images/characters/player/player_portrait.png');
-    this.load.spritesheet('player_walk', 'assets/images/characters/player/player_walk.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet('player_walk', 'assets/images/characters/player/player_walk.png', { frameWidth: 512, frameHeight: 512 });
 
     // === NPCs (overworld sprites reuse portraits, scaled in-game) ===
     this.load.image('npc_master', 'assets/images/characters/npcs/npc_master_portrait.png');
@@ -82,6 +82,19 @@ export class BootScene extends Scene {
     canvas.style.imageRendering = 'pixelated';
 
     this.scale.on('resize', this.onResize, this);
+
+    // Validate player_walk texture dimensions
+    const playerWalkTexture = this.textures.get('player_walk');
+    if (playerWalkTexture) {
+      const source = playerWalkTexture.getSourceImage() as HTMLImageElement;
+      if (source) {
+        const w = source.width;
+        const h = source.height;
+        if (w !== 1024 || h !== 1024) {
+          console.warn(`[BootScene] player_walk.png is ${w}x${h}, expected 1024x1024. Walk animation may be broken.`);
+        }
+      }
+    }
 
     this.cameras.main.fadeOut(500, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
