@@ -75,6 +75,7 @@ export class BattleScene extends Scene {
   private confirmKey!: Phaser.Input.Keyboard.Key;
   private cancelKey!: Phaser.Input.Keyboard.Key;
   private returnScene = 'OverworldScene';
+  private currentBattleGroupId = '';
   private audioSystem!: AudioSystem;
   private touchOverlay?: Phaser.GameObjects.Container;
   private controlHint?: Phaser.GameObjects.Text;
@@ -88,6 +89,7 @@ export class BattleScene extends Scene {
 
   create(data: BattleSceneData): void {
     this.returnScene = data.returnScene ?? 'OverworldScene';
+    this.currentBattleGroupId = data.battleGroupId;
     this.cameras.main.fadeIn(300, 0, 0, 0);
 
     const group = battleGroupsData.find((g) => g.id === data.battleGroupId);
@@ -918,13 +920,24 @@ export class BattleScene extends Scene {
       this.addLog('战斗失败……');
     }
 
+    const group = battleGroupsData.find((g) => g.id === this.currentBattleGroupId);
+    const isStoryBattle = (group as { type?: string })?.type === 'story';
+    const returnMapId = (group as { returnMapId?: string })?.returnMapId;
+
     this.time.delayedCall(1500, () => {
-      if (result === 'defeat') {
+      if (result === 'defeat' && !isStoryBattle) {
         this.scene.start('GameOverScene', { returnScene: this.returnScene });
       } else {
         this.cameras.main.fadeOut(500, 0, 0, 0);
         this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-          this.scene.start(this.returnScene);
+          this.scene.start(this.returnScene, {
+            mapId: returnMapId,
+            battleResult: {
+              battleGroupId: group?.id ?? '',
+              result: result === 'victory' ? 'victory' : 'defeat',
+              rewards,
+            },
+          });
         });
       }
     });
