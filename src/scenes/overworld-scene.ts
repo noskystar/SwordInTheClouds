@@ -127,9 +127,9 @@ export class OverworldScene extends Scene {
       () => this.worldSystem.getAreaData(this.currentMapId)?.name ?? this.currentMapId,
     );
 
-    this.touchControls = new TouchControls(this, {
+    this.touchControls = TouchControls.createIfTouch(this, {
       onInteract: () => {
-        this.touchInteractWasDown = false;
+        this.touchInteractWasDown = true;
         this.checkInteractions();
       },
       onBattle: () => this.checkBattleTrigger(),
