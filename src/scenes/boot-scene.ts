@@ -27,8 +27,8 @@ export class BootScene extends Scene {
     this.load.image('npc_junior_sister', 'assets/images/characters/npcs/npc_junior_sister_portrait.png');
     this.load.image('npc_spirit_pet', 'assets/images/characters/npcs/npc_spirit_pet_portrait.png');
     // Walk cycle spritesheets
-    this.load.spritesheet('npc_master_walk', 'assets/images/characters/npcs/walk/npc_master_walk.png', { frameWidth: 16, frameHeight: 16 });
-    this.load.spritesheet('npc_junior_sister_walk', 'assets/images/characters/npcs/walk/npc_junior_sister_walk.png', { frameWidth: 16, frameHeight: 16 });
+    this.load.spritesheet('npc_master_walk', 'assets/images/characters/npcs/walk/npc_master_walk.png', { frameWidth: 512, frameHeight: 512 });
+    this.load.spritesheet('npc_junior_sister_walk', 'assets/images/characters/npcs/walk/npc_junior_sister_walk.png', { frameWidth: 512, frameHeight: 512 });
 
     // === NPC Portraits (for dialogue panels) ===
     this.load.image('npc_master_portrait', 'assets/images/characters/npcs/npc_master_portrait.png');
