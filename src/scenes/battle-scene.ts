@@ -17,6 +17,7 @@ interface BattleSceneData {
 
 interface EntityDisplay {
   container: Phaser.GameObjects.Container;
+  backplate: Phaser.GameObjects.Rectangle;
   sprite: Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image;
   nameText: Phaser.GameObjects.Text;
   hpBar: Phaser.GameObjects.Rectangle;
@@ -251,6 +252,11 @@ export class BattleScene extends Scene {
   private createEntityDisplay(entity: BattleEntity, x: number, y: number): void {
     const container = this.add.container(x, y);
 
+    // Entity backplate
+    const backplate = this.add.rectangle(0, 8, 52, 56, 0x1a1a2e, 0.7);
+    backplate.setStrokeStyle(1, 0x4a4a6a, 0.5);
+    backplate.setDepth(-1);
+
     // Try to use a sprite image, fall back to colored rectangle
     let sprite: Phaser.GameObjects.Image | Phaser.GameObjects.Rectangle;
     const lookupId = entity.isPlayer ? null : (entity.originalEnemyId ?? entity.id);
@@ -294,10 +300,11 @@ export class BattleScene extends Scene {
     }));
     hpText.setOrigin(0.5);
 
-    container.add([sprite, nameText, elementText, hpBarBg, hpBar, mpBarBg, mpBar, atbBarBg, atbBar, hpText]);
+    container.add([backplate, sprite, nameText, elementText, hpBarBg, hpBar, mpBarBg, mpBar, atbBarBg, atbBar, hpText]);
 
     const display: EntityDisplay = {
       container,
+      backplate,
       sprite,
       nameText,
       hpBar,
@@ -776,8 +783,17 @@ export class BattleScene extends Scene {
   }
 
   private updateTargetSelection(): void {
+    const aliveEnemies = this.battleSystem.getAliveEnemies();
     for (let i = 0; i < this.targetArrows.length; i++) {
       this.targetArrows[i].setVisible(i === this.selectedTargetIndex);
+    }
+    // Highlight selected enemy backplate
+    for (const enemy of aliveEnemies) {
+      const display = this.entityDisplays.get(enemy.id);
+      if (display) {
+        const isSelected = aliveEnemies.indexOf(enemy) === this.selectedTargetIndex;
+        display.backplate.setStrokeStyle(isSelected ? 2 : 1, isSelected ? 0xffdd00 : 0x4a4a6a, isSelected ? 0.8 : 0.5);
+      }
     }
   }
 
