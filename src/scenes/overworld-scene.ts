@@ -26,8 +26,14 @@ import meditationRoomMap from '../data/maps/meditation_room.json';
 import backMountainMap from '../data/maps/back_mountain.json';
 
 interface SceneTransitionData {
+  mapId?: string;
   playerX?: number;
   playerY?: number;
+  battleResult?: {
+    battleGroupId: string;
+    result: 'victory' | 'defeat';
+    rewards?: { exp: number; drops: { itemId: string; quantity: number }[] };
+  };
 }
 
 export class OverworldScene extends Scene {
@@ -100,6 +106,9 @@ export class OverworldScene extends Scene {
     this.worldSystem.unlockArea('gate');
 
     this.mapLoader = new MapLoader(this);
+    const saved = this.saveSystem.load();
+    const targetMapId = data?.mapId ?? saved?.player?.position?.scene ?? this.currentMapId;
+    this.currentMapId = targetMapId;
     this.loadMap(this.currentMapId, data?.playerX, data?.playerY);
     this.setupDayNightOverlay();
     this.setupFogOverlay();
@@ -498,7 +507,7 @@ export class OverworldScene extends Scene {
   private transitionToScene(sceneKey: string, x: number, y: number): void {
     this.cameras.main.fadeOut(300, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(sceneKey, { playerX: x, playerY: y } as SceneTransitionData);
+      this.scene.start(sceneKey, { mapId: this.currentMapId, playerX: x, playerY: y } as SceneTransitionData);
     });
   }
 
