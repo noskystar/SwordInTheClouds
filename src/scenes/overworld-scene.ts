@@ -597,6 +597,11 @@ export class OverworldScene extends Scene {
     // Touch button: fire immediately without debounce
     if (this.touchInteractWasDown) {
       this.touchInteractWasDown = false;
+      // Close simple dialogue on touch interact if open
+      if (this.isDialogueOpen && !this.dialoguePanel?.isVisible()) {
+        this.closeDialogue();
+        return;
+      }
       for (const npc of this.npcs) {
         const distance = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
         if (distance < 32 && this.isPlayerNearby(npc)) {
