@@ -85,6 +85,23 @@
     "color": 13421772
   },
   {
+    "id": "xiaohan_sword_clone",
+    "name": "萧寒剑意分身",
+    "level": 5,
+    "maxHp": 150,
+    "maxMp": 50,
+    "attack": 25,
+    "defense": 12,
+    "speed": 80,
+    "element": "metal",
+    "expReward": 100,
+    "dropItems": [
+      { "itemId": "basic_sword_manual", "chance": 1.0, "minQuantity": 1, "maxQuantity": 1 }
+    ],
+    "skills": ["slash_metal", "sword_intent_gather"],
+    "color": 10066329
+  },
+  {
     "id": "dark_spy",
     "name": "魔道探子",
     "level": 4,

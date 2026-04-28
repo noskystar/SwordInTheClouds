@@ -46,5 +46,13 @@
     "name": "腐化之源",
     "enemies": ["corrupted_spirit", "dark_spy"],
     "backgroundColor": 1315860
+  },
+  {
+    "id": "ch1_boss_xiaohan_clone",
+    "name": "大师兄的试炼",
+    "enemies": ["xiaohan_sword_clone"],
+    "backgroundColor": 1973790,
+    "type": "story",
+    "returnMapId": "back_mountain"
   }
 ]
