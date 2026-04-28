@@ -111,53 +111,66 @@ export class DialoguePanel {
     const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
     const hintFontSize = Math.max(8, Math.round(height * HINT_FONT_RATIO));
 
-    // Use a reference height for consistent padding ratios
     const refH = Math.round(height * 0.40);
     const innerPad = Math.max(4, Math.round(refH * 0.04));
     const gapNameBody = Math.max(3, Math.round(refH * 0.03));
     const gapBodyOptions = Math.max(6, Math.round(refH * 0.06));
     const bottomPad = Math.max(4, Math.round(refH * 0.05));
 
-    // Measure text height at the target width
+    const maxH = Math.round(height * 0.55);
+    const minH = Math.round(height * 0.22);
+
+    const optionAreaH = options.length > 0
+      ? options.length * optionLineHeight + bottomPad
+      : hintFontSize + Math.round(refH * 0.03) + bottomPad;
+
+    // Max text height if panel were fully expanded
+    const maxTextH = maxH - innerPad - nameFontSize - gapNameBody - gapBodyOptions - optionAreaH;
+
+    // Try shrinking font until text fits inside maxTextH
     const textBlockW = sz(panelW - innerPad * 2);
-    const tempText = this.scene.add.text(0, 0, text, uiTextStyle({
-      fontSize: bodyFontSize + 'px',
+    let bestFont = bodyFontSize;
+    let bestTextH = 0;
+
+    for (let trySize = bodyFontSize; trySize >= 7; trySize--) {
+      const temp = this.scene.add.text(0, 0, text, uiTextStyle({
+        fontSize: trySize + 'px',
+        color: '#eeeeee',
+        fixedWidth: textBlockW,
+        wordWrap: { width: textBlockW, useAdvancedWrap: true },
+        lineSpacing: Math.max(2, Math.round(trySize * 0.3)),
+        padding: { x: 0, y: 0 },
+      }));
+      const h = temp.height * zoom;
+      temp.destroy();
+
+      if (h <= maxTextH || trySize === 7) {
+        bestFont = trySize;
+        bestTextH = h;
+        break;
+      }
+    }
+
+    // Apply the chosen font size to bodyText
+    this.bodyText.setStyle(uiTextStyle({
+      fontSize: bestFont + 'px',
       color: '#eeeeee',
       fixedWidth: textBlockW,
       wordWrap: { width: textBlockW, useAdvancedWrap: true },
-      lineSpacing: Math.max(3, Math.round(bodyFontSize * 0.35)),
+      lineSpacing: Math.max(2, Math.round(bestFont * 0.3)),
       padding: { x: 0, y: 0 },
     }));
-    const textWorldHeight = tempText.height;
-    const textScreenHeight = textWorldHeight * zoom;
-    tempText.destroy();
 
-    // Compute required panel height
-    let requiredH = innerPad + nameFontSize + gapNameBody + textScreenHeight + gapBodyOptions;
-    if (options.length > 0) {
-      requiredH += options.length * optionLineHeight + bottomPad;
-    } else {
-      requiredH += hintFontSize + Math.round(refH * 0.03) + bottomPad;
-    }
-
-    const maxH = Math.round(height * 0.55);
-    const minH = Math.round(height * 0.22);
+    // Compute final panel height from actual text height
+    const requiredH = innerPad + nameFontSize + gapNameBody + bestTextH + gapBodyOptions + optionAreaH;
     const panelH = Math.max(minH, Math.min(requiredH, maxH));
     const panelY = height - panelH - panelMargin;
 
     const nameY = panelY + innerPad;
     const bodyY = nameY + nameFontSize + gapNameBody;
-
-    // Option start Y (clamp text area if it exceeds available space)
-    const optionAreaH = options.length > 0
-      ? options.length * optionLineHeight + bottomPad
-      : hintFontSize + Math.round(refH * 0.03) + bottomPad;
-    const availableTextH = panelH - innerPad - nameFontSize - gapNameBody - gapBodyOptions - optionAreaH;
-    const actualTextScreenH = Math.min(textScreenHeight, Math.max(availableTextH, bodyFontSize));
-    const optionStartY = bodyY + actualTextScreenH + gapBodyOptions;
+    const optionStartY = bodyY + bestTextH + gapBodyOptions;
     const hintY = panelY + panelH - hintFontSize - Math.round(panelH * 0.03);
 
-    // Apply to stored layout
     this.layout = {
       panelScreenX: panelX,
       panelScreenY: panelY,
@@ -169,32 +182,23 @@ export class DialoguePanel {
       hintScreenY: hintY,
     };
 
-    // Position helpers: zoom compensation anchored at camera center
-    const toWorldX = (screenX: number) =>
-      this.scene.cameras.main.centerX + (screenX - this.scene.cameras.main.centerX) / zoom;
-    const toWorldY = (screenY: number) =>
-      this.scene.cameras.main.centerY + (screenY - this.scene.cameras.main.centerY) / zoom;
+    const camera = this.scene.cameras.main;
+    const toWorldX = (sx: number) => camera.centerX + (sx - camera.centerX) / zoom;
+    const toWorldY = (sy: number) => camera.centerY + (sy - camera.centerY) / zoom;
 
-    // Update background
-    this.bg.setPosition(
-      toWorldX(panelX + panelW / 2),
-      toWorldY(panelY + panelH / 2),
-    );
+    this.bg.setPosition(toWorldX(panelX + panelW / 2), toWorldY(panelY + panelH / 2));
     if (this.bg instanceof Phaser.GameObjects.Rectangle) {
       this.bg.setSize(sz(panelW), sz(panelH));
     } else {
       this.bg.setDisplaySize(sz(panelW), sz(panelH));
     }
 
-    // Update text positions
     this.nameText.setPosition(toWorldX(panelX + innerPad), toWorldY(nameY));
     this.bodyText.setPosition(toWorldX(panelX + innerPad), toWorldY(bodyY));
     this.continueHint.setPosition(toWorldX(panelX + panelW - innerPad), toWorldY(hintY));
 
-    // Crop body text to stay inside the panel bounds
-    const cropW = sz(panelW - innerPad * 2);
-    const cropH = sz(actualTextScreenH);
-    this.bodyText.setCrop(0, 0, Math.max(1, cropW), Math.max(1, cropH));
+    // Remove any previous crop since text now fits
+    this.bodyText.setCrop();
   }
 
   isVisible(): boolean {
