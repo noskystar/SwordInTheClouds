@@ -694,20 +694,26 @@ export class OverworldScene extends Scene {
       case 'set_flag': {
         const flagEff = eff as unknown as { flag: string; value: boolean | number | string };
         this.storyFlags.set(flagEff.flag, flagEff.value);
+        this.dialogueSystem?.updateContext({ flags: Object.fromEntries(this.storyFlags) });
         break;
       }
       case 'change_affinity': {
         const affEff = eff as unknown as { npcId: string; delta: number };
         const current = this.storyAffinity.get(affEff.npcId) ?? 0;
         this.storyAffinity.set(affEff.npcId, current + affEff.delta);
+        this.dialogueSystem?.updateContext({ affinity: Object.fromEntries(this.storyAffinity) });
         break;
       }
-      case 'change_morality':
+      case 'change_morality': {
         this.storyMorality += (eff as unknown as { delta: number }).delta;
+        this.dialogueSystem?.updateContext({ morality: this.storyMorality });
         break;
-      case 'change_sword_heart':
+      }
+      case 'change_sword_heart': {
         this.storySwordHeart += (eff as unknown as { delta: number }).delta;
+        this.dialogueSystem?.updateContext({ swordHeart: this.storySwordHeart });
         break;
+      }
       case 'add_item': {
         const addEff = eff as unknown as { itemId: string; quantity: number };
         this.inventorySystem.addItem(addEff.itemId, addEff.quantity);
