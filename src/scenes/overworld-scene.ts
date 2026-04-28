@@ -3,7 +3,6 @@ import { Player } from '../entities/player';
 import { NPC, type NPCConfig } from '../entities/npc';
 import { DialogueSystem } from '../systems/dialogue-system';
 import { DialoguePanel } from '../ui/dialogue-panel';
-import demoDialogueData from '../data/dialogues/demo-dialogue.json';
 import chapter1Dialogue from '../data/dialogues/chapter1.json';
 import type { DialogueData } from '../types/dialogue';
 import type { PlayerBattleStats } from '../systems/battle-system';
@@ -34,6 +33,16 @@ interface SceneTransitionData {
     result: 'victory' | 'defeat';
     rewards?: { exp: number; drops: { itemId: string; quantity: number }[] };
   };
+}
+
+interface StoryTrigger {
+  id: string;
+  sceneId: string;
+  objectId?: string;
+  zone?: { x: number; y: number; w: number; h: number };
+  requiredFlags: Record<string, boolean>;
+  blockedFlags?: string[];
+  dialogueNodeId: string;
 }
 
 export class OverworldScene extends Scene {
@@ -85,6 +94,10 @@ export class OverworldScene extends Scene {
       this.storyMorality = saved.story.morality ?? 0;
       this.storySwordHeart = saved.story.swordHeart ?? 0;
     }
+    // 处理战斗返回
+    if (data?.battleResult) {
+      this.onBattleReturn(data.battleResult);
+    }
     this.dayNightSystem = new DayNightSystem(360);
     this.questSystem = new QuestSystem(questsData as import('../types/quest').QuestData[]);
     this.worldSystem = new WorldSystem([
@@ -123,7 +136,7 @@ export class OverworldScene extends Scene {
     this.setupDayNightOverlay();
     this.setupFogOverlay();
     this.createPlayer(data?.playerX, data?.playerY);
-    this.createNPCs();
+    this.createNPCsForMap(this.currentMapId);
     this.setupCamera();
     this.setupCollisions();
     this.setupHUD();
@@ -302,40 +315,33 @@ export class OverworldScene extends Scene {
     this.player.setDepth(2);
   }
 
-  private createNPCs(): void {
-    const npcConfigs: NPCConfig[] = [
-      {
-        id: 'elder',
-        name: '长老',
-        x: 200,
-        y: 120,
-        texture: 'npc_master',
-        dialogueId: 'demo-elder',
-      },
-      {
-        id: 'disciple',
-        name: '弟子',
-        x: 400,
-        y: 200,
-        texture: 'npc_junior_sister',
-        dialogues: ['听说大师兄最近行为有些奇怪……'],
-      },
-    ];
+  private createNPCsForMap(mapId: string): void {
+    const npcConfigsByMap: Record<string, NPCConfig[]> = {
+      gate: [
+        { id: 'yunshen', name: '云深子', x: 160, y: 100, texture: 'npc_master' },
+        { id: 'gate_guard', name: '守门弟子', x: 280, y: 120, texture: 'npc_disciple' },
+      ],
+      main_hall: [
+        { id: 'xiaohan', name: '萧寒', x: 200, y: 110, texture: 'npc_xiaohan' },
+        { id: 'hongxiao', name: '红绡', x: 360, y: 110, texture: 'npc_hongxiao' },
+      ],
+      disciples_housing: [
+        { id: 'moyan', name: '墨言', x: 120, y: 100, texture: 'npc_moyan' },
+        { id: 'baizhi', name: '白芷', x: 280, y: 120, texture: 'npc_baizhi' },
+        { id: 'chen_meimei', name: '陈师妹', x: 400, y: 140, texture: 'npc_junior_sister' },
+        { id: 'li_shixiong', name: '李师兄', x: 80, y: 160, texture: 'npc_disciple' },
+      ],
+      back_mountain: [
+        { id: 'xuetuan', name: '雪团', x: 120, y: 200, texture: 'npc_xuetuan' },
+        { id: 'xiaohan_deep', name: '萧寒', x: 560, y: 120, texture: 'npc_xiaohan' },
+      ],
+    };
 
-    for (const config of npcConfigs) {
+    const configs = npcConfigsByMap[mapId] ?? [];
+    for (const config of configs) {
       const npc = new NPC(this, config);
       npc.setDepth(2);
-
-      npc.onInteract(() => {
-        if (config.id === 'elder') {
-          this.startDialogue(chapter1Dialogue as DialogueData);
-        } else if (config.dialogueId) {
-          this.startDialogue(demoDialogueData as DialogueData);
-        } else if (config.dialogues && config.dialogues.length > 0) {
-          this.showDialogue(npc.getNPCName(), config.dialogues[0]);
-        }
-      });
-
+      npc.onInteract(() => this.onNPCInteract(config.id));
       this.npcs.push(npc);
     }
   }
@@ -370,6 +376,8 @@ export class OverworldScene extends Scene {
     this.children.list
       .filter((child) => child.name === 'map-object' || child.name === 'ground-tile')
       .forEach((child) => child.destroy());
+    this.npcs.forEach((npc) => npc.destroy());
+    this.npcs = [];
 
     const mapModules: Record<string, MapData> = {
       gate: gateMap as MapData,
@@ -394,6 +402,8 @@ export class OverworldScene extends Scene {
       }
 
       this.mapLoader.createVisualObjects(this.mapObjects);
+      this.createNPCsForMap(this.currentMapId);
+      this.checkStoryTriggers();
 
       if (playerX === undefined || playerY === undefined) {
         this.playerSpawnX = loaded.spawnPoint.x;
@@ -471,6 +481,11 @@ export class OverworldScene extends Scene {
         this.autoSave();
         this.currentMapId = obj.target;
         this.transitionToScene('OverworldScene', obj.targetX, obj.targetY);
+        return;
+      }
+
+      if (obj.type === 'story_trigger' && obj.id) {
+        this.checkStoryTriggers(obj.id);
         return;
       }
 
@@ -686,6 +701,119 @@ export class OverworldScene extends Scene {
     const evt = e as { scene: string; x: number; y: number };
     this.transitionToScene(evt.scene, evt.x, evt.y);
   };
+
+  private readonly storyTriggers: StoryTrigger[] = [
+    { id: 'c1_gate_opening', sceneId: 'gate', requiredFlags: {}, blockedFlags: ['triggered_c1_gate_opening', 'chapter1_complete'], dialogueNodeId: 'reincarnation' },
+    { id: 'c1_hall_ceremony', sceneId: 'main_hall', requiredFlags: { has_token: true }, blockedFlags: ['triggered_c1_hall_ceremony', 'chapter1_complete'], dialogueNodeId: 'main_hall_entry' },
+    { id: 'c1_housing_seniors', sceneId: 'disciples_housing', requiredFlags: { met_hongxiao: true }, blockedFlags: ['triggered_c1_housing_seniors', 'chapter1_complete'], dialogueNodeId: 'housing_entry' },
+    { id: 'c1_meditation_first', sceneId: 'meditation_room', requiredFlags: { knows_rules: true }, blockedFlags: ['triggered_c1_meditation_first', 'chapter1_complete'], dialogueNodeId: 'meditation_first' },
+    { id: 'c1_mountain_xuetuan', sceneId: 'back_mountain', requiredFlags: { met_moyan: true }, blockedFlags: ['triggered_c1_mountain_xuetuan', 'chapter1_complete'], dialogueNodeId: 'mountain_entry' },
+    { id: 'c1_dantang_residue', sceneId: 'back_mountain', objectId: 'story_dantang_residue', requiredFlags: { met_xuetuan: true }, blockedFlags: ['triggered_c1_dantang_residue', 'chapter1_complete'], dialogueNodeId: 'dantang_residue' },
+    { id: 'c1_xiaohan_forbidden', sceneId: 'back_mountain', objectId: 'story_xiaohan_forbidden', requiredFlags: { investigating_hongxiao: true }, blockedFlags: ['triggered_c1_xiaohan_forbidden', 'chapter1_complete'], dialogueNodeId: 'xiaohan_practicing' },
+    { id: 'c1_housing_ending', sceneId: 'disciples_housing', requiredFlags: { boss_done: true }, blockedFlags: ['triggered_c1_housing_ending', 'chapter1_complete'], dialogueNodeId: 'return_housing' },
+  ];
+
+  private checkStoryTriggers(objectId?: string): void {
+    if (this.isDialogueOpen) return;
+
+    for (const trigger of this.storyTriggers) {
+      if (trigger.sceneId !== this.currentMapId) continue;
+      if (objectId && trigger.objectId !== objectId) continue;
+      if (!objectId && trigger.objectId) continue;
+
+      const blocked = trigger.blockedFlags ?? [];
+      if (blocked.some((f) => this.storyFlags.get(f) === true)) continue;
+
+      const required = Object.entries(trigger.requiredFlags);
+      if (required.some(([flag, val]) => this.storyFlags.get(flag) !== val)) continue;
+
+      // Trigger matched
+      this.storyFlags.set(`triggered_${trigger.id}`, true);
+      this.autoSave();
+      this.startDialogue(chapter1Dialogue as DialogueData, trigger.dialogueNodeId);
+      return; // Only trigger one at a time
+    }
+  }
+
+  private resolveNPCDialogueNode(npcId: string): string | null {
+    const flags = this.storyFlags;
+    switch (npcId) {
+      case 'xiaohan':
+        if (flags.get('met_hongxiao') === true && flags.get('met_xiaohan') !== true) return 'meet_xiaohan_cold';
+        break;
+      case 'hongxiao':
+        if (flags.get('main_hall_entered') === true && flags.get('met_hongxiao') !== true) return 'meet_hongxiao_warm';
+        break;
+      case 'moyan':
+        if (flags.get('met_hongxiao') === true && flags.get('met_moyan') !== true) return 'meet_moyan_hint';
+        break;
+      case 'baizhi':
+        if (flags.get('met_moyan') === true && flags.get('met_baizhi') !== true) return 'meet_baizhi_clingy';
+        break;
+      case 'xuetuan':
+        if (flags.get('met_baizhi') === true && flags.get('met_xuetuan') !== true) return 'meet_xuetuan_talk';
+        break;
+      case 'li_shixiong':
+        if (flags.get('met_xuetuan') === true && flags.get('checked_missing_disciple') !== true) return 'disciple_missing';
+        break;
+      case 'xiaohan_deep':
+        if (flags.get('investigating_hongxiao') === true && flags.get('xiaohan_choice_made') !== true) return 'xiaohan_practicing';
+        break;
+    }
+    return null;
+  }
+
+  private onNPCInteract(npcId: string): void {
+    const nodeId = this.resolveNPCDialogueNode(npcId);
+    if (nodeId) {
+      this.startDialogue(chapter1Dialogue as DialogueData, nodeId);
+    } else {
+      const dailyLines: Record<string, string> = {
+        yunshen: '去吧，天剑宗的未来在你手中。',
+        gate_guard: '令牌在身，方可通行。',
+        xiaohan: '修炼不可懈怠。',
+        hongxiao: '师妹要不要尝尝我新炼的丹药？',
+        moyan: '……（他低头看着阵法书）',
+        baizhi: '师姐带你去逛后山吧~',
+        chen_meimei: '听说周铁柱好几天没出现了……',
+        li_shixiong: '外门弟子的事，少打听为妙。',
+        xuetuan: '凡人看不见我，你能看见，很有趣。',
+        xiaohan_deep: '……',
+      };
+      const nameMap: Record<string, string> = {
+        yunshen: '云深子',
+        gate_guard: '守门弟子',
+        xiaohan: '萧寒',
+        hongxiao: '红绡',
+        moyan: '墨言',
+        baizhi: '白芷',
+        chen_meimei: '陈师妹',
+        li_shixiong: '李师兄',
+        xuetuan: '雪团',
+        xiaohan_deep: '萧寒',
+      };
+      const text = dailyLines[npcId] ?? '……';
+      this.showDialogue(nameMap[npcId] ?? 'NPC', text);
+    }
+  }
+
+  private onBattleReturn(data: SceneTransitionData['battleResult']): void {
+    if (!data) return;
+    if (data.battleGroupId === 'ch1_boss_xiaohan_clone') {
+      if (data.result === 'victory') {
+        this.storyFlags.set('boss_won', true);
+      } else {
+        this.storyFlags.set('boss_lost', true);
+      }
+      this.storyFlags.set('boss_done', true);
+      this.autoSave();
+      // Post-battle dialogue handled by StoryTrigger c1_housing_ending when player returns to housing
+      // But if already in housing, trigger immediately
+      if (this.currentMapId === 'disciples_housing') {
+        this.checkStoryTriggers();
+      }
+    }
+  }
 
   private applyDialogueEffect = (evt: unknown): void => {
     const e = evt as { effect: { type: string; [k: string]: unknown }; [k: string]: unknown };

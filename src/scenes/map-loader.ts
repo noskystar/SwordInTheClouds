@@ -3,7 +3,7 @@ import { uiTextStyle } from '../ui/text-style';
 
 export interface MapObject {
   id: string;
-  type: 'teleport' | 'interactable' | 'encounter';
+  type: 'teleport' | 'interactable' | 'encounter' | 'story_trigger';
   x: number;
   y: number;
   w: number;
