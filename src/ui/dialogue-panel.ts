@@ -111,8 +111,8 @@ export class DialoguePanel {
     // Camera zoom compensation for fixed UI elements
     const camera = this.scene.cameras.main;
     const zoom = camera.zoom;
-    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
-    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+    const toWorldX = (screenX: number) => screenX / zoom;
+    const toWorldY = (screenY: number) => screenY / zoom;
     const sz = (v: number) => v / zoom;
 
     const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
@@ -273,8 +273,8 @@ export class DialoguePanel {
     const height = this.scene.cameras.main.height;
     const camera = this.scene.cameras.main;
     const zoom = camera.zoom;
-    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
-    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+    const toWorldX = (screenX: number) => screenX / zoom;
+    const toWorldY = (screenY: number) => screenY / zoom;
     const sz = (v: number) => v / zoom;
 
     const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
@@ -345,7 +345,7 @@ export class DialoguePanel {
       const height = this.scene.cameras.main.height;
       const camera = this.scene.cameras.main;
       const zoom = camera.zoom;
-      const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+      const toWorldY = (screenY: number) => screenY / zoom;
 
       const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
       const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
