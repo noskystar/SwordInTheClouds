@@ -29,6 +29,7 @@
 - **回合制战斗（ATB 变体）**：基于"身法"属性的速度条系统，支持普通攻击、剑诀（技能）、道具、防御、逃跑
 - **五行相克**：金木水火土属性克制关系，影响 ±30% 伤害
 - **连携系统**：特定角色组合触发合击技
+- **移动端触控适配**：虚拟摇杆 + 交互/战斗/菜单按键，仅在触摸设备自动启用
 
 ### 角色成长
 
@@ -116,13 +117,13 @@ SwordInTheClouds/
 │   ├── main.ts              # 应用入口
 │   ├── config.ts            # Phaser 游戏配置
 │   ├── scenes/              # 游戏场景
-│   │   ├── BootScene.ts     # 资源预加载
-│   │   ├── TitleScene.ts    # 标题画面
-│   │   ├── OverworldScene.ts # 大地图探索
-│   │   ├── BattleScene.ts   # 战斗场景
-│   │   ├── DialogueScene.ts # 剧情对话
-│   │   ├── UIScene.ts       # 共用 UI 层
-│   │   └── ...
+│   │   ├── boot-scene.ts    # 资源预加载 + 运行时纹理校验
+│   │   ├── title-scene.ts   # 标题画面（支持背景缺失回退）
+│   │   ├── overworld-scene.ts # 大地图探索（虚拟摇杆 + NPC 交互）
+│   │   ├── battle-scene.ts  # 战斗场景（圆角 HUD、日志、回合指示器）
+│   │   ├── dialogue-scene.ts # 剧情对话
+│   │   ├── gameover-scene.ts # 游戏结束
+│   │   └── ending-scene.ts  # 结局演出
 │   ├── entities/            # 游戏实体
 │   │   ├── Player.ts        # 玩家角色
 │   │   ├── NPC.ts           # 非玩家角色
@@ -141,10 +142,12 @@ SwordInTheClouds/
 │   │   ├── dialogues/       # 对话脚本
 │   │   └── quests/          # 任务定义
 │   ├── ui/                  # UI 组件
-│   │   ├── components/      # 可复用组件
-│   │   ├── panels/          # 面板（背包、状态等）
-│   │   └── hud/             # 战斗中 HUD
+│   │   ├── touch-controls.ts # 移动端虚拟摇杆与按键
+│   │   ├── dialogue-panel.ts # 对话面板
+│   │   ├── pause-menu.ts    # 暂停菜单
+│   │   └── text-style.ts    # 通用文字样式
 │   ├── utils/               # 工具函数
+│   │   └── device.ts        # 设备检测（触摸/桌面）
 │   └── types/               # TypeScript 类型定义
 ├── docs/                    # 项目文档
 ├── tests/                   # 测试文件
@@ -209,7 +212,7 @@ SwordInTheClouds/
 | Milestone 2：核心系统 | ✅ 已完成 | 对话系统、战斗系统（ATB）、连携技 |
 | Milestone 3：角色成长与物品 | ✅ 已完成 | 角色属性、境界、功法、剑心、物品栏、装备、合成 |
 | Milestone 4：世界与剧情 | ✅ 已完成 | 存档系统、昼夜循环、任务系统、第一章地图(5场景)、对话脚本(34节点)、多结局(5个) |
-| Milestone 5：UI与体验打磨 | 🔲 待开始 | 主菜单、HUD、触控适配 |
+| Milestone 5：UI与体验打磨 | 🔄 进行中 | 战斗 HUD（圆角血条/背板/日志/剑意/回合指示器）、标题背景回退、触控适配、行走动画修复 |
 | Milestone 6：测试与发布 | 🔲 待开始 | 单元测试、性能优化、部署 |
 
 ### 关键里程碑
@@ -222,7 +225,7 @@ SwordInTheClouds/
 
 | 指标 | 数值 |
 |------|------|
-| 总测试数 | 246+ |
+| 总测试数 | 148 |
 | 对话节点 | 34+ |
 | 地图数量 | 5 |
 | 结局数量 | 5（3主+2隐藏） |
