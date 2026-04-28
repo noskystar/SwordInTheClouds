@@ -337,9 +337,29 @@ export class BattleScene extends Scene {
     this.menuContainer.setDepth(10);
     this.menuContainer.setScrollFactor(0);
 
-    const bg = this.add.rectangle(0, 0, 140, 72, 0x000000, 0.85);
-    bg.setStrokeStyle(1, 0x888888);
-    this.menuContainer.add(bg);
+    const menuPanel = this.add.graphics();
+    menuPanel.fillStyle(0x0d0d1a, 0.92);
+    menuPanel.lineStyle(1, 0x4a4a6a, 0.8);
+    menuPanel.fillRoundedRect(-80, -40, 160, 88, 6);
+    menuPanel.strokeRoundedRect(-80, -40, 160, 88, 6);
+    this.menuContainer.add(menuPanel);
+
+    // Selection highlight bar
+    const highlightBar = this.add.rectangle(-58, -24, 152, 14, 0x2a3a5a, 0.6);
+    highlightBar.setOrigin(0, 0.5);
+    highlightBar.setVisible(false);
+    highlightBar.setName('menu-highlight');
+    this.menuContainer.add(highlightBar);
+
+    // Key hint text
+    const hintText = this.add.text(0, 42, '↑↓ 选择 · 空格 确认 · ESC 取消', uiTextStyle({
+      fontSize: '8px',
+      color: '#666666',
+      align: 'center',
+    }));
+    hintText.setOrigin(0.5);
+    hintText.setName('menu-hint');
+    this.menuContainer.add(hintText);
 
     for (let i = 0; i < MENU_OPTIONS.length; i++) {
       const text = this.add.text(-58, -24 + i * 16, MENU_OPTIONS[i], uiTextStyle({
@@ -656,9 +676,13 @@ export class BattleScene extends Scene {
     this.menuState = 'action';
     this.selectedMenuIndex = 0;
     this.menuContainer.setVisible(true);
+
+    const hintText = this.menuContainer.getByName('menu-hint') as Phaser.GameObjects.Text;
+    if (hintText) hintText.setVisible(true);
+
     this.menuItems.forEach((item, i) => {
       item.setText(MENU_OPTIONS[i]);
-      item.setColor('#aaaaaa');
+      item.setColor('#888888');
     });
     this.updateMenuSelection();
     this.showTouchOverlay();
@@ -676,15 +700,31 @@ export class BattleScene extends Scene {
 
   private updateMenuSelection(): void {
     const items = this.menuState === 'skill' ? this.skillList.length : MENU_OPTIONS.length;
-    for (let i = 0; i < items; i++) {
+    const highlightBar = this.menuContainer.getByName('menu-highlight') as Phaser.GameObjects.Rectangle;
+
+    for (let i = 0; i < this.menuItems.length; i++) {
       const text = this.menuItems[i];
+      if (i >= items) {
+        text.setVisible(false);
+        continue;
+      }
+      text.setVisible(true);
+
       if (i === this.selectedMenuIndex) {
         text.setColor('#ffffff');
-        text.setText('> ' + text.text.replace(/^> /, ''));
+        text.setText('▶ ' + text.text.replace(/^▶ /, ''));
+        if (highlightBar) {
+          highlightBar.setVisible(true);
+          highlightBar.setPosition(-76, -24 + i * 16);
+        }
       } else {
-        text.setColor('#aaaaaa');
-        text.setText(text.text.replace(/^> /, ''));
+        text.setColor('#888888');
+        text.setText(text.text.replace(/^▶ /, ''));
       }
+    }
+
+    if (highlightBar && this.selectedMenuIndex >= items) {
+      highlightBar.setVisible(false);
     }
   }
 
