@@ -190,6 +190,11 @@ export class DialoguePanel {
     this.nameText.setPosition(toWorldX(panelX + innerPad), toWorldY(nameY));
     this.bodyText.setPosition(toWorldX(panelX + innerPad), toWorldY(bodyY));
     this.continueHint.setPosition(toWorldX(panelX + panelW - innerPad), toWorldY(hintY));
+
+    // Crop body text to stay inside the panel bounds
+    const cropW = sz(panelW - innerPad * 2);
+    const cropH = sz(actualTextScreenH);
+    this.bodyText.setCrop(0, 0, Math.max(1, cropW), Math.max(1, cropH));
   }
 
   isVisible(): boolean {
