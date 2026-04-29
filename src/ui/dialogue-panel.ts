@@ -6,7 +6,10 @@ type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
 const PANEL_MARGIN_RATIO = 0.015;     // panel bottom margin as % of screen height
-const PANEL_HEIGHT_RATIO = 0.40;      // panel height as % of screen height
+const PANEL_HEIGHT_RATIO = 0.24;      // panel height as % of screen height (reduced from 0.40)
+export const PANEL_WIDTH_RATIO = 0.84;   // panel width as % of screen width
+export const PANEL_MAX_HEIGHT = 100;     // cap panel height at 100px
+export const PANEL_MAX_WIDTH = 540;      // cap panel width at 540px
 const NAME_FONT_RATIO = 0.038;        // name text font as % of screen height (~14px @ 360h)
 const BODY_FONT_RATIO = 0.034;        // body text font as % of screen height (~12px @ 360h)
 const OPTION_FONT_RATIO = 0.034;      // option text font as % of screen height (~12px @ 360h)
