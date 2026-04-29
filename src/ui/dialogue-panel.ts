@@ -106,22 +106,24 @@ export class DialoguePanel {
     const sz = (v: number) => v / zoom;
 
     const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
-    const panelW = width - panelMargin * 2;
-    const panelX = panelMargin;
-
-    const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
-    const bodyFontSize = Math.max(9, Math.round(height * BODY_FONT_RATIO));
-    const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
-    const hintFontSize = Math.max(8, Math.round(height * HINT_FONT_RATIO));
-
-    const refH = Math.round(height * 0.40);
+    const panelHRaw = Math.round(height * PANEL_HEIGHT_RATIO);
+    const panelWRaw = Math.round(width * PANEL_WIDTH_RATIO);
+    const panelH = Math.min(panelHRaw, PANEL_MAX_HEIGHT);
+    const panelW = Math.min(panelWRaw, PANEL_MAX_WIDTH);
+    const panelX = Math.round((width - panelW) / 2);
+    const refH = panelH;
     const innerPad = Math.max(4, Math.round(refH * 0.04));
     const gapNameBody = Math.max(3, Math.round(refH * 0.03));
     const gapBodyOptions = Math.max(6, Math.round(refH * 0.06));
     const bottomPad = Math.max(4, Math.round(refH * 0.05));
 
-    const maxH = Math.round(height * 0.55);
-    const minH = Math.round(height * 0.22);
+    const maxH = panelH;
+    const minH = Math.round(height * 0.18);
+
+    const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
+    const bodyFontSize = Math.max(9, Math.round(height * BODY_FONT_RATIO));
+    const optionLineHeight = Math.max(12, Math.round(height * OPTION_LINE_RATIO));
+    const hintFontSize = Math.max(8, Math.round(height * HINT_FONT_RATIO));
 
     const optionAreaH = options.length > 0
       ? options.length * optionLineHeight + bottomPad
@@ -166,19 +168,19 @@ export class DialoguePanel {
 
     // Compute final panel height from actual text height
     const requiredH = innerPad + nameFontSize + gapNameBody + bestTextH + gapBodyOptions + optionAreaH;
-    const panelH = Math.max(minH, Math.min(requiredH, maxH));
-    const panelY = height - panelH - panelMargin;
+    const finalPanelH = Math.max(minH, Math.min(requiredH, maxH));
+    const finalPanelY = height - finalPanelH - panelMargin;
 
-    const nameY = panelY + innerPad;
+    const nameY = finalPanelY + innerPad;
     const bodyY = nameY + nameFontSize + gapNameBody;
     const optionStartY = bodyY + bestTextH + gapBodyOptions;
-    const hintY = panelY + panelH - hintFontSize - Math.round(panelH * 0.03);
+    const hintY = finalPanelY + finalPanelH - hintFontSize - Math.round(finalPanelH * 0.03);
 
     this.layout = {
       panelScreenX: panelX,
-      panelScreenY: panelY,
+      panelScreenY: finalPanelY,
       panelScreenW: panelW,
-      panelScreenH: panelH,
+      panelScreenH: finalPanelH,
       innerPad,
       bodyScreenY: bodyY,
       optionStartScreenY: optionStartY,
@@ -189,11 +191,11 @@ export class DialoguePanel {
     const toWorldX = (sx: number) => camera.centerX + (sx - camera.centerX) / zoom;
     const toWorldY = (sy: number) => camera.centerY + (sy - camera.centerY) / zoom;
 
-    this.bg.setPosition(toWorldX(panelX + panelW / 2), toWorldY(panelY + panelH / 2));
+    this.bg.setPosition(toWorldX(panelX + panelW / 2), toWorldY(finalPanelY + finalPanelH / 2));
     if (this.bg instanceof Phaser.GameObjects.Rectangle) {
-      this.bg.setSize(sz(panelW), sz(panelH));
+      this.bg.setSize(sz(panelW), sz(finalPanelH));
     } else {
-      this.bg.setDisplaySize(sz(panelW), sz(panelH));
+      this.bg.setDisplaySize(sz(panelW), sz(finalPanelH));
     }
 
     this.nameText.setPosition(toWorldX(panelX + innerPad), toWorldY(nameY));
