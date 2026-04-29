@@ -75,6 +75,10 @@ export class OverworldScene extends Scene {
   private storyMorality = 0;
   private storySwordHeart = 0;
 
+  // Teleport zone state machine
+  private teleportZones = new Map<string, { status: 'available' | 'locked' | 'conditional'; hint?: string }>();
+  private loadedMapIds = new Set<string>();
+
   private readonly MAP_NAMES: Record<string, string> = {
     gate: '天剑宗山门',
     main_hall: '天剑殿',
@@ -139,6 +143,12 @@ export class OverworldScene extends Scene {
       },
     ]);
     this.worldSystem.unlockArea('gate');
+
+    // Initialize known maps
+    this.loadedMapIds.add('gate');
+    this.loadedMapIds.add('main_hall');
+    this.loadedMapIds.add('disciples_housing');
+    this.loadedMapIds.add('back_mountain');
 
     this.mapLoader = new MapLoader(this);
     const targetMapId = data?.mapId ?? saved?.player?.position?.scene ?? this.currentMapId;
@@ -431,6 +441,7 @@ export class OverworldScene extends Scene {
     const mapData = mapModules[mapId];
     if (mapData) {
       this.currentMapId = mapId;
+      this.loadedMapIds.add(mapId);
 
       const loaded = this.mapLoader.loadMap(mapData);
       this.obstacles = loaded.obstacles;
@@ -445,6 +456,31 @@ export class OverworldScene extends Scene {
       this.mapLoader.createVisualObjects(this.mapObjects);
       this.createNPCsForMap(this.currentMapId);
       this.checkStoryTriggers();
+
+      // Apply teleport zone status and visual feedback
+      this.teleportZones.clear();
+      for (const obj of this.mapObjects) {
+        if (obj.type === 'teleport') {
+          const zoneState = this.resolveTeleportStatus(obj);
+          const zoneKey = obj.id || `${obj.x}-${obj.y}`;
+          this.teleportZones.set(zoneKey, zoneState);
+
+          // Find and tint the portal visuals
+          const cx = obj.x + obj.w / 2;
+          const cy = obj.y + obj.h / 2;
+          const diamonds = this.children.list.filter(
+            (c) => c.name === 'teleport-visual' && Math.abs((c as any).x - cx) < 1 && Math.abs((c as any).y - (cy - 4)) < 1
+          );
+          for (const d of diamonds) {
+            if (zoneState.status === 'locked') {
+              (d as any).setTint(0x888888);
+              (d as any).setAlpha(0.5);
+            } else if (zoneState.status === 'conditional') {
+              (d as any).setTint(0xffaa44);
+            }
+          }
+        }
+      }
 
       // Create teleport destination hints
       for (const obj of this.mapObjects) {
@@ -803,6 +839,28 @@ export class OverworldScene extends Scene {
     { id: 'c1_housing_ending', sceneId: 'disciples_housing', requiredFlags: { boss_done: true }, blockedFlags: ['triggered_c1_housing_ending', 'chapter1_complete'], dialogueNodeId: 'return_housing' },
     { id: 'ch2_yunlai_arrival', sceneId: 'yunlai_town', requiredFlags: { chapter1_complete: true }, blockedFlags: ['triggered_ch2_yunlai'], dialogueNodeId: 'ch2_yunlai_arrival' },
   ];
+
+  private resolveTeleportStatus(obj: MapObject): { status: 'available' | 'locked' | 'conditional'; hint?: string } {
+    // 1. Explicitly locked
+    if ((obj as any).locked === true) {
+      return { status: 'locked', hint: '禁制未解，不可擅入' };
+    }
+
+    // 2. Target map not loaded
+    const target = (obj as any).target as string;
+    if (target && !this.loadedMapIds.has(target)) {
+      return { status: 'locked', hint: '此方天地尚未开启' };
+    }
+
+    // 3. Condition exists (for now always show as conditional)
+    const condition = (obj as any).condition as { type: string; hint: string; itemId?: string; flag?: string } | undefined;
+    if (condition && condition.type !== 'none') {
+      return { status: 'conditional', hint: condition.hint || '灵气阻隔，难以逾越' };
+    }
+
+    // 4. Available
+    return { status: 'available' };
+  }
 
   private checkStoryTriggers(objectId?: string): void {
     if (this.isDialogueOpen) return;
