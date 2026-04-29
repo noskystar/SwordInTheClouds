@@ -75,6 +75,17 @@ export class OverworldScene extends Scene {
   private storyMorality = 0;
   private storySwordHeart = 0;
 
+  private readonly MAP_NAMES: Record<string, string> = {
+    gate: '天剑宗山门',
+    main_hall: '天剑殿',
+    disciples_housing: '弟子居所',
+    meditation_room: '静心阁',
+    back_mountain: '后山',
+    yunlai_town: '云来镇',
+    library: '万卷楼',
+  };
+  private teleportHints: { text: Phaser.GameObjects.Text; cx: number; cy: number }[] = [];
+
   constructor() {
     super({ key: 'OverworldScene' });
   }
@@ -145,7 +156,6 @@ export class OverworldScene extends Scene {
     this.bKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B);
     this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
     this.escKey.on('down', () => this.pauseMenu.toggle());
-    this.eKey.on('down', () => this.advanceDialogueFromKey());
 
     this.inventorySystem = new InventorySystem(itemsData as import('../types/inventory').ItemData[]);
     this.settingsSystem = new SettingsSystem();
@@ -207,6 +217,7 @@ export class OverworldScene extends Scene {
     this.checkNPCProximity();
     this.checkInteractions();
     this.checkBattleTrigger();
+    this.updateTeleportHints();
     this.eKeyWasDown = this.eKey.isDown;
     this.bKeyWasDown = this.bKey.isDown;
   }
@@ -402,10 +413,11 @@ export class OverworldScene extends Scene {
 
   private loadMap(mapId: string, playerX?: number, playerY?: number): void {
     this.children.list
-      .filter((child) => child.name === 'map-object' || child.name === 'ground-tile')
+      .filter((child) => child.name === 'map-object' || child.name === 'ground-tile' || child.name === 'teleport-hint')
       .forEach((child) => child.destroy());
     this.npcs.forEach((npc) => npc.destroy());
     this.npcs = [];
+    this.teleportHints = [];
 
     const mapModules: Record<string, MapData> = {
       gate: gateMap as MapData,
@@ -434,6 +446,33 @@ export class OverworldScene extends Scene {
       this.mapLoader.createVisualObjects(this.mapObjects);
       this.createNPCsForMap(this.currentMapId);
       this.checkStoryTriggers();
+
+      // Create teleport destination hints
+      for (const obj of this.mapObjects) {
+        if (obj.type === 'teleport' && obj.target) {
+          const cx = obj.x + obj.w / 2;
+          const cy = obj.y + obj.h / 2;
+          const targetName = this.MAP_NAMES[obj.target] ?? obj.target;
+
+          const hintText = this.add.text(
+            cx,
+            cy - 20,
+            `→ ${targetName}`,
+            uiTextStyle({
+              fontSize: '14px',
+              color: '#88ccff',
+              stroke: '#000000',
+              strokeThickness: 2,
+            })
+          );
+          hintText.setOrigin(0.5);
+          hintText.setDepth(10);
+          hintText.setAlpha(0);
+          hintText.setName('teleport-hint');
+
+          this.teleportHints.push({ text: hintText, cx, cy });
+        }
+      }
 
       if (playerX === undefined || playerY === undefined) {
         this.playerSpawnX = loaded.spawnPoint.x;
@@ -580,15 +619,6 @@ export class OverworldScene extends Scene {
   private eKeyWasDown = false;
   private touchInteractWasDown = false;
 
-  private advanceDialogueFromKey(): void {
-    if (this.dialoguePanel?.isVisible()) {
-      this.dialoguePanel.handleInput();
-    } else if (this.isDialogueOpen) {
-      // Simple dialogue (showDialogue) — close on E press
-      this.closeDialogue();
-    }
-  }
-
   private checkInteractions(): void {
     const eKeyIsDown = this.eKey.isDown;
     const justPressed = eKeyIsDown && !this.eKeyWasDown;
@@ -637,12 +667,31 @@ export class OverworldScene extends Scene {
   }
 
   private closeDialogue(): void {
+    if (!this.isDialogueOpen) return;
     const dialogueChildren = this.children.list.filter(
       (child) => child.name === 'dialogue-ui'
     );
     dialogueChildren.forEach((child) => child.destroy());
     this.physics.resume();
     this.isDialogueOpen = false;
+  }
+
+  private updateTeleportHints(): void {
+    const px = this.player.x;
+    const py = this.player.y;
+    const FADE_DISTANCE = 64;
+
+    for (const hint of this.teleportHints) {
+      const distance = Phaser.Math.Distance.Between(px, py, hint.cx, hint.cy);
+      const targetAlpha = distance < FADE_DISTANCE ? 1 : 0;
+      const deltaAlpha = 0.15;
+
+      if (hint.text.alpha < targetAlpha) {
+        hint.text.setAlpha(Math.min(targetAlpha, hint.text.alpha + deltaAlpha));
+      } else if (hint.text.alpha > targetAlpha) {
+        hint.text.setAlpha(Math.max(targetAlpha, hint.text.alpha - deltaAlpha));
+      }
+    }
   }
 
   private startDialogue(data: DialogueData, startNodeId?: string): void {
