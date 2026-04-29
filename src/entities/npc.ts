@@ -24,8 +24,17 @@ export class NPC extends Phaser.GameObjects.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this, true);
 
-    // Scale portrait down to overworld sprite size
-    this.setDisplaySize(16, 16);
+    // Pixel-perfect scaling: use integer or half-integer scale based on texture size
+    const texture = this.scene.textures.get(config.texture);
+    const frame = texture.get(config.texture);
+    if (frame) {
+      const srcH = frame.height;
+      const targetH = 24; // unify with player sprite height
+      const rawScale = targetH / srcH;
+      // round to nearest 0.5 to keep pixels sharp
+      const scale = Math.max(0.5, Math.round(rawScale * 2) / 2);
+      this.setScale(scale);
+    }
 
     const body = this.body as Phaser.Physics.Arcade.StaticBody;
     body.setSize(12, 12);
