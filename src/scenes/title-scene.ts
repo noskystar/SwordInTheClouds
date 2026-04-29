@@ -71,6 +71,8 @@ export class TitleScene extends Scene {
         fontSize: '28px',
         color: '#ffffff',
         padding: { y: 3 },
+        stroke: '#000000',
+        strokeThickness: 1,
       })
     );
     titleText.setOrigin(0.5);
@@ -81,7 +83,7 @@ export class TitleScene extends Scene {
       this.cameras.main.height / 2 - 8,
       '—— 按方向键选择，回车确认 ——',
       uiTextStyle({
-        fontSize: '10px',
+        fontSize: '12px',
         color: '#888888',
         padding: { y: 2 },
       })
@@ -122,7 +124,7 @@ export class TitleScene extends Scene {
     ];
 
     const startY = this.cameras.main.height / 2 + 10;
-    const gap = 16;
+    const gap = 20;
 
     for (let i = 0; i < menuData.length; i++) {
       const item = menuData[i];
@@ -131,7 +133,7 @@ export class TitleScene extends Scene {
         startY + i * gap,
         item.label,
         uiTextStyle({
-          fontSize: '10px',
+          fontSize: '14px',
           color: item.enabled ? '#cccccc' : '#555555',
           backgroundColor: '#00000000',
           padding: { x: 6, y: 3 },

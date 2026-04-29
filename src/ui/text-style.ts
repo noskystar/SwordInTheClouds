@@ -27,7 +27,6 @@ export function uiTextStyle(style: TextStyle): TextStyle {
   const baseResolution = resolveResolution(style.fontSize);
   return {
     fontFamily: UI_FONT_FAMILY,
-    resolution: baseResolution,
     padding: { y: 1 },
     ...style,
     resolution: 'resolution' in style ? style.resolution : baseResolution,
