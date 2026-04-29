@@ -226,11 +226,13 @@ export class DialoguePanel {
     this.container = this.scene.add.container(0, 0);
     this.container.setName('dialogue-panel');
 
-    // Proportional sizing based on screen dimensions
+    // Fixed ribbon sizing based on screen dimensions
     const panelMargin = Math.max(2, Math.round(height * PANEL_MARGIN_RATIO));
-    const panelH = Math.max(100, Math.round(height * PANEL_HEIGHT_RATIO));
-    const panelW = width - panelMargin * 2;
-    const panelX = panelMargin;
+    const panelHRaw = Math.round(height * PANEL_HEIGHT_RATIO);
+    const panelWRaw = Math.round(width * PANEL_WIDTH_RATIO);
+    const panelH = Math.min(panelHRaw, PANEL_MAX_HEIGHT);
+    const panelW = Math.min(panelWRaw, PANEL_MAX_WIDTH);
+    const panelX = Math.round((width - panelW) / 2);
     const panelY = height - panelH - panelMargin;
 
     // Camera zoom compensation for fixed UI elements
