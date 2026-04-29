@@ -65,7 +65,7 @@ export class Player extends Phaser.GameObjects.Sprite {
         anims.create({
           key: 'player-walk',
           frames: this.anims.generateFrameNumbers('player_walk_spritesheet', { start: 0, end: 3 }),
-          frameRate: 8,
+          frameRate: 12, // was 8
           repeat: -1,
         });
       }
