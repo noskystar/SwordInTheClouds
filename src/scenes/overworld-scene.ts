@@ -147,7 +147,6 @@ export class OverworldScene extends Scene {
     this.setupDayNightOverlay();
     this.setupFogOverlay();
     this.createPlayer(data?.playerX, data?.playerY);
-    this.createNPCsForMap(this.currentMapId);
     this.setupCamera();
     this.setupCollisions();
     this.setupHUD();

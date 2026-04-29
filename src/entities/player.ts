@@ -15,6 +15,7 @@ export class Player extends Phaser.GameObjects.Sprite {
   private isMoving = false;
   private virtualDirection = { x: 0, y: 0 };
   private bobPhase = 0;
+  private lastBobOffset = 0;
 
   constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, 'player_sprite');
@@ -151,22 +152,36 @@ export class Player extends Phaser.GameObjects.Sprite {
   }
 
   private updateBob(delta: number): void {
-    const body = this.body as Phaser.Physics.Arcade.Body;
+    // Derive ground position by removing last frame's bob offset
+    const baseY = this.y - this.lastBobOffset;
 
     if (this.isMoving) {
       // Advance phase: full cycle every ~377ms at 60fps
       this.bobPhase += delta * 0.016;
-      const bobOffset = Math.sin(this.bobPhase) * 0.5;
-      this.y = body.y + bobOffset;
+      this.lastBobOffset = Math.sin(this.bobPhase) * 0.5;
     } else {
       this.bobPhase = 0;
-      this.y = body.y;
+      // Smoothly return to ground over ~100ms
+      if (Math.abs(this.lastBobOffset) > 0.01) {
+        const decay = delta / 100;
+        if (this.lastBobOffset > 0) {
+          this.lastBobOffset = Math.max(0, this.lastBobOffset - decay * 0.5);
+        } else {
+          this.lastBobOffset = Math.min(0, this.lastBobOffset + decay * 0.5);
+        }
+      } else {
+        this.lastBobOffset = 0;
+      }
     }
+
+    this.y = baseY + this.lastBobOffset;
   }
 
   setPlayerPosition(x: number, y: number): void {
     this.setPosition(x, y);
     const body = this.body as Phaser.Physics.Arcade.Body;
     body.reset(x, y);
+    this.lastBobOffset = 0;
+    this.bobPhase = 0;
   }
 }

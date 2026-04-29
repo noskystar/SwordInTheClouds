@@ -97,6 +97,8 @@ export class TitleScene extends Scene {
 
     this.input.keyboard?.on('keydown-UP', () => this.moveSelection(-1));
     this.input.keyboard?.on('keydown-DOWN', () => this.moveSelection(1));
+    this.input.keyboard?.on('keydown-W', () => this.moveSelection(-1));
+    this.input.keyboard?.on('keydown-S', () => this.moveSelection(1));
     this.confirmKey.on('down', () => this.confirmSelection());
   }
 
