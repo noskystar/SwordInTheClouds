@@ -136,16 +136,45 @@ export class MapLoader {
     };
   }
 
-  createVisualObjects(objects: MapObject[]): (Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image)[] {
-    const visuals: (Phaser.GameObjects.Rectangle | Phaser.GameObjects.Image)[] = [];
+  createVisualObjects(objects: MapObject[]): Phaser.GameObjects.GameObject[] {
+    const visuals: Phaser.GameObjects.GameObject[] = [];
     for (const obj of objects) {
-      if (obj.type === 'teleport' && this.scene.textures.exists('teleport_marker')) {
-        // Use pixel art teleport marker sprite
-        const marker = this.scene.add.image(obj.x + obj.w / 2, obj.y + obj.h / 2, 'teleport_marker');
-        marker.setDisplaySize(obj.w, obj.h);
-        marker.setDepth(0.5);
-        marker.setName('map-object');
-        visuals.push(marker);
+      if (obj.type === 'teleport') {
+        const cx = obj.x + obj.w / 2;
+        const cy = obj.y + obj.h / 2;
+
+        // Base ellipse
+        const ellipse = this.scene.add.ellipse(cx, cy, 20, 12, 0x4a90d9, 0.4);
+        ellipse.setDepth(0.5);
+        ellipse.setName('teleport-visual');
+        visuals.push(ellipse);
+
+        // Diamond
+        const diamond = this.scene.add.rectangle(cx, cy - 4, 8, 8, 0x88ccff, 0.8);
+        diamond.setAngle(45);
+        diamond.setDepth(0.6);
+        diamond.setName('teleport-visual');
+        visuals.push(diamond);
+
+        // Breathing tween
+        this.scene.tweens.add({
+          targets: diamond,
+          y: cy - 6,
+          duration: 750,
+          yoyo: true,
+          repeat: -1,
+          ease: 'Sine.easeInOut',
+        });
+
+        // Decorative marker if texture exists
+        if (this.scene.textures.exists('teleport_marker')) {
+          const marker = this.scene.add.image(cx, cy, 'teleport_marker');
+          marker.setDisplaySize(obj.w, obj.h);
+          marker.setAlpha(0.3);
+          marker.setDepth(0.4);
+          marker.setName('teleport-visual');
+          visuals.push(marker);
+        }
       } else if (obj.type === 'interactable') {
         // NPC interaction zones - use subtle indicator sprite if available
         const rect = this.scene.add.rectangle(
@@ -161,7 +190,6 @@ export class MapLoader {
         visuals.push(rect);
       } else {
         let color = 0xffff00;
-        if (obj.type === 'teleport') color = 0x00ff00;
         if (obj.type === 'encounter') color = 0xff0000;
 
         const rect = this.scene.add.rectangle(obj.x + obj.w / 2, obj.y + obj.h / 2, obj.w, obj.h, color, 0.3);
