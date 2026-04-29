@@ -377,7 +377,7 @@ export class OverworldScene extends Scene {
   private setupCamera(): void {
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-    this.cameras.main.setZoom(2);
+    this.cameras.main.setZoom(3); // was 2
   }
 
   private setupCollisions(): void {
