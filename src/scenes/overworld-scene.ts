@@ -582,9 +582,15 @@ export class OverworldScene extends Scene {
       if (!inZone) continue;
 
       if (obj.type === 'teleport' && obj.target && obj.targetX !== undefined && obj.targetY !== undefined) {
-        this.autoSave();
-        this.currentMapId = obj.target;
-        this.transitionToScene('OverworldScene', obj.targetX, obj.targetY);
+        const zoneKey = obj.id || `${obj.x}-${obj.y}`;
+        const zone = this.teleportZones.get(zoneKey);
+        if (zone && zone.status === 'available') {
+          this.autoSave();
+          this.currentMapId = obj.target;
+          this.transitionToScene('OverworldScene', obj.targetX, obj.targetY, obj.target);
+        } else {
+          this.showFloatingHint(zone?.hint || '灵气阻隔，难以逾越');
+        }
         return;
       }
 
@@ -637,10 +643,15 @@ export class OverworldScene extends Scene {
     this.saveSystem.save(saveData);
   }
 
-  private transitionToScene(sceneKey: string, x: number, y: number): void {
+  private transitionToScene(sceneKey: string, x: number, y: number, targetMapId?: string): void {
+    const mapId = targetMapId ?? this.currentMapId;
+    if (sceneKey === 'OverworldScene' && !this.loadedMapIds.has(mapId)) {
+      this.showFloatingHint('前路隐于迷雾之中，似有大能设下的禁制');
+      return;
+    }
     this.cameras.main.fadeOut(300, 0, 0, 0);
     this.cameras.main.once(Phaser.Cameras.Scene2D.Events.FADE_OUT_COMPLETE, () => {
-      this.scene.start(sceneKey, { mapId: this.currentMapId, playerX: x, playerY: y } as SceneTransitionData);
+      this.scene.start(sceneKey, { mapId, playerX: x, playerY: y } as SceneTransitionData);
     });
   }
 
@@ -709,6 +720,27 @@ export class OverworldScene extends Scene {
     dialogueChildren.forEach((child) => child.destroy());
     this.physics.resume();
     this.isDialogueOpen = false;
+  }
+
+  private showFloatingHint(text: string): void {
+    if (!this.player) return;
+    const hint = this.add.text(this.player.x, this.player.y - 24, text, {
+      fontSize: '10px',
+      color: '#ffaa44',
+      stroke: '#000000',
+      strokeThickness: 2,
+    });
+    hint.setOrigin(0.5);
+    hint.setDepth(50);
+
+    this.tweens.add({
+      targets: hint,
+      y: hint.y - 16,
+      alpha: 0,
+      duration: 2000,
+      ease: 'Power1',
+      onComplete: () => hint.destroy(),
+    });
   }
 
   private updateTeleportHints(): void {
