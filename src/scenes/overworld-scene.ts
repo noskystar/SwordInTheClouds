@@ -472,6 +472,7 @@ export class OverworldScene extends Scene {
             (c) => c.name === 'teleport-visual' && Math.abs((c as any).x - cx) < 1 && Math.abs((c as any).y - (cy - 4)) < 1
           );
           for (const d of diamonds) {
+            if (typeof (d as any).setTint !== 'function') continue;
             if (zoneState.status === 'locked') {
               (d as any).setTint(0x888888);
               (d as any).setAlpha(0.5);
