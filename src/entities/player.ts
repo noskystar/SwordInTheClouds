@@ -14,6 +14,7 @@ export class Player extends Phaser.GameObjects.Sprite {
   private currentDirection: Direction = 'down';
   private isMoving = false;
   private virtualDirection = { x: 0, y: 0 };
+  private bobPhase = 0;
 
   constructor(scene: Scene, x: number, y: number) {
     super(scene, x, y, 'player_sprite');
@@ -75,6 +76,7 @@ export class Player extends Phaser.GameObjects.Sprite {
   preUpdate(time: number, delta: number): void {
     super.preUpdate(time, delta);
     this.handleMovement();
+    this.updateBob(delta);
   }
 
   setVirtualDirection(x: number, y: number): void {
@@ -146,6 +148,20 @@ export class Player extends Phaser.GameObjects.Sprite {
 
   isPlayerMoving(): boolean {
     return this.isMoving;
+  }
+
+  private updateBob(delta: number): void {
+    const body = this.body as Phaser.Physics.Arcade.Body;
+
+    if (this.isMoving) {
+      // Advance phase: full cycle every ~377ms at 60fps
+      this.bobPhase += delta * 0.016;
+      const bobOffset = Math.sin(this.bobPhase) * 0.5;
+      this.y = body.y + bobOffset;
+    } else {
+      this.bobPhase = 0;
+      this.y = body.y;
+    }
   }
 
   setPlayerPosition(x: number, y: number): void {
