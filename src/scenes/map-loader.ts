@@ -13,6 +13,14 @@ export interface MapObject {
   action?: string;
   dialogueId?: string;
   battleGroupId?: string;
+  // P1.1: teleport-specific fields with proper types
+  locked?: boolean;
+  condition?: {
+    type: string;
+    hint?: string;
+    itemId?: string;
+    flag?: string;
+  };
 }
 
 export interface MapCollisionRect {
@@ -143,17 +151,20 @@ export class MapLoader {
         const cx = obj.x + obj.w / 2;
         const cy = obj.y + obj.h / 2;
 
+        // P1.2: use unique name per teleport zone to avoid coordinate-matching fragility
+        const vzKey = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
+
         // Base ellipse
         const ellipse = this.scene.add.ellipse(cx, cy, 20, 12, 0x4a90d9, 0.4);
         ellipse.setDepth(0.5);
-        ellipse.setName('teleport-visual');
+        ellipse.setName('teleport-visual-' + vzKey);
         visuals.push(ellipse);
 
         // Diamond
         const diamond = this.scene.add.rectangle(cx, cy - 4, 8, 8, 0x88ccff, 0.8);
         diamond.setAngle(45);
         diamond.setDepth(0.6);
-        diamond.setName('teleport-visual');
+        diamond.setName('teleport-visual-' + vzKey);
         visuals.push(diamond);
 
         // Breathing tween
@@ -172,7 +183,7 @@ export class MapLoader {
           marker.setDisplaySize(obj.w, obj.h);
           marker.setAlpha(0.3);
           marker.setDepth(0.4);
-          marker.setName('teleport-visual');
+          marker.setName('teleport-visual-' + vzKey);
           visuals.push(marker);
         }
       } else if (obj.type === 'interactable') {

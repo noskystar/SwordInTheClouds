@@ -78,6 +78,7 @@ export class OverworldScene extends Scene {
   // Teleport zone state machine
   private teleportZones = new Map<string, { status: 'available' | 'locked' | 'conditional'; hint?: string }>();
   private loadedMapIds = new Set<string>();
+  private floatingHint?: Phaser.GameObjects.Text; // P2.2: singleton to prevent hint stacking
 
   private readonly MAP_NAMES: Record<string, string> = {
     gate: '天剑宗山门',
@@ -462,26 +463,27 @@ export class OverworldScene extends Scene {
       for (const obj of this.mapObjects) {
         if (obj.type === 'teleport') {
           const zoneState = this.resolveTeleportStatus(obj);
-          const zoneKey = obj.id || `${obj.x}-${obj.y}`;
+          const zoneKey = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
           this.teleportZones.set(zoneKey, zoneState);
 
-          // Find and tint the portal visuals (match by name + x proximity; y varies due to tween)
-          const cx = obj.x + obj.w / 2;
-          const portalVisuals = this.children.list.filter(
-            (c) => c.name === 'teleport-visual' && Math.abs((c as any).x - cx) < 4
-          );
+          // P1.2: match visuals by unique name instead of coordinate proximity
+          const vzKey = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
+          const portalVisuals = this.children.list.filter((c) => c.name === 'teleport-visual-' + vzKey);
           for (const d of portalVisuals) {
+            const canSetTint = typeof (d as any).setTint === 'function';
+            const canSetAlpha = typeof (d as any).setAlpha === 'function';
+            const canSetFillStyle = typeof (d as any).setFillStyle === 'function';
             if (zoneState.status === 'locked') {
-              if (typeof (d as any).setTint === 'function') {
+              if (canSetTint) {
                 (d as any).setTint(0x888888);
-                (d as any).setAlpha(0.5);
-              } else if (typeof (d as any).setFillStyle === 'function') {
+                if (canSetAlpha) (d as any).setAlpha(0.5);
+              } else if (canSetFillStyle) {
                 (d as any).setFillStyle(0x888888, 0.3);
               }
             } else if (zoneState.status === 'conditional') {
-              if (typeof (d as any).setTint === 'function') {
+              if (canSetTint) {
                 (d as any).setTint(0xffaa44);
-              } else if (typeof (d as any).setFillStyle === 'function') {
+              } else if (canSetFillStyle) {
                 (d as any).setFillStyle(0xffaa44, (d as any).alpha);
               }
             }
@@ -589,7 +591,7 @@ export class OverworldScene extends Scene {
       if (!inZone) continue;
 
       if (obj.type === 'teleport' && obj.target && obj.targetX !== undefined && obj.targetY !== undefined) {
-        const zoneKey = obj.id || `${obj.x}-${obj.y}`;
+        const zoneKey = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
         const zone = this.teleportZones.get(zoneKey);
         if (zone && zone.status === 'available') {
           this.autoSave();
@@ -731,6 +733,11 @@ export class OverworldScene extends Scene {
 
   private showFloatingHint(text: string): void {
     if (!this.player) return;
+    // P2.2: destroy any existing hint to prevent stacking
+    if (this.floatingHint) {
+      this.floatingHint.destroy();
+      this.floatingHint = undefined;
+    }
     const hint = this.add.text(this.player.x, this.player.y - 24, text, {
       fontSize: '10px',
       color: '#ffaa44',
@@ -739,6 +746,7 @@ export class OverworldScene extends Scene {
     });
     hint.setOrigin(0.5);
     hint.setDepth(50);
+    this.floatingHint = hint;
 
     this.tweens.add({
       targets: hint,
@@ -746,7 +754,10 @@ export class OverworldScene extends Scene {
       alpha: 0,
       duration: 2000,
       ease: 'Power1',
-      onComplete: () => hint.destroy(),
+      onComplete: () => {
+        hint.destroy();
+        if (this.floatingHint === hint) this.floatingHint = undefined;
+      },
     });
   }
 
@@ -881,20 +892,18 @@ export class OverworldScene extends Scene {
 
   private resolveTeleportStatus(obj: MapObject): { status: 'available' | 'locked' | 'conditional'; hint?: string } {
     // 1. Explicitly locked
-    if ((obj as any).locked === true) {
+    if (obj.locked === true) {
       return { status: 'locked', hint: '禁制未解，不可擅入' };
     }
 
     // 2. Target map not loaded
-    const target = (obj as any).target as string;
-    if (target && !this.loadedMapIds.has(target)) {
+    if (obj.target && !this.loadedMapIds.has(obj.target)) {
       return { status: 'locked', hint: '此方天地尚未开启' };
     }
 
-    // 3. Condition exists (for now always show as conditional)
-    const condition = (obj as any).condition as { type: string; hint: string; itemId?: string; flag?: string } | undefined;
-    if (condition && condition.type !== 'none') {
-      return { status: 'conditional', hint: condition.hint || '灵气阻隔，难以逾越' };
+    // 3. Condition exists
+    if (obj.condition && obj.condition.type !== 'none') {
+      return { status: 'conditional', hint: obj.condition.hint || '灵气阻隔，难以逾越' };
     }
 
     // 4. Available
