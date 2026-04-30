@@ -23,6 +23,8 @@ import mainHallMap from '../data/maps/main_hall.json';
 import disciplesHousingMap from '../data/maps/disciples_housing.json';
 import meditationRoomMap from '../data/maps/meditation_room.json';
 import backMountainMap from '../data/maps/back_mountain.json';
+import yunlaiTownMap from '../data/maps/yunlai_town.json';
+import libraryMap from '../data/maps/library.json';
 
 interface SceneTransitionData {
   mapId?: string;
@@ -95,6 +97,51 @@ export class OverworldScene extends Scene {
     super({ key: 'OverworldScene' });
   }
 
+  // Called on every scene restart/shutdown to prevent event leaks and stale references
+  private cleanupSceneState(): void {
+    // Remove input listeners that may have been added in a previous create() call
+    if (this.escKey) {
+      this.escKey.off('down');
+    }
+    // Clean up any lingering dialogue state
+    if (this.dialoguePanel) {
+      this.dialoguePanel.destroy();
+      this.dialoguePanel = undefined;
+    }
+    if (this.dialogueSystem) {
+      this.dialogueSystem = undefined;
+    }
+    this.isDialogueOpen = false;
+    // Destroy floating hint and its tween
+    if (this.floatingHint) {
+      this.tweens.killTweensOf(this.floatingHint);
+      this.floatingHint.destroy();
+      this.floatingHint = undefined;
+    }
+    // Destroy pause menu to prevent duplicate key listeners
+    if (this.pauseMenu) {
+      this.pauseMenu.destroy();
+    }
+    // Clean up teleport hints
+    for (const hint of this.teleportHints) {
+      if (hint.text && hint.text.active) {
+        hint.text.destroy();
+      }
+    }
+    this.teleportHints = [];
+    // Remove NPCs
+    for (const npc of this.npcs) {
+      if (npc && npc.active) {
+        npc.destroy();
+      }
+    }
+    this.npcs = [];
+  }
+
+  shutdown(): void {
+    this.cleanupSceneState();
+  }
+
   preload(): void {
     this.generateTextures();
   }
@@ -104,6 +151,8 @@ export class OverworldScene extends Scene {
 
     this.saveSystem = new SaveSystem();
     const saved = this.saveSystem.load();
+    // Ensure clean state on scene restart (prevents listener leaks and stale references)
+    this.cleanupSceneState();
     if (saved?.story) {
       this.storyFlags = new Map(Object.entries(saved.story.flags ?? {}));
       this.storyAffinity = new Map(Object.entries(saved.story.affinity ?? {}));
@@ -145,11 +194,14 @@ export class OverworldScene extends Scene {
     ]);
     this.worldSystem.unlockArea('gate');
 
-    // Initialize known maps
+    // Initialize known maps — must include ALL maps to prevent transition lock
     this.loadedMapIds.add('gate');
     this.loadedMapIds.add('main_hall');
     this.loadedMapIds.add('disciples_housing');
+    this.loadedMapIds.add('meditation_room');
     this.loadedMapIds.add('back_mountain');
+    this.loadedMapIds.add('yunlai_town');
+    this.loadedMapIds.add('library');
 
     this.mapLoader = new MapLoader(this);
     const targetMapId = data?.mapId ?? saved?.player?.position?.scene ?? this.currentMapId;
@@ -435,12 +487,12 @@ export class OverworldScene extends Scene {
       disciples_housing: disciplesHousingMap as MapData,
       meditation_room: meditationRoomMap as MapData,
       back_mountain: backMountainMap as MapData,
-      yunlai_town: { width: 480, height: 320, spawnPoint: { x: 144, y: 160 }, bg: 'bg_yunlai_town' } as MapData,
-      library: { width: 320, height: 256, spawnPoint: { x: 144, y: 112 }, bg: 'bg_library' } as MapData,
+      yunlai_town: yunlaiTownMap as MapData,
+      library: libraryMap as MapData,
     };
 
     const mapData = mapModules[mapId];
-    if (mapData) {
+    if (mapData && mapData.layers) {
       this.currentMapId = mapId;
       this.loadedMapIds.add(mapId);
 
@@ -1115,8 +1167,8 @@ export class OverworldScene extends Scene {
     const width = this.cameras.main.width;
     const height = this.cameras.main.height;
     const zoom = this.cameras.main.zoom;
-    const toWorld = (sx: number) => this.cameras.main.centerX + (sx - this.cameras.main.centerX) / zoom;
-    const toWorldY = (sy: number) => this.cameras.main.centerY + (sy - this.cameras.main.centerY) / zoom;
+    const toWorld = (sx: number) => Math.round(this.cameras.main.centerX + (sx - this.cameras.main.centerX) / zoom);
+    const toWorldY = (sy: number) => Math.round(this.cameras.main.centerY + (sy - this.cameras.main.centerY) / zoom);
     const sz = (v: number) => v / zoom;
 
     const panelMargin = Math.max(2, Math.round(height * 0.015));

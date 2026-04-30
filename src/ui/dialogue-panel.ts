@@ -5,16 +5,32 @@ import { uiTextStyle } from './text-style';
 type SelectCallback = (optionIndex: number) => void;
 type CloseCallback = () => void;
 
-const PANEL_MARGIN_RATIO = 0.015;     // panel bottom margin as % of screen height
-const PANEL_HEIGHT_RATIO = 0.24;      // panel height as % of screen height (reduced from 0.40)
-const PANEL_WIDTH_RATIO = 0.84;   // panel width as % of screen width
-const PANEL_MAX_HEIGHT = 100;     // cap panel height at 100px
-const PANEL_MAX_WIDTH = 540;      // cap panel width at 540px
-const NAME_FONT_RATIO = 0.038;        // name text font as % of screen height (~14px @ 360h)
-const BODY_FONT_RATIO = 0.034;        // body text font as % of screen height (~12px @ 360h)
-const OPTION_FONT_RATIO = 0.034;      // option text font as % of screen height (~12px @ 360h)
-const HINT_FONT_RATIO = 0.030;        // hint text font as % of screen height (~11px @ 360h)
-const OPTION_LINE_RATIO = 0.038;      // option line height as % of screen height (~14px @ 360h)
+const PANEL_MARGIN_RATIO = 0.015;
+const PANEL_HEIGHT_RATIO = 0.24;
+const PANEL_WIDTH_RATIO = 0.84;
+const PANEL_MAX_HEIGHT = 100;
+const PANEL_MAX_WIDTH = 540;
+const NAME_FONT_RATIO = 0.030;
+const BODY_FONT_RATIO = 0.036;
+const OPTION_FONT_RATIO = 0.036;
+const HINT_FONT_RATIO = 0.030;
+const OPTION_LINE_RATIO = 0.038;
+const PORTRAIT_SIZE = 48; // dialogue portrait display size in screen pixels
+
+const SPEAKER_TO_PORTRAIT: Record<string, string> = {
+  '主角': 'player_portrait',
+  '云深子': 'npc_master_portrait',
+  '萧寒': 'npc_xiaohan_portrait',
+  '红绡': 'npc_hongxiao_portrait',
+  '墨言': 'npc_moyan_portrait',
+  '白芷': 'npc_baizhi_portrait',
+  '雪团': 'npc_xuetuan_portrait',
+  '守门弟子': 'npc_disciple_portrait',
+  '行商': 'npc_town_merchant_portrait',
+  '陈师妹': 'npc_junior_sister_portrait',
+  '李师兄': 'npc_disciple_portrait',
+  '镇民': 'npc_disciple_portrait',
+};
 
 export class DialoguePanel {
   private scene: Scene;
@@ -25,6 +41,8 @@ export class DialoguePanel {
   private optionTexts: Phaser.GameObjects.Text[] = [];
   private cursor!: Phaser.GameObjects.Text;
   private continueHint!: Phaser.GameObjects.Text;
+  private portrait!: Phaser.GameObjects.Image;
+  private currentSpeaker = '';
 
   private fullText = '';
   private displayedChars = 0;
@@ -78,6 +96,10 @@ export class DialoguePanel {
     this.displayedChars = 0;
     this.options = options;
     this.selectedIndex = 0;
+    this.currentSpeaker = node.speaker;
+
+    // Update portrait before layout so text can offset
+    this.updatePortrait();
 
     // Compute adaptive layout based on content
     this.computeAndApplyLayout(node.text, options);
@@ -129,11 +151,15 @@ export class DialoguePanel {
       ? options.length * optionLineHeight + bottomPad
       : hintFontSize + Math.round(refH * 0.03) + bottomPad;
 
+    // Portrait offset: if a portrait is shown, shift text to the right
+    const hasPortrait = this.hasPortrait();
+    const portraitOffset = hasPortrait ? PORTRAIT_SIZE + innerPad : 0;
+
     // Max text height if panel were fully expanded
     const maxTextH = maxH - innerPad - nameFontSize - gapNameBody - gapBodyOptions - optionAreaH;
 
     // Try shrinking font until text fits inside maxTextH
-    const textBlockW = sz(panelW - innerPad * 2);
+    const textBlockW = sz(panelW - innerPad * 2 - portraitOffset);
     let bestFont = bodyFontSize;
     let bestTextH = 0;
 
@@ -188,8 +214,8 @@ export class DialoguePanel {
     };
 
     const camera = this.scene.cameras.main;
-    const toWorldX = (sx: number) => camera.centerX + (sx - camera.centerX) / zoom;
-    const toWorldY = (sy: number) => camera.centerY + (sy - camera.centerY) / zoom;
+    const toWorldX = (sx: number) => Math.round(camera.centerX + (sx - camera.centerX) / zoom);
+    const toWorldY = (sy: number) => Math.round(camera.centerY + (sy - camera.centerY) / zoom);
 
     this.bg.setPosition(toWorldX(panelX + panelW / 2), toWorldY(finalPanelY + finalPanelH / 2));
     if (this.bg instanceof Phaser.GameObjects.Rectangle) {
@@ -198,8 +224,15 @@ export class DialoguePanel {
       this.bg.setDisplaySize(sz(panelW), sz(finalPanelH));
     }
 
-    this.nameText.setPosition(toWorldX(panelX + innerPad), toWorldY(nameY));
-    this.bodyText.setPosition(toWorldX(panelX + innerPad), toWorldY(bodyY));
+    // Position portrait on the left, vertically centered in the text area
+    if (hasPortrait) {
+      const portraitCenterX = panelX + innerPad + PORTRAIT_SIZE / 2;
+      const portraitCenterY = nameY + (finalPanelH - innerPad * 2 - hintFontSize) / 2;
+      this.portrait.setPosition(toWorldX(portraitCenterX), toWorldY(portraitCenterY));
+    }
+
+    this.nameText.setPosition(toWorldX(panelX + innerPad + portraitOffset), toWorldY(nameY));
+    this.bodyText.setPosition(toWorldX(panelX + innerPad + portraitOffset), toWorldY(bodyY));
     this.continueHint.setPosition(toWorldX(panelX + panelW - innerPad), toWorldY(hintY));
 
     // Remove any previous crop since text now fits
@@ -240,8 +273,8 @@ export class DialoguePanel {
     //   world = center + (screen - center) / zoom
     const camera = this.scene.cameras.main;
     const zoom = camera.zoom;
-    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
-    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+    const toWorldX = (screenX: number) => Math.round(camera.centerX + (screenX - camera.centerX) / zoom);
+    const toWorldY = (screenY: number) => Math.round(camera.centerY + (screenY - camera.centerY) / zoom);
     const sz = (v: number) => v / zoom;
 
     const nameFontSize = Math.max(10, Math.round(height * NAME_FONT_RATIO));
@@ -291,10 +324,18 @@ export class DialoguePanel {
     this.continueHint.setOrigin(1, 0);
     this.continueHint.setVisible(false);
 
-    this.container.add([this.bg, this.nameText, this.bodyText, this.continueHint]);
+    // Portrait (speaker avatar) — created hidden, shown per-dialogue
+    this.portrait = this.scene.add.image(0, 0, '__DEFAULT');
+    this.portrait.setDisplaySize(sz(PORTRAIT_SIZE), sz(PORTRAIT_SIZE));
+    this.portrait.setVisible(false);
+    this.portrait.setScrollFactor(0);
+    this.portrait.setName('dialogue-portrait');
+
+    this.container.add([this.bg, this.portrait, this.nameText, this.bodyText, this.continueHint]);
 
     // Each element must have scrollFactor=0 to stay fixed on screen under zoom
     this.bg.setScrollFactor(0);
+    this.portrait.setScrollFactor(0);
     this.nameText.setScrollFactor(0);
     this.bodyText.setScrollFactor(0);
     this.continueHint.setScrollFactor(0);
@@ -414,8 +455,8 @@ export class DialoguePanel {
     const height = this.scene.cameras.main.height;
     const camera = this.scene.cameras.main;
     const zoom = camera.zoom;
-    const toWorldX = (screenX: number) => camera.centerX + (screenX - camera.centerX) / zoom;
-    const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+    const toWorldX = (screenX: number) => Math.round(camera.centerX + (screenX - camera.centerX) / zoom);
+    const toWorldY = (screenY: number) => Math.round(camera.centerY + (screenY - camera.centerY) / zoom);
     const sz = (v: number) => v / zoom;
 
     const optionFontSize = Math.max(9, Math.round(height * OPTION_FONT_RATIO));
@@ -430,10 +471,13 @@ export class DialoguePanel {
       Math.floor(availableHeight / Math.max(this.options.length, 1)),
     );
 
+    const hasPortrait = this.hasPortrait();
+    const portraitOffset = hasPortrait ? PORTRAIT_SIZE + this.layout.innerPad : 0;
+
     for (let i = 0; i < this.options.length; i++) {
       const opt = this.options[i];
 
-      const cursorX = this.layout.panelScreenX + this.layout.innerPad + 2;
+      const cursorX = this.layout.panelScreenX + this.layout.innerPad + portraitOffset + 2;
       const textX = cursorX + Math.round(optionFontSize * 0.6);
       const y = startY + i * optionHeight;
 
@@ -475,7 +519,7 @@ export class DialoguePanel {
     if (this.cursor) {
       const camera = this.scene.cameras.main;
       const zoom = camera.zoom;
-      const toWorldY = (screenY: number) => camera.centerY + (screenY - camera.centerY) / zoom;
+      const toWorldY = (screenY: number) => Math.round(camera.centerY + (screenY - camera.centerY) / zoom);
       const optionLineHeight = Math.max(12, Math.round(this.scene.cameras.main.height * OPTION_LINE_RATIO));
       const startY = this.layout.optionStartScreenY;
       const bottomPad = Math.max(4, Math.round(this.layout.panelScreenH * 0.05));
@@ -504,5 +548,21 @@ export class DialoguePanel {
 
   private hide(): void {
     this.container.setVisible(false);
+  }
+
+  private hasPortrait(): boolean {
+    if (!this.currentSpeaker) return false;
+    const key = SPEAKER_TO_PORTRAIT[this.currentSpeaker];
+    return !!key && this.scene.textures.exists(key);
+  }
+
+  private updatePortrait(): void {
+    const key = SPEAKER_TO_PORTRAIT[this.currentSpeaker];
+    if (key && this.scene.textures.exists(key)) {
+      this.portrait.setTexture(key);
+      this.portrait.setVisible(true);
+    } else {
+      this.portrait.setVisible(false);
+    }
   }
 }

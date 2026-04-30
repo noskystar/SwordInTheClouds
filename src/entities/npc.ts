@@ -35,8 +35,8 @@ export class NPC extends Phaser.GameObjects.Sprite {
       const scale = Math.max(0.5, Math.round(rawScale * 2) / 2);
       this.setScale(scale);
     } else {
-      // Fallback for spritesheet or atlas textures where frame lookup may fail
-      this.setDisplaySize(16, 16);
+      // Fallback: keep native scale, avoid setDisplaySize which breaks pixel-perfect scaling
+      this.setScale(1);
     }
 
     const body = this.body as Phaser.Physics.Arcade.StaticBody;

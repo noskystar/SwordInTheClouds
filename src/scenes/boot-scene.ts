@@ -54,6 +54,14 @@ export class BootScene extends Scene {
     this.load.image('npc_third_brother_portrait', 'assets/images/characters/npcs/npc_third_brother_portrait.png');
     this.load.image('npc_junior_sister_portrait', 'assets/images/characters/npcs/npc_junior_sister_portrait.png');
     this.load.image('npc_spirit_pet_portrait', 'assets/images/characters/npcs/npc_spirit_pet_portrait.png');
+    // Additional portraits for key characters
+    this.load.image('npc_xiaohan_portrait', 'assets/images/characters/npcs/npc_xiaohan_portrait.png');
+    this.load.image('npc_hongxiao_portrait', 'assets/images/characters/npcs/npc_hongxiao_portrait.png');
+    this.load.image('npc_moyan_portrait', 'assets/images/characters/npcs/npc_moyan_portrait.png');
+    this.load.image('npc_baizhi_portrait', 'assets/images/characters/npcs/npc_baizhi_portrait.png');
+    this.load.image('npc_xuetuan_portrait', 'assets/images/characters/npcs/npc_xuetuan_portrait.png');
+    this.load.image('npc_disciple_portrait', 'assets/images/characters/npcs/npc_disciple_portrait.png');
+    this.load.image('npc_town_merchant_portrait', 'assets/images/characters/npcs/npc_town_merchant_portrait.png');
 
     // === Enemies ===
     this.load.image('enemy_wolf', 'assets/images/characters/enemies/enemy_wolf.png');

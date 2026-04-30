@@ -129,8 +129,8 @@ export class Player extends Phaser.GameObjects.Sprite {
       else if (vx < 0) this.currentDirection = 'left';
       else if (vx > 0) this.currentDirection = 'right';
 
-      // Flip sprite for left directions
-      this.setFlipX(vx < 0);
+      // Flip sprite for right directions (sprite defaults facing left)
+      this.setFlipX(vx > 0);
 
       if (this.anims.currentAnim?.key !== 'player-walk') {
         this.play('player-walk', true);

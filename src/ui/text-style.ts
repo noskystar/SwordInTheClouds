@@ -19,8 +19,7 @@ function parseFontSize(fontSize: TextStyle['fontSize']): number {
 function resolveResolution(fontSize: TextStyle['fontSize']): number {
   const size = parseFontSize(fontSize);
   if (size >= 16) return 4;
-  if (size >= 12) return 2;
-  return 1;
+  return 2; // force at least 2x to prevent small text blur
 }
 
 export function uiTextStyle(style: TextStyle): TextStyle {

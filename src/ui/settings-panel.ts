@@ -51,7 +51,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
 
     // Title
     this.titleText = this.scene.add.text(PANEL_WIDTH / 2, 10, '设置', uiTextStyle({
-      fontSize: '10px',
+      fontSize: '12px',
       color: '#ffffff',
     }));
     this.titleText.setOrigin(0.5);
@@ -59,7 +59,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
 
     // Close button
     const closeBtn = this.scene.add.text(PANEL_WIDTH - 10, 8, 'X', uiTextStyle({
-      fontSize: '8px',
+      fontSize: '10px',
       color: '#ff6666',
     }));
     closeBtn.setOrigin(1, 0);
@@ -72,7 +72,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
     for (let i = 0; i < this.sliders.length; i++) {
       const config = this.sliders[i];
       const label = this.scene.add.text(8, currentY, config.label, uiTextStyle({
-        fontSize: '7px',
+        fontSize: '8px',
         color: '#cccccc',
       }));
       this.add(label);
@@ -96,7 +96,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
       this.sliderKnobs.push(knob);
 
       const valueText = this.scene.add.text(barX + barW + 4, currentY, '0%', uiTextStyle({
-        fontSize: '6px',
+        fontSize: '8px',
         color: '#aaaaaa',
       }));
       this.add(valueText);
@@ -109,7 +109,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
     for (let i = 0; i < this.options.length; i++) {
       const config = this.options[i];
       const label = this.scene.add.text(8, currentY, config.label, uiTextStyle({
-        fontSize: '7px',
+        fontSize: '8px',
         color: '#cccccc',
       }));
       this.add(label);
@@ -117,7 +117,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
       const choiceContainer = this.scene.add.container(60, currentY - 2);
       for (let j = 0; j < config.choices.length; j++) {
         const choiceText = this.scene.add.text(j * 32, 0, config.choices[j], uiTextStyle({
-          fontSize: '7px',
+          fontSize: '8px',
           color: '#888888',
           backgroundColor: '#00000000',
           padding: { x: 2, y: 1 },
@@ -136,7 +136,7 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
 
     // Reset button
     const resetBtn = this.scene.add.text(PANEL_WIDTH / 2, PANEL_HEIGHT - 10, '恢复默认', uiTextStyle({
-      fontSize: '7px',
+      fontSize: '8px',
       color: '#ffaa66',
     }));
     resetBtn.setOrigin(0.5);
