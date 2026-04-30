@@ -465,19 +465,25 @@ export class OverworldScene extends Scene {
           const zoneKey = obj.id || `${obj.x}-${obj.y}`;
           this.teleportZones.set(zoneKey, zoneState);
 
-          // Find and tint the portal visuals
+          // Find and tint the portal visuals (match by name + x proximity; y varies due to tween)
           const cx = obj.x + obj.w / 2;
-          const cy = obj.y + obj.h / 2;
-          const diamonds = this.children.list.filter(
-            (c) => c.name === 'teleport-visual' && Math.abs((c as any).x - cx) < 1 && Math.abs((c as any).y - (cy - 4)) < 1
+          const portalVisuals = this.children.list.filter(
+            (c) => c.name === 'teleport-visual' && Math.abs((c as any).x - cx) < 4
           );
-          for (const d of diamonds) {
-            if (typeof (d as any).setTint !== 'function') continue;
+          for (const d of portalVisuals) {
             if (zoneState.status === 'locked') {
-              (d as any).setTint(0x888888);
-              (d as any).setAlpha(0.5);
+              if (typeof (d as any).setTint === 'function') {
+                (d as any).setTint(0x888888);
+                (d as any).setAlpha(0.5);
+              } else if (typeof (d as any).setFillStyle === 'function') {
+                (d as any).setFillStyle(0x888888, 0.3);
+              }
             } else if (zoneState.status === 'conditional') {
-              (d as any).setTint(0xffaa44);
+              if (typeof (d as any).setTint === 'function') {
+                (d as any).setTint(0xffaa44);
+              } else if (typeof (d as any).setFillStyle === 'function') {
+                (d as any).setFillStyle(0xffaa44, (d as any).alpha);
+              }
             }
           }
         }
