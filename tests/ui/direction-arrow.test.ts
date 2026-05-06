@@ -141,4 +141,82 @@ describe('calculateArrowPosition', () => {
     expect(result.visible).toBe(true);
     expect(result.rotation).toBeCloseTo(-Math.PI / 2, 5);
   });
+
+  test('target exactly on viewport edge is treated as inside (arrow hidden)', () => {
+    // targetX === cameraX + cameraWidth (right edge)
+    const result = calculateArrowPosition(
+      cameraX,
+      cameraY,
+      cameraWidth,
+      cameraHeight,
+      cameraX + cameraWidth,
+      90,
+      160,
+      90
+    );
+    expect(result.visible).toBe(false);
+  });
+
+  test('diagonal off-screen (top-right) shows arrow at an edge', () => {
+    const result = calculateArrowPosition(
+      cameraX,
+      cameraY,
+      cameraWidth,
+      cameraHeight,
+      500,
+      -100,
+      160,
+      90
+    );
+    expect(result.visible).toBe(true);
+    // Arrow should be clamped to either the top edge (y=0) or the right edge (x=320)
+    const atTopEdge = result.y === cameraY && result.x >= cameraX && result.x <= cameraX + cameraWidth;
+    const atRightEdge = result.x === cameraX + cameraWidth && result.y >= cameraY && result.y <= cameraY + cameraHeight;
+    expect(atTopEdge || atRightEdge).toBe(true);
+  });
+
+  test('target off-screen to the left shows arrow at left edge', () => {
+    const result = calculateArrowPosition(
+      cameraX,
+      cameraY,
+      cameraWidth,
+      cameraHeight,
+      -100,
+      90,
+      160,
+      90
+    );
+    expect(result.visible).toBe(true);
+    expect(result.x).toBe(cameraX);
+  });
+
+  test('target off-screen below shows arrow at bottom edge', () => {
+    const result = calculateArrowPosition(
+      cameraX,
+      cameraY,
+      cameraWidth,
+      cameraHeight,
+      160,
+      300,
+      160,
+      90
+    );
+    expect(result.visible).toBe(true);
+    expect(result.y).toBe(cameraY + cameraHeight);
+  });
+
+  test('player and target at same position uses close color (#4a90d9)', () => {
+    const result = calculateArrowPosition(
+      cameraX,
+      cameraY,
+      cameraWidth,
+      cameraHeight,
+      -100,
+      90,
+      -100,
+      90
+    );
+    expect(result.visible).toBe(true);
+    expect(result.color).toBe('#4a90d9');
+  });
 });
