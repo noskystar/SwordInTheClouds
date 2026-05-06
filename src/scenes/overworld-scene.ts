@@ -16,6 +16,8 @@ import { SettingsSystem } from '../systems/settings-system';
 import { PauseMenu } from '../ui/pause-menu';
 import { TouchControls } from '../ui/touch-controls';
 import { uiTextStyle } from '../ui/text-style';
+import { QuestTrackerHUD } from '../ui/quest-tracker-hud';
+import { DirectionArrow } from '../ui/direction-arrow';
 import questsData from '../data/quests.json';
 import itemsData from '../data/items.json';
 import gateMap from '../data/maps/gate.json';
@@ -72,6 +74,9 @@ export class OverworldScene extends Scene {
   private pauseMenu!: PauseMenu;
   private escKey!: Phaser.Input.Keyboard.Key;
   private touchControls?: TouchControls;
+  private questTrackerHUD!: QuestTrackerHUD;
+  private directionArrow!: DirectionArrow;
+  private tabKey!: Phaser.Input.Keyboard.Key;
   private storyFlags = new Map<string, boolean | number | string>();
   private storyAffinity = new Map<string, number>();
   private storyMorality = 0;
@@ -140,6 +145,8 @@ export class OverworldScene extends Scene {
 
   shutdown(): void {
     this.cleanupSceneState();
+    this.questTrackerHUD.destroy();
+    this.directionArrow.destroy();
   }
 
   preload(): void {
@@ -214,6 +221,10 @@ export class OverworldScene extends Scene {
     this.setupCollisions();
     this.setupHUD();
 
+    this.questTrackerHUD = new QuestTrackerHUD(this, this.questSystem);
+    this.directionArrow = new DirectionArrow(this);
+    this.tabKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.TAB);
+
     this.eKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.bKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B);
     this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
@@ -282,6 +293,50 @@ export class OverworldScene extends Scene {
     this.updateTeleportHints();
     this.eKeyWasDown = this.eKey.isDown;
     this.bKeyWasDown = this.bKey.isDown;
+
+    // Update quest tracker HUD
+    const trackedQuestId = this.questTrackerHUD.getTrackedQuestId();
+    let targetPos: { x: number; y: number } | null = null;
+    let targetInCurrentMap = true;
+
+    if (trackedQuestId) {
+      const questData = this.questSystem.getQuestData(trackedQuestId);
+      const activeQuest = this.questSystem.getActiveQuests().find(q => q.questId === trackedQuestId);
+      if (questData && activeQuest) {
+        const stage = questData.stages[activeQuest.currentStageIndex];
+        const objective = stage?.objectives.find(o => {
+          const progress = activeQuest.objectiveProgress[o.id] ?? 0;
+          return progress < o.requiredCount;
+        }) ?? stage?.objectives[0];
+
+        if (objective) {
+          targetPos = this.resolveQuestTargetPosition(objective.targetId);
+          if (!targetPos) {
+            targetInCurrentMap = false;
+          }
+        }
+      }
+    }
+
+    this.questTrackerHUD.update(targetInCurrentMap);
+
+    // Update direction arrow
+    if (targetPos && this.player) {
+      const cam = this.cameras.main;
+      this.directionArrow.update(
+        cam.worldView.x, cam.worldView.y,
+        cam.worldView.width, cam.worldView.height,
+        targetPos.x, targetPos.y,
+        this.player.x, this.player.y
+      );
+    } else {
+      this.directionArrow.update(0, 0, 0, 0, null, null, 0, 0);
+    }
+
+    // Handle Tab key for quest cycling
+    if (this.tabKey && Phaser.Input.Keyboard.JustDown(this.tabKey)) {
+      this.questTrackerHUD.cycleTrackedQuest();
+    }
   }
 
   private generateTextures(): void {
@@ -450,7 +505,7 @@ export class OverworldScene extends Scene {
   private setupCamera(): void {
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-    this.cameras.main.setZoom(3); // was 2
+    this.cameras.main.setZoom(2);
   }
 
   private setupCollisions(): void {
@@ -941,6 +996,26 @@ export class OverworldScene extends Scene {
     { id: 'c1_housing_ending', sceneId: 'disciples_housing', requiredFlags: { boss_done: true }, blockedFlags: ['triggered_c1_housing_ending', 'chapter1_complete'], dialogueNodeId: 'return_housing' },
     { id: 'ch2_yunlai_arrival', sceneId: 'yunlai_town', requiredFlags: { chapter1_complete: true }, blockedFlags: ['triggered_ch2_yunlai'], dialogueNodeId: 'ch2_yunlai_arrival' },
   ];
+
+  private resolveQuestTargetPosition(targetId: string | null): { x: number; y: number } | null {
+    if (!targetId) return null;
+
+    // Try NPCs first
+    for (const npc of this.npcs) {
+      if (npc.getNPCId() === targetId) {
+        return { x: npc.x, y: npc.y };
+      }
+    }
+
+    // Try map objects (teleports / reach targets)
+    for (const obj of this.mapObjects) {
+      if (obj.id === targetId) {
+        return { x: obj.x + obj.w / 2, y: obj.y + obj.h / 2 };
+      }
+    }
+
+    return null;
+  }
 
   private resolveTeleportStatus(obj: MapObject): { status: 'available' | 'locked' | 'conditional'; hint?: string } {
     // 1. Explicitly locked
