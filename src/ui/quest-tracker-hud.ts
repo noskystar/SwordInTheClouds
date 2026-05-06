@@ -78,6 +78,8 @@ export class QuestTrackerHUD {
   private descText!: Phaser.GameObjects.Text;
   private statusText!: Phaser.GameObjects.Text;
   private lastSwitchTime = 0;
+  private lastInfoJson = '';
+  private lastTargetInMap = true;
 
   constructor(scene: Scene, questSystem: QuestSystem) {
     this.scene = scene;
@@ -116,6 +118,13 @@ export class QuestTrackerHUD {
 
   update(targetInCurrentMap: boolean = true): void {
     const info = getQuestDisplayInfo(this.questSystem, this.trackedQuestId, targetInCurrentMap);
+    const infoJson = JSON.stringify(info);
+    if (infoJson === this.lastInfoJson && targetInCurrentMap === this.lastTargetInMap) {
+      return;
+    }
+    this.lastInfoJson = infoJson;
+    this.lastTargetInMap = targetInCurrentMap;
+
     if (!info) {
       this.nameText.setText('暂无追踪任务');
       this.descText.setText('');

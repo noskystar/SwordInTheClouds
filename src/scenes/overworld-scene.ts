@@ -127,6 +127,10 @@ export class OverworldScene extends Scene {
     if (this.pauseMenu) {
       this.pauseMenu.destroy();
     }
+    // Remove Tab key listener
+    if (this.tabKey) {
+      this.input.keyboard?.removeKey(this.tabKey);
+    }
     // Clean up teleport hints
     for (const hint of this.teleportHints) {
       if (hint.text && hint.text.active) {
@@ -145,8 +149,8 @@ export class OverworldScene extends Scene {
 
   shutdown(): void {
     this.cleanupSceneState();
-    this.questTrackerHUD.destroy();
-    this.directionArrow.destroy();
+    this.questTrackerHUD?.destroy();
+    this.directionArrow?.destroy();
   }
 
   preload(): void {
