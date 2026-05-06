@@ -261,12 +261,12 @@ export class BattleScene extends Scene {
 
   private createEntityDisplays(): void {
     const player = this.battleSystem.getPlayer();
-    this.createEntityDisplay(player, 60, 90);
+    this.createEntityDisplay(player, 120, 180);
 
     const enemies = this.battleSystem.getAliveEnemies();
-    const startY = 90 - ((enemies.length - 1) * 30) / 2;
+    const startY = 180 - ((enemies.length - 1) * 60) / 2;
     for (let i = 0; i < enemies.length; i++) {
-      this.createEntityDisplay(enemies[i], 260, startY + i * 30);
+      this.createEntityDisplay(enemies[i], 520, startY + i * 60);
     }
   }
 
@@ -338,7 +338,7 @@ export class BattleScene extends Scene {
   }
 
   private createMenu(): void {
-    this.menuContainer = this.add.container(160, 148);
+    this.menuContainer = this.add.container(320, 296);
     this.menuContainer.setVisible(false);
     this.menuContainer.setDepth(10);
     this.menuContainer.setScrollFactor(0);
@@ -346,8 +346,8 @@ export class BattleScene extends Scene {
     const menuPanel = this.add.graphics();
     menuPanel.fillStyle(0x0d0d1a, 0.92);
     menuPanel.lineStyle(1, 0x4a4a6a, 0.8);
-    menuPanel.fillRoundedRect(-80, -40, 160, 88, 6);
-    menuPanel.strokeRoundedRect(-80, -40, 160, 88, 6);
+    menuPanel.fillRoundedRect(-160, -80, 320, 176, 6);
+    menuPanel.strokeRoundedRect(-160, -80, 320, 176, 6);
     this.menuContainer.add(menuPanel);
 
     // Selection highlight bar
@@ -401,7 +401,7 @@ export class BattleScene extends Scene {
     logPanel.setDepth(10);
     logPanel.setScrollFactor(0);
 
-    this.battleLog = this.add.text(160, 10, '', uiTextStyle({
+    this.battleLog = this.add.text(320, 20, '', uiTextStyle({
       fontSize: '11px',
       color: '#cccccc',
       align: 'left',
@@ -414,7 +414,7 @@ export class BattleScene extends Scene {
   }
 
   private createSwordIntentDisplay(): void {
-    const container = this.add.container(40, 155);
+    const container = this.add.container(80, 310);
     container.setDepth(10);
 
     const label = this.add.text(0, -11, '剑意', uiTextStyle({
