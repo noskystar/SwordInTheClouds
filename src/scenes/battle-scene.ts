@@ -274,7 +274,7 @@ export class BattleScene extends Scene {
     const container = this.add.container(x, y);
 
     // Entity backplate
-    const backplate = this.add.rectangle(0, 8, 52, 56, 0x1a1a2e, 0.7);
+    const backplate = this.add.rectangle(0, 16, 104, 112, 0x1a1a2e, 0.7);
     backplate.setStrokeStyle(1, 0x4a4a6a, 0.5);
     backplate.setDepth(-1);
 
@@ -285,34 +285,34 @@ export class BattleScene extends Scene {
     if (spriteKey && this.textures.exists(spriteKey)) {
       sprite = this.add.image(0, -12, spriteKey);
       (sprite as Phaser.GameObjects.Image).setOrigin(0.5);
-      (sprite as Phaser.GameObjects.Image).setDisplaySize(24, 24);
+      (sprite as Phaser.GameObjects.Image).setDisplaySize(48, 48);
     } else {
-      sprite = this.add.rectangle(0, -8, 24, 24, entity.color);
+      sprite = this.add.rectangle(0, -16, 48, 48, entity.color);
       sprite.setStrokeStyle(1, 0xffffff);
     }
 
-    const nameText = this.add.text(0, -29, entity.name, uiTextStyle({
+    const nameText = this.add.text(0, -58, entity.name, uiTextStyle({
       fontSize: '11px',
       color: '#ffffff',
     }));
     nameText.setOrigin(0.5);
 
-    const elementText = this.add.text(entity.isPlayer ? -16 : 16, -29, ELEMENT_NAMES[entity.element], uiTextStyle({
+    const elementText = this.add.text(entity.isPlayer ? -32 : 32, -58, ELEMENT_NAMES[entity.element], uiTextStyle({
       fontSize: '11px',
       color: this.getElementColor(entity.element),
     }));
     elementText.setOrigin(0.5);
 
-    const hpBarBg = this.createRoundedBar(0, 4, 40, 6, 0x333333);
-    const hpBar = this.createRoundedBar(0, 4, 40, 6, 0x44aa44);
+    const hpBarBg = this.createRoundedBar(0, 8, 80, 12, 0x333333);
+    const hpBar = this.createRoundedBar(0, 8, 80, 12, 0x44aa44);
 
-    const mpBarBg = this.createRoundedBar(0, 13, 40, 4, 0x333333);
-    const mpBar = this.createRoundedBar(0, 13, 40, 4, 0x4488cc);
+    const mpBarBg = this.createRoundedBar(0, 26, 80, 8, 0x333333);
+    const mpBar = this.createRoundedBar(0, 26, 80, 8, 0x4488cc);
 
-    const atbBarBg = this.createRoundedBar(0, 21, 40, 3, 0x333333);
-    const atbBar = this.createRoundedBar(0, 21, 0, 3, 0xffff00);
+    const atbBarBg = this.createRoundedBar(0, 42, 80, 6, 0x333333);
+    const atbBar = this.createRoundedBar(0, 42, 0, 6, 0xffff00);
 
-    const hpText = this.add.text(0, 4, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
+    const hpText = this.add.text(0, 8, `${entity.hp}/${entity.maxHp}`, uiTextStyle({
       fontSize: '9px',
       color: '#ffffff',
     }));
@@ -351,14 +351,14 @@ export class BattleScene extends Scene {
     this.menuContainer.add(menuPanel);
 
     // Selection highlight bar
-    const highlightBar = this.add.rectangle(-58, -24, 152, 14, 0x2a3a5a, 0.6);
+    const highlightBar = this.add.rectangle(-116, -48, 304, 28, 0x2a3a5a, 0.6);
     highlightBar.setOrigin(0, 0.5);
     highlightBar.setVisible(false);
     highlightBar.setName('menu-highlight');
     this.menuContainer.add(highlightBar);
 
     // Key hint text
-    const hintText = this.add.text(0, 42, '↑↓ 选择 · 空格 确认 · ESC 取消', uiTextStyle({
+    const hintText = this.add.text(0, 84, '↑↓ 选择 · 空格 确认 · ESC 取消', uiTextStyle({
       fontSize: '8px',
       color: '#666666',
       align: 'center',
@@ -368,7 +368,7 @@ export class BattleScene extends Scene {
     this.menuContainer.add(hintText);
 
     for (let i = 0; i < MENU_OPTIONS.length; i++) {
-      const text = this.add.text(-58, -24 + i * 16, MENU_OPTIONS[i], uiTextStyle({
+      const text = this.add.text(-116, -48 + i * 32, MENU_OPTIONS[i], uiTextStyle({
         fontSize: '12px',
         color: '#aaaaaa',
       }));
@@ -397,7 +397,7 @@ export class BattleScene extends Scene {
   private createBattleLog(): void {
     const logPanel = this.add.graphics();
     logPanel.fillStyle(0x000000, 0.5);
-    logPanel.fillRoundedRect(10, 4, 300, 52, 4);
+    logPanel.fillRoundedRect(20, 8, 600, 104, 4);
     logPanel.setDepth(10);
     logPanel.setScrollFactor(0);
 
@@ -405,7 +405,7 @@ export class BattleScene extends Scene {
       fontSize: '11px',
       color: '#cccccc',
       align: 'left',
-      wordWrap: { width: 288 },
+      wordWrap: { width: 576 },
       lineSpacing: 2,
     }));
     this.battleLog.setOrigin(0.5, 0);
@@ -417,17 +417,17 @@ export class BattleScene extends Scene {
     const container = this.add.container(80, 310);
     container.setDepth(10);
 
-    const label = this.add.text(0, -11, '剑意', uiTextStyle({
+    const label = this.add.text(0, -22, '剑意', uiTextStyle({
       fontSize: '11px',
       color: '#ffcc00',
     }));
     label.setOrigin(0.5);
 
-    const barBg = this.add.rectangle(0, 0, 48, 5, 0x333333);
-    this.swordIntentBar = this.add.rectangle(-24, 0, 0, 5, 0xffaa00);
+    const barBg = this.add.rectangle(0, 0, 96, 10, 0x333333);
+    this.swordIntentBar = this.add.rectangle(-48, 0, 0, 10, 0xffaa00);
     this.swordIntentBar.setOrigin(0, 0.5);
 
-    this.swordIntentText = this.add.text(0, 9, '0/100', uiTextStyle({
+    this.swordIntentText = this.add.text(0, 18, '0/100', uiTextStyle({
       fontSize: '11px',
       color: '#ffcc00',
     }));
@@ -749,7 +749,7 @@ export class BattleScene extends Scene {
         text.setText('▶ ' + text.text.replace(/^▶ /, ''));
         if (highlightBar) {
           highlightBar.setVisible(true);
-          highlightBar.setPosition(-76, -24 + i * 16);
+          highlightBar.setPosition(-152, -48 + i * 32);
         }
       } else {
         text.setColor('#888888');
@@ -847,8 +847,8 @@ export class BattleScene extends Scene {
       const display = this.entityDisplays.get(enemy.id);
       if (display) {
         const arrow = this.add.triangle(
-          display.container.x - 20,
-          display.container.y - 8,
+          display.container.x - 40,
+          display.container.y - 16,
           0, 0,
           8, 4,
           0, 8,
@@ -961,7 +961,7 @@ export class BattleScene extends Scene {
 
     const arrow = this.add.triangle(
       display.container.x,
-      display.container.y - 42,
+      display.container.y - 84,
       0, 0,
       6, 8,
       -6, 8,
@@ -1022,7 +1022,7 @@ export class BattleScene extends Scene {
       this.swordIntentGlow.clear();
       const pulse = 0.5 + Math.sin(this.time.now / 200) * 0.3;
       this.swordIntentGlow.lineStyle(2, 0xff6600, pulse);
-      this.swordIntentGlow.strokeRoundedRect(-28, -4, 56, 10, 3);
+      this.swordIntentGlow.strokeRoundedRect(-56, -8, 112, 20, 3);
     } else if (this.swordIntentGlow) {
       this.swordIntentGlow.clear();
     }
@@ -1041,8 +1041,8 @@ export class BattleScene extends Scene {
     for (let i = 0; i < entity.buffs.length; i++) {
       const buff = entity.buffs[i];
       const icon = this.add.text(
-        display.container.x + 22,
-        display.container.y - 24 + i * 10,
+        display.container.x + 44,
+        display.container.y - 48 + i * 20,
         this.getBuffName(buff.type),
         uiTextStyle({ fontSize: '10px', color: '#ffff00' })
       );
