@@ -1,6 +1,5 @@
 import { describe, test, expect } from 'vitest';
 import { calculateArrowPosition } from '../../src/ui/direction-arrow';
-import type { ArrowPosition } from '../../src/ui/direction-arrow';
 
 describe('calculateArrowPosition', () => {
   const cameraX = 0;

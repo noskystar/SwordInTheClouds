@@ -1,3 +1,5 @@
+import { Scene } from 'phaser';
+
 export interface ArrowPosition {
   x: number;
   y: number;
@@ -155,4 +157,53 @@ function rayIntersectRectangle(
     x: originX + tMin * dirX,
     y: originY + tMin * dirY,
   };
+}
+
+export class DirectionArrow {
+  private scene: Scene;
+  private arrow!: Phaser.GameObjects.Triangle;
+
+  constructor(scene: Scene) {
+    this.scene = scene;
+    this.createArrow();
+  }
+
+  private createArrow(): void {
+    // Create an isosceles triangle pointing right (0° rotation)
+    // Points: (0, 6), (12, 0), (0, -6) — this makes a right-pointing arrow
+    this.arrow = this.scene.add.triangle(0, 0, 0, 6, 12, 0, 0, -6, 0x4a90d9);
+    this.arrow.setOrigin(0.5);
+    this.arrow.setDepth(100);
+    this.arrow.setVisible(false);
+  }
+
+  update(
+    cameraX: number,
+    cameraY: number,
+    cameraWidth: number,
+    cameraHeight: number,
+    targetX: number | null,
+    targetY: number | null,
+    playerX: number,
+    playerY: number
+  ): void {
+    const pos = calculateArrowPosition(
+      cameraX, cameraY, cameraWidth, cameraHeight,
+      targetX, targetY, playerX, playerY
+    );
+
+    if (!pos.visible) {
+      this.arrow.setVisible(false);
+      return;
+    }
+
+    this.arrow.setPosition(pos.x, pos.y);
+    this.arrow.setRotation(pos.rotation);
+    this.arrow.setFillStyle(pos.color === '#4a90d9' ? 0x4a90d9 : 0x888888);
+    this.arrow.setVisible(true);
+  }
+
+  destroy(): void {
+    this.arrow.destroy();
+  }
 }
