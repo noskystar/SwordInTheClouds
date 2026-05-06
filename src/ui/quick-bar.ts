@@ -1,5 +1,6 @@
 import type { Scene } from 'phaser';
 import type { InventorySystem } from '../systems/inventory-system';
+import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { uiTextStyle } from './text-style';
 
 export const QUICK_SLOT_COUNT = 6;
@@ -15,8 +16,8 @@ export class QuickBar extends Phaser.GameObjects.Container {
 
   constructor(scene: Scene, inventorySystem: InventorySystem) {
     const totalWidth = QUICK_SLOT_COUNT * (QUICK_SLOT_SIZE + QUICK_SLOT_GAP) - QUICK_SLOT_GAP;
-    const x = (320 - totalWidth) / 2;
-    const y = 180 - QUICK_SLOT_SIZE - 4;
+    const x = (GAME_WIDTH - totalWidth) / 2;
+    const y = GAME_HEIGHT - QUICK_SLOT_SIZE - 4;
     super(scene, x, y);
     this.inventorySystem = inventorySystem;
     this.slotAssignments = Array(QUICK_SLOT_COUNT).fill(null);

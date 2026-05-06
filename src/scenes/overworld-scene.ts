@@ -16,6 +16,8 @@ import { SettingsSystem } from '../systems/settings-system';
 import { PauseMenu } from '../ui/pause-menu';
 import { TouchControls } from '../ui/touch-controls';
 import { uiTextStyle } from '../ui/text-style';
+import { QuestTrackerHUD } from '../ui/quest-tracker-hud';
+import { DirectionArrow } from '../ui/direction-arrow';
 import questsData from '../data/quests.json';
 import itemsData from '../data/items.json';
 import gateMap from '../data/maps/gate.json';
@@ -72,6 +74,9 @@ export class OverworldScene extends Scene {
   private pauseMenu!: PauseMenu;
   private escKey!: Phaser.Input.Keyboard.Key;
   private touchControls?: TouchControls;
+  private questTrackerHUD!: QuestTrackerHUD;
+  private directionArrow!: DirectionArrow;
+  private tabKey!: Phaser.Input.Keyboard.Key;
   private storyFlags = new Map<string, boolean | number | string>();
   private storyAffinity = new Map<string, number>();
   private storyMorality = 0;
@@ -92,6 +97,7 @@ export class OverworldScene extends Scene {
     library: '万卷楼',
   };
   private teleportHints: { text: Phaser.GameObjects.Text; cx: number; cy: number }[] = [];
+  private teleportPrompts = new Map<string, Phaser.GameObjects.Text>();
 
   constructor() {
     super({ key: 'OverworldScene' });
@@ -122,6 +128,10 @@ export class OverworldScene extends Scene {
     if (this.pauseMenu) {
       this.pauseMenu.destroy();
     }
+    // Remove Tab key listener
+    if (this.tabKey) {
+      this.input.keyboard?.removeKey(this.tabKey);
+    }
     // Clean up teleport hints
     for (const hint of this.teleportHints) {
       if (hint.text && hint.text.active) {
@@ -140,6 +150,8 @@ export class OverworldScene extends Scene {
 
   shutdown(): void {
     this.cleanupSceneState();
+    this.questTrackerHUD?.destroy();
+    this.directionArrow?.destroy();
   }
 
   preload(): void {
@@ -214,6 +226,10 @@ export class OverworldScene extends Scene {
     this.setupCollisions();
     this.setupHUD();
 
+    this.questTrackerHUD = new QuestTrackerHUD(this, this.questSystem);
+    this.directionArrow = new DirectionArrow(this);
+    this.tabKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.TAB);
+
     this.eKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.bKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.B);
     this.escKey = this.input.keyboard!.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
@@ -280,8 +296,53 @@ export class OverworldScene extends Scene {
     this.checkInteractions();
     this.checkBattleTrigger();
     this.updateTeleportHints();
+    this.updateTeleportPrompts();
     this.eKeyWasDown = this.eKey.isDown;
     this.bKeyWasDown = this.bKey.isDown;
+
+    // Update quest tracker HUD
+    const trackedQuestId = this.questTrackerHUD.getTrackedQuestId();
+    let targetPos: { x: number; y: number } | null = null;
+    let targetInCurrentMap = true;
+
+    if (trackedQuestId) {
+      const questData = this.questSystem.getQuestData(trackedQuestId);
+      const activeQuest = this.questSystem.getActiveQuests().find(q => q.questId === trackedQuestId);
+      if (questData && activeQuest) {
+        const stage = questData.stages[activeQuest.currentStageIndex];
+        const objective = stage?.objectives.find(o => {
+          const progress = activeQuest.objectiveProgress[o.id] ?? 0;
+          return progress < o.requiredCount;
+        }) ?? stage?.objectives[0];
+
+        if (objective) {
+          targetPos = this.resolveQuestTargetPosition(objective.targetId);
+          if (!targetPos) {
+            targetInCurrentMap = false;
+          }
+        }
+      }
+    }
+
+    this.questTrackerHUD.update(targetInCurrentMap);
+
+    // Update direction arrow
+    if (targetPos && this.player) {
+      const cam = this.cameras.main;
+      this.directionArrow.update(
+        cam.worldView.x, cam.worldView.y,
+        cam.worldView.width, cam.worldView.height,
+        targetPos.x, targetPos.y,
+        this.player.x, this.player.y
+      );
+    } else {
+      this.directionArrow.update(0, 0, 0, 0, null, null, 0, 0);
+    }
+
+    // Handle Tab key for quest cycling
+    if (this.tabKey && Phaser.Input.Keyboard.JustDown(this.tabKey)) {
+      this.questTrackerHUD.cycleTrackedQuest();
+    }
   }
 
   private generateTextures(): void {
@@ -450,7 +511,7 @@ export class OverworldScene extends Scene {
   private setupCamera(): void {
     this.cameras.main.setBounds(0, 0, this.worldWidth, this.worldHeight);
     this.cameras.main.startFollow(this.player, true, 0.1, 0.1);
-    this.cameras.main.setZoom(3); // was 2
+    this.cameras.main.setZoom(2);
   }
 
   private setupCollisions(): void {
@@ -463,6 +524,10 @@ export class OverworldScene extends Scene {
   private setupHUD(): void {
     const halfW = this.cameras.main.width / 2;
     const halfH = this.cameras.main.height / 2;
+
+    const hintShown = localStorage.getItem('sitc_tutorial_hints_shown');
+    if (hintShown) return;
+
     const hintText = this.add.text(4 - halfW, 4 - halfH, 'WASD/方向键移动  E 交互  B 战斗', uiTextStyle({
       fontSize: '7px',
       color: '#ffffff',
@@ -471,9 +536,29 @@ export class OverworldScene extends Scene {
     }));
     hintText.setScrollFactor(0);
     hintText.setDepth(10);
+    hintText.setName('tutorial-hint');
+
+    this.time.delayedCall(5000, () => {
+      this.tweens.add({
+        targets: hintText,
+        alpha: 0,
+        duration: 1000,
+        onComplete: () => {
+          hintText.destroy();
+        },
+      });
+    });
+
+    localStorage.setItem('sitc_tutorial_hints_shown', 'true');
   }
 
   private loadMap(mapId: string, playerX?: number, playerY?: number): void {
+    // Clean up teleport prompts
+    for (const prompt of this.teleportPrompts.values()) {
+      prompt.destroy();
+    }
+    this.teleportPrompts.clear();
+
     this.children.list
       .filter((child) => child.name === 'map-object' || child.name === 'ground-tile' || child.name === 'teleport-hint')
       .forEach((child) => child.destroy());
@@ -567,6 +652,38 @@ export class OverworldScene extends Scene {
           hintText.setName('teleport-hint');
 
           this.teleportHints.push({ text: hintText, cx, cy });
+        }
+      }
+
+      // Create contextual interaction prompts for teleports
+      for (const obj of this.mapObjects) {
+        if (obj.type === 'teleport' && obj.id) {
+          const zoneKey = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
+          const zoneState = this.teleportZones.get(zoneKey);
+          const cx = obj.x + obj.w / 2;
+          const cy = obj.y + obj.h / 2;
+
+          let promptText = '';
+          if (zoneState?.status === 'locked') {
+            promptText = '需完成任务后解锁';
+          } else if (zoneState?.status === 'conditional') {
+            promptText = '条件未满足';
+          } else {
+            const targetName = this.MAP_NAMES[obj.target ?? ''] ?? obj.target ?? '';
+            promptText = `按 E 传送至 ${targetName}`;
+          }
+
+          const prompt = this.add.text(cx, cy - 28, promptText, uiTextStyle({
+            fontSize: '9px',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 2,
+          }));
+          prompt.setOrigin(0.5);
+          prompt.setDepth(50);
+          prompt.setAlpha(0);
+          prompt.setName(`teleport-prompt-${zoneKey}`);
+          this.teleportPrompts.set(zoneKey, prompt);
         }
       }
 
@@ -831,6 +948,37 @@ export class OverworldScene extends Scene {
     }
   }
 
+  private updateTeleportPrompts(): void {
+    const px = this.player.x;
+    const py = this.player.y;
+    const FADE_DISTANCE = 64;
+
+    for (const [zoneKey, prompt] of this.teleportPrompts) {
+      let centerX = 0;
+      let centerY = 0;
+      for (const obj of this.mapObjects) {
+        if (obj.type === 'teleport') {
+          const key = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
+          if (key === zoneKey) {
+            centerX = obj.x + obj.w / 2;
+            centerY = obj.y + obj.h / 2;
+            break;
+          }
+        }
+      }
+
+      const distance = Phaser.Math.Distance.Between(px, py, centerX, centerY);
+      const targetAlpha = distance < FADE_DISTANCE ? 1 : 0;
+      const deltaAlpha = 0.15;
+
+      if (prompt.alpha < targetAlpha) {
+        prompt.setAlpha(Math.min(targetAlpha, prompt.alpha + deltaAlpha));
+      } else if (prompt.alpha > targetAlpha) {
+        prompt.setAlpha(Math.max(targetAlpha, prompt.alpha - deltaAlpha));
+      }
+    }
+  }
+
   private startDialogue(data: DialogueData, startNodeId?: string): void {
     if (this.isDialogueOpen) return;
     this.isDialogueOpen = true;
@@ -941,6 +1089,26 @@ export class OverworldScene extends Scene {
     { id: 'c1_housing_ending', sceneId: 'disciples_housing', requiredFlags: { boss_done: true }, blockedFlags: ['triggered_c1_housing_ending', 'chapter1_complete'], dialogueNodeId: 'return_housing' },
     { id: 'ch2_yunlai_arrival', sceneId: 'yunlai_town', requiredFlags: { chapter1_complete: true }, blockedFlags: ['triggered_ch2_yunlai'], dialogueNodeId: 'ch2_yunlai_arrival' },
   ];
+
+  private resolveQuestTargetPosition(targetId: string | null): { x: number; y: number } | null {
+    if (!targetId) return null;
+
+    // Try NPCs first
+    for (const npc of this.npcs) {
+      if (npc.getNPCId() === targetId) {
+        return { x: npc.x, y: npc.y };
+      }
+    }
+
+    // Try map objects (teleports / reach targets)
+    for (const obj of this.mapObjects) {
+      if (obj.id === targetId) {
+        return { x: obj.x + obj.w / 2, y: obj.y + obj.h / 2 };
+      }
+    }
+
+    return null;
+  }
 
   private resolveTeleportStatus(obj: MapObject): { status: 'available' | 'locked' | 'conditional'; hint?: string } {
     // 1. Explicitly locked

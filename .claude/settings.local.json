@@ -17,7 +17,17 @@
       "Bash(node *)",
       "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5173/)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(file *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('layers:', list\\(d.get\\('layers',{}\\).keys\\(\\)\\)\\)\")",
+      "Bash(python3 -c \"from PIL import Image; print\\('Pillow available'\\)\")",
+      "Bash(python3 *)",
+      "Bash(xargs '-I{}' sh -c 'size=$\\(file \"$1\" 2>/dev/null | grep -oE \"[0-9]+ x [0-9]+\" | head -1\\); echo \"$size $1\"' _ '{}')",
+      "Bash(sort -t'x' -k1 -n)",
+      "Bash(git reset *)",
+      "Bash(git push *)",
+      "Bash(git *)",
+      "Bash(npx vitest *)"
     ]
   }
 }
