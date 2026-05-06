@@ -5,6 +5,7 @@ import type { DayNightSystem } from '../systems/day-night-system';
 import { SettingsSystem } from '../systems/settings-system';
 import { SettingsPanel } from './settings-panel';
 import { InventoryPanel } from './inventory-panel';
+import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { uiTextStyle } from './text-style';
 
 const TAB_WIDTH = 50;
@@ -56,7 +57,7 @@ export class PauseMenu extends Phaser.GameObjects.Container {
   }
 
   private createBackground(): void {
-    this.bg = this.scene.add.rectangle(160, 90, 320, 180, 0x000000, 0.85);
+    this.bg = this.scene.add.rectangle(GAME_WIDTH / 2, GAME_HEIGHT / 2, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.85);
     this.add(this.bg);
   }
 

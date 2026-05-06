@@ -1,5 +1,6 @@
 import type { Scene } from 'phaser';
 import { SettingsSystem, type GameSettings } from '../systems/settings-system';
+import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { uiTextStyle } from './text-style';
 
 const PANEL_WIDTH = 180;
@@ -29,8 +30,8 @@ export class SettingsPanel extends Phaser.GameObjects.Container {
   ];
 
   constructor(scene: Scene, settingsSystem: SettingsSystem, onClose?: () => void) {
-    const x = (320 - PANEL_WIDTH) / 2;
-    const y = (180 - PANEL_HEIGHT) / 2;
+    const x = (GAME_WIDTH - PANEL_WIDTH) / 2;
+    const y = (GAME_HEIGHT - PANEL_HEIGHT) / 2;
     super(scene, x, y);
     this.settingsSystem = settingsSystem;
     this.onClose = onClose;

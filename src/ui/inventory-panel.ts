@@ -1,5 +1,6 @@
 import type { Scene } from 'phaser';
 import type { InventorySystem } from '../systems/inventory-system';
+import { GAME_WIDTH, GAME_HEIGHT } from '../config';
 import { uiTextStyle } from './text-style';
 
 export const SLOT_SIZE = 18;
@@ -18,8 +19,8 @@ export class InventoryPanel extends Phaser.GameObjects.Container {
   private titleText!: Phaser.GameObjects.Text;
 
   constructor(scene: Scene, inventorySystem: InventorySystem) {
-    const x = (320 - PANEL_WIDTH) / 2;
-    const y = (180 - PANEL_HEIGHT) / 2;
+    const x = (GAME_WIDTH - PANEL_WIDTH) / 2;
+    const y = (GAME_HEIGHT - PANEL_HEIGHT) / 2;
     super(scene, x, y);
     this.inventorySystem = inventorySystem;
     this.createPanel();
