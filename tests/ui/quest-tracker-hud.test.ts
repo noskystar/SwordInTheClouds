@@ -4,7 +4,7 @@ import type { QuestData, ActiveQuest } from '../../src/types/quest';
 import {
   getQuestDisplayInfo,
   getNextTrackedQuestId,
-} from '../../src/ui/quest-tracker-hud';
+} from '../../src/ui/quest-tracker-hud-logic';
 
 const mockQuests: QuestData[] = [
   {
