@@ -97,6 +97,7 @@ export class OverworldScene extends Scene {
     library: '万卷楼',
   };
   private teleportHints: { text: Phaser.GameObjects.Text; cx: number; cy: number }[] = [];
+  private teleportPrompts = new Map<string, Phaser.GameObjects.Text>();
 
   constructor() {
     super({ key: 'OverworldScene' });
@@ -295,6 +296,7 @@ export class OverworldScene extends Scene {
     this.checkInteractions();
     this.checkBattleTrigger();
     this.updateTeleportHints();
+    this.updateTeleportPrompts();
     this.eKeyWasDown = this.eKey.isDown;
     this.bKeyWasDown = this.bKey.isDown;
 
@@ -522,6 +524,10 @@ export class OverworldScene extends Scene {
   private setupHUD(): void {
     const halfW = this.cameras.main.width / 2;
     const halfH = this.cameras.main.height / 2;
+
+    const hintShown = localStorage.getItem('sitc_tutorial_hints_shown');
+    if (hintShown) return;
+
     const hintText = this.add.text(4 - halfW, 4 - halfH, 'WASD/方向键移动  E 交互  B 战斗', uiTextStyle({
       fontSize: '7px',
       color: '#ffffff',
@@ -530,9 +536,29 @@ export class OverworldScene extends Scene {
     }));
     hintText.setScrollFactor(0);
     hintText.setDepth(10);
+    hintText.setName('tutorial-hint');
+
+    this.time.delayedCall(5000, () => {
+      this.tweens.add({
+        targets: hintText,
+        alpha: 0,
+        duration: 1000,
+        onComplete: () => {
+          hintText.destroy();
+        },
+      });
+    });
+
+    localStorage.setItem('sitc_tutorial_hints_shown', 'true');
   }
 
   private loadMap(mapId: string, playerX?: number, playerY?: number): void {
+    // Clean up teleport prompts
+    for (const prompt of this.teleportPrompts.values()) {
+      prompt.destroy();
+    }
+    this.teleportPrompts.clear();
+
     this.children.list
       .filter((child) => child.name === 'map-object' || child.name === 'ground-tile' || child.name === 'teleport-hint')
       .forEach((child) => child.destroy());
@@ -626,6 +652,38 @@ export class OverworldScene extends Scene {
           hintText.setName('teleport-hint');
 
           this.teleportHints.push({ text: hintText, cx, cy });
+        }
+      }
+
+      // Create contextual interaction prompts for teleports
+      for (const obj of this.mapObjects) {
+        if (obj.type === 'teleport' && obj.id) {
+          const zoneKey = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
+          const zoneState = this.teleportZones.get(zoneKey);
+          const cx = obj.x + obj.w / 2;
+          const cy = obj.y + obj.h / 2;
+
+          let promptText = '';
+          if (zoneState?.status === 'locked') {
+            promptText = '需完成任务后解锁';
+          } else if (zoneState?.status === 'conditional') {
+            promptText = '条件未满足';
+          } else {
+            const targetName = this.MAP_NAMES[obj.target ?? ''] ?? obj.target ?? '';
+            promptText = `按 E 传送至 ${targetName}`;
+          }
+
+          const prompt = this.add.text(cx, cy - 28, promptText, uiTextStyle({
+            fontSize: '9px',
+            color: '#ffffff',
+            stroke: '#000000',
+            strokeThickness: 2,
+          }));
+          prompt.setOrigin(0.5);
+          prompt.setDepth(50);
+          prompt.setAlpha(0);
+          prompt.setName(`teleport-prompt-${zoneKey}`);
+          this.teleportPrompts.set(zoneKey, prompt);
         }
       }
 
@@ -886,6 +944,37 @@ export class OverworldScene extends Scene {
         hint.text.setAlpha(Math.min(targetAlpha, hint.text.alpha + deltaAlpha));
       } else if (hint.text.alpha > targetAlpha) {
         hint.text.setAlpha(Math.max(targetAlpha, hint.text.alpha - deltaAlpha));
+      }
+    }
+  }
+
+  private updateTeleportPrompts(): void {
+    const px = this.player.x;
+    const py = this.player.y;
+    const FADE_DISTANCE = 64;
+
+    for (const [zoneKey, prompt] of this.teleportPrompts) {
+      let centerX = 0;
+      let centerY = 0;
+      for (const obj of this.mapObjects) {
+        if (obj.type === 'teleport') {
+          const key = obj.id || `teleport-${obj.x}-${obj.y}-${obj.w}-${obj.h}`;
+          if (key === zoneKey) {
+            centerX = obj.x + obj.w / 2;
+            centerY = obj.y + obj.h / 2;
+            break;
+          }
+        }
+      }
+
+      const distance = Phaser.Math.Distance.Between(px, py, centerX, centerY);
+      const targetAlpha = distance < FADE_DISTANCE ? 1 : 0;
+      const deltaAlpha = 0.15;
+
+      if (prompt.alpha < targetAlpha) {
+        prompt.setAlpha(Math.min(targetAlpha, prompt.alpha + deltaAlpha));
+      } else if (prompt.alpha > targetAlpha) {
+        prompt.setAlpha(Math.max(targetAlpha, prompt.alpha - deltaAlpha));
       }
     }
   }

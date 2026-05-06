@@ -68,7 +68,7 @@ export class NPC extends Phaser.GameObjects.Sprite {
   }
 
   private createInteractPrompt(): void {
-    const prompt = this.scene.add.text(this.x, this.y - 20, 'E', uiTextStyle({
+    const prompt = this.scene.add.text(this.x, this.y - 20, '按 E 对话', uiTextStyle({
       fontSize: '9px',
       color: '#ffff00',
       backgroundColor: '#00000088',
